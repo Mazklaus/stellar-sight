@@ -84,6 +84,8 @@ static func build(es: EmpireScreens) -> void:
 	bar.alignment = BoxContainer.ALIGNMENT_CENTER
 	bar.add_theme_constant_override("separation", 30)
 	top.add_child(bar)
+	var grp := UiDomains.group("chronicles:" + es.chron_tab)
+	var shown := 0
 	for t in TABS:
 		if not offered.has(String(t[0])):
 			continue
@@ -104,6 +106,10 @@ static func build(es: EmpireScreens) -> void:
 			es.show_screen("chronicles"))
 		es.chronicle_buttons["tab:%s" % tid] = tb
 		bar.add_child(tb)
+		# Seuls les onglets du même groupe restent visibles (le Journal réunit Quêtes, Événements et Crise).
+		tb.visible = grp.has("chronicles:" + tid)
+		shown += 1 if tb.visible else 0
+	bar.visible = shown > 1
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

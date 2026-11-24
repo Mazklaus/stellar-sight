@@ -18,7 +18,7 @@ etiquette: Annexe
 | Se déplacer | Clic droit glissé, [[Z]] [[Q]] [[S]] [[D]] ou flèches |
 | Zoomer | Molette |
 | Revenir en arrière, menu du jeu | [[Échap]] |
-| Sauvegarde, chargement rapide | [[F5]], [[F9]] |
+| Sauvegarde, chargement rapide | [[Ctrl]]+[[S]], [[Ctrl]]+[[L]] |
 | Plein écran | [[F11]] |
 
 ### Flottes et batailles
@@ -39,16 +39,14 @@ etiquette: Annexe
 
 | Écran | Touche |
 | --- | --- |
-| Économie, Colonies, Recherche, Diplomatie | [[F1]] à [[F4]] |
-| Chantier | [[F6]] |
-| Victoires | [[F7]] |
-| Renseignement | [[F8]] |
+| Domaines Empire, Savoir, Forces, Diplomatie | [[F1]] à [[F4]] |
+| Domaines Commerce, Pouvoir, Chroniques, Victoire | [[F5]] à [[F8]] |
 | Panthéon | [[F10]] |
 | Trône | [[Maj]]+[[F10]], ou clic sur le nom de l'empire |
 | Ordre intérieur | [[F12]] |
 | Sénat | [[P]] |
 | Foi | [[Y]] |
-| Amphictyonie | [[M]] |
+| Assemblée (Amphictyonie) | [[M]] |
 | Commerce | [[C]] |
 | Chroniques | [[J]] |
 | Codex de l'Archonte | [[Maj]]+[[F1]] |

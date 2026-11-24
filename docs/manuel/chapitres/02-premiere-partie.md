@@ -98,7 +98,7 @@ Pour une première partie entre amis, prenez les tours simultanés d'un mois, l'
 La partie démarre en pause, le 1er janvier 2400, centrée sur votre système natal. Vous disposez d'un monde de taille 4 peuplé de 8 habitants, avec un palais, des fermes et un complexe minier, d'un **éclaireur** et d'un **vaisseau colon**. Voici un ordre de marche raisonnable :
 
 1. **Lancez l'exploration.** Sélectionnez l'éclaireur et appuyez sur [[E]] : il partira de lui-même vers le système inexploré le plus proche, puis le suivant.
-2. **Choisissez une recherche.** Ouvrez l'écran Recherche ([[F3]]) et mettez deux technologies en file. Le Savoir s'accumule dès le premier jour.
+2. **Choisissez une recherche.** Ouvrez l'écran Recherche (domaine Savoir, [[F2]]) et mettez deux technologies en file. Le Savoir s'accumule dès le premier jour.
 3. **Lancez un chantier.** Entrez dans votre système natal (double-clic), choisissez une planète et un bâtiment dans la section Ordres. Une colonie bâtit deux projets à la fois au départ.
 4. **Envoyez le vaisseau colon.** Dès que l'éclaireur a trouvé un monde habitable proche, envoyez-y le colon d'un clic droit, puis donnez l'ordre de coloniser. Il se démonte pour fonder la colonie : il ne reste à payer que l'influence.
 5. **Reprenez le temps.** [[Espace]], et regardez la chronique en haut à droite raconter vos premiers pas.
@@ -109,4 +109,4 @@ La partie démarre en pause, le 1er janvier 2400, centrée sur votre système na
 
 ### Sauvegarder
 
-[[F5]] fait une sauvegarde rapide et [[F9]] la recharge. Le menu du jeu ([[Échap]]) permet aussi de sauvegarder et de charger sous un autre nom. Une sauvegarde reprend la partie au jour près, avec la même galaxie, même sur une autre machine.
+[[Ctrl]]+[[S]] fait une sauvegarde rapide et [[Ctrl]]+[[L]] la recharge. Le menu du jeu ([[Échap]]) permet aussi de sauvegarder et de charger sous un autre nom. Une sauvegarde reprend la partie au jour près, avec la même galaxie, même sur une autre machine.

@@ -88,6 +88,7 @@ static func build(es: EmpireScreens) -> void:
 		tab_list.append(["private", "Privé"])
 	if Ports.enabled(state):
 		tab_list.append(["ports", "Réseau"])
+	var grp := UiDomains.group("trade:" + es.trade_tab)
 	for t in tab_list:
 		var tb := Button.new()
 		tb.theme_type_variation = &"TabButton"
@@ -101,6 +102,9 @@ static func build(es: EmpireScreens) -> void:
 			es.show_screen("trade"))
 		tabs.add_child(tb)
 		es.trade_buttons["tab_" + tid] = tb
+		# Seuls les onglets du même groupe restent visibles (Marché réunit Ressources et Marché).
+		tb.visible = grp.has("trade:" + tid)
+	tabs.visible = grp.size() > 1
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

@@ -36,24 +36,23 @@ Double-cliquez sur un système, ou appuyez sur [[Entrée]], pour y entrer. La **
 
 ### Les écrans d'empire
 
-Les écrans d'empire s'ouvrent en plein écran, par les pictogrammes du panneau d'empire ou par leur raccourci. La carte s'efface derrière un voile, le panneau d'empire et le cadran restent visibles. [[Échap]] referme l'écran.
+Les écrans d'empire sont rangés en **huit domaines**. Le panneau d'empire porte un bouton par domaine, et les touches [[F1]] à [[F8]] les ouvrent. Un domaine s'ouvre en plein écran : son nom en haut au centre, et dessous la rangée de ses onglets. La carte s'efface derrière un voile, le panneau d'empire et le cadran restent visibles. Un domaine rouvert revient à l'onglet où vous l'aviez laissé. La même touche, ou [[Échap]], le referme.
 
-| Écran | Touche | Contenu |
+| Domaine | Touche | Onglets |
 | --- | --- | --- |
-| Économie | [[F1]] | Bilan des ressources, production par système, alertes |
-| Colonies | [[F2]] | Toutes vos colonies et avant-postes, filtrables ; les peuples de l'empire, leur statut et la politique d'accueil |
-| Recherche | [[F3]] | L'arbre des technologies, la file d'attente |
-| Diplomatie | [[F4]] | L'anneau des relations ; pour chaque empire : statut, traités, opinion et ses raisons, propositions ; les blocs des sujets (clauses, loyauté, possessions) et de votre Koinon (rang, cohésion, lois, synode) |
-| Chantier | [[F6]] | Conception des modèles de vaisseaux |
-| Victoires | [[F7]] | L'avancée de chaque empire vers chaque victoire |
-| Renseignement | [[F8]] | Cellules d'espionnage, réseaux, dossiers, opérations |
-| Panthéon | [[F10]] | Vos héros, leurs postes, les candidats |
-| Ordre intérieur | [[F12]] | Stabilité des systèmes, décrets |
-| Sénat | [[P]] | Courants politiques, élections, lois |
-| Foi | [[Y]] | Foi d'État, grandes fois (nature, doctrines, préceptes), croyances de vos colonies |
-| Amphictyonie | [[M]] | Séance en cours et vote, file des propositions, pupitre pour proposer, résolutions et Nomos, amphictyons et leurs voix |
-| Commerce | [[C]] | Quatre onglets : routes (capacité, routes intérieures, risques), ressources (luxes, stratégiques, licences, monopoles), marché (achats, commandes, accords), Savoir (accords de recherche, licences de technologie, diffusion) |
-| Chroniques | [[J]] | Crise de fin de partie, quêtes, événements, Reliquaire, Bestiaire |
+| Empire | [[F1]] | Bilan (ressources, production par système, alertes), Colonies (colonies et avant-postes, peuples de l'empire, politique d'accueil), Ordre (stabilité des systèmes, décrets), Administration, Trésor, Grands chantiers (merveilles, mégastructures, forge des mondes) |
+| Savoir | [[F2]] | Recherche (l'arbre des technologies, la file d'attente), Génome, Songe, Fouilles (archéologie et Reliquaire) |
+| Forces | [[F3]] | Chantier (conception des modèles de vaisseaux), Armées |
+| Diplomatie | [[F4]] | Empires (l'anneau des relations ; pour chaque empire : statut, traités, opinion et ses raisons, propositions ; les blocs des sujets et de votre Koinon), Assemblée (l'Amphictyonie : séance, vote, propositions, résolutions et Nomos), Renseignement (cellules, réseaux, dossiers, opérations) |
+| Commerce | [[F5]] | Routes (capacité, routes intérieures, risques), Marché (luxes, stratégiques, licences, monopoles ; achats, commandes, accords), Accords (accords de recherche, licences de technologie, diffusion), Privé, Réseau |
+| Pouvoir | [[F6]] | Trône, Cour, Sénat (courants politiques, élections, lois), Foi (foi d'État, grandes fois, croyances de vos colonies), Rayonnement, Panthéon (vos héros, leurs postes, les candidats) |
+| Chroniques | [[F7]] | Journal (quêtes, événements, crise de fin de partie), Annonces, Annales (annales, grandes heures, hauts faits), Bestiaire |
+| Victoire | [[F8]] | Victoires (l'avancée de chaque empire), Transcendance, Contact, L'Échelle |
+
+Un onglet dont le pilier n'est pas en jeu n'apparaît pas. Quelques écrans gardent en plus une touche directe : Sénat [[P]], Foi [[Y]], Assemblée [[M]], Commerce [[C]], Chroniques [[J]], Panthéon [[F10]], Trône [[Maj]]+[[F10]], Ordre [[F12]].
+
+| Autre | Touche | Contenu |
+| --- | --- | --- |
 | Codex de l'Archonte | [[Maj]]+[[F1]] | Ce manuel, le lexique, les fiches des peuples, des créatures et des technologies, les Chroniques |
 
 ### Les infobulles et le Codex

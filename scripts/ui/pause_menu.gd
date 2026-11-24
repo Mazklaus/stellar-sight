@@ -43,10 +43,10 @@ const SHORTCUT_GROUPS := [
 		["Page préc. / suiv.", "Système précédent / suivant"],
 	]],
 	["Menus", [
-		["F1 à F4", "Économie, Colonies, Recherche, Diplomatie"],
-		["F6 / F7", "Chantier, Victoire"],
+		["F1 à F4", "Empire, Savoir, Forces, Diplomatie"],
+		["F5 à F8", "Commerce, Pouvoir, Chroniques, Victoire"],
 		["Échap", "Revenir en arrière, puis ce menu"],
-		["F5 / F9", "Sauvegarde / chargement rapide"],
+		["Ctrl+S / Ctrl+L", "Sauvegarde / chargement rapide"],
 		["F11", "Plein écran"],
 	]],
 	["Codex et infobulles", [
@@ -94,8 +94,8 @@ func _ready() -> void:
 	_home.add_child(_date)
 	_home.add_child(Widgets.NotchHeader.new("", 4))
 	_item("Reprendre", "Échap", func() -> void: resume_requested.emit())
-	_item("Sauvegarder", "F5", func() -> void: save_requested.emit())
-	_item("Charger", "F9", func() -> void: load_requested.emit())
+	_item("Sauvegarder", "Ctrl+S", func() -> void: save_requested.emit())
+	_item("Charger", "Ctrl+L", func() -> void: load_requested.emit())
 	_item("Ouvrir en réseau", "", func() -> void: host_requested.emit())
 	_item("Raccourcis", "", func() -> void: show_page("shortcuts"))
 	_item("Options", "", func() -> void: show_page("options"))

@@ -5,7 +5,7 @@ image: MJ-10
 epigraphe: Un vaisseau est une coque, des canons et une promesse. On vérifie la coque et les canons ; la promesse, on la vérifie au combat.
 signature: Maître de cale Durgoth, Clans Ferrocornes
 ---
-Chaque classe de vaisseau a un rôle et un contre. L'écran Chantier ([[F6]]) permet d'en concevoir vos propres modèles.
+Chaque classe de vaisseau a un rôle et un contre. L'écran Chantier (domaine Forces, [[F3]]) permet d'en concevoir vos propres modèles.
 
 ### Les classes communes
 

@@ -343,8 +343,8 @@ func _test_main_scene() -> void:
 	_check(main._system_screen._title.text == "Port-Libre", "l'en-tête de la vue système suit le nouveau nom")
 	main.close_system_view()
 
-	# F5 sauvegarde, F9 recharge exactement la même partie.
-	_press(KEY_F5)
+	# Ctrl+S sauvegarde, Ctrl+L recharge exactement la même partie (F5 est le domaine Commerce).
+	_press(KEY_S, KEY_NONE, true)
 	var saved_checksum: String = main.simulation.state.checksum()
 	var saved_tick: int = main.simulation.state.tick
 	_press(KEY_SPACE)
@@ -359,7 +359,7 @@ func _test_main_scene() -> void:
 		main.close_deed_panel()
 	if main.is_event_panel_open():
 		main.close_event_panel()
-	_press(KEY_F9)
+	_press(KEY_L, KEY_NONE, true)
 	_check(main.simulation.state.tick == saved_tick, "F9 : retour au jour sauvegardé")
 	_check(main.simulation.state.checksum() == saved_checksum, "F9 : partie rechargée à l'identique")
 	_check(main.galaxy.systems[5].system_name == "Port-Libre", "F9 : le nom sauvegardé revient")
@@ -684,13 +684,21 @@ func _test_navigation_ui(main: Node) -> void:
 	var row := screens.economy_row_text("materials")
 	_check(row.begins_with("Matériaux|%d|" % me.resources["materials"]), "ligne des matériaux (%s)" % row)
 	_check(not main._camera.is_processing_unhandled_input(), "la carte ne réagit plus sous un menu d'empire")
-	_press(KEY_F2)
+	_check(screens._tab.text.begins_with("EMPIRE") and screens.domain_buttons.has("Bilan") and screens.domain_buttons.has("Colonies"), "le domaine Empire montre ses onglets")
+	(screens.domain_buttons["Colonies"] as Button).pressed.emit()
 	await process_frame
-	_check(screens.current == "colonies", "F2 passe aux colonies")
+	_check(screens.current == "colonies", "l'onglet Colonies du domaine Empire")
 	var rows := screens.colony_buttons()
 	_check(rows.size() == EmpireReport.colonies(st, 0).size() and rows.size() >= 2, "une ligne par colonie ou avant-poste (%d)" % rows.size())
-	_press(KEY_F2)
-	_check(not screens.is_open() and not hud.bar.screen_button("colonies").button_pressed, "F2 referme les colonies")
+	_press(KEY_F1)
+	_check(not screens.is_open() and not hud.bar.screen_button("colonies").button_pressed, "F1 referme le domaine Empire")
+	_press(KEY_F1)
+	await process_frame
+	_check(screens.current == "colonies", "F1 rouvre le domaine là où on l'avait laissé")
+	_press(KEY_F5)
+	await process_frame
+	_check(screens.current == "trade" and hud.bar.domain_button(4).button_pressed, "F5 passe au domaine Commerce")
+	_press(KEY_F5)
 	_check(main._camera.is_processing_unhandled_input(), "la carte reprend la main")
 	main.toggle_empire_screen("colonies")
 	await process_frame
@@ -711,9 +719,9 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(not screens.is_open() and main.is_system_view_open() and main._system_screen.planet_id == me.capital_planet,
 			"Ouvrir la vue système depuis la colonie choisie")
 	main.close_system_view()
-	_press(KEY_F3)
+	_press(KEY_F2)
 	await process_frame
-	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("RECHERCHE"), "F3 : écran Recherche")
+	_check(screens.is_open() and screens.current == "research" and screens._tab.text.begins_with("SAVOIR"), "F2 : domaine Savoir, écran Recherche")
 	var rme: Empire = main.simulation.state.get_empire(main.view_empire)
 	var rtree: ResearchTree = screens.research_tree
 	_check(rtree != null and rtree.card_ids().size() == Research.visible_for(main.simulation.state, main.view_empire).size(), "l'arbre montre toutes les technologies du peuple")
@@ -737,9 +745,9 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(main.is_codex_open() and main.codex.current == "cat:technologies:" + rfirst, "la fiche ouvre la page Codex de la technologie")
 	main.codex.close_codex()
 	await process_frame
-	_press(KEY_F6)
+	_press(KEY_F3)
 	await process_frame
-	_check(screens.current == "shipyard" and screens.shipyard != null and screens._tab.text.begins_with("CHANTIER"), "F6 : écran Chantier")
+	_check(screens.current == "shipyard" and screens.shipyard != null and screens._tab.text.begins_with("FORCES"), "F3 : domaine Forces, écran Chantier")
 	var yard: ShipyardScreen = screens.shipyard
 	var yst: GameState = main.simulation.state
 	var yhull := String(Designs.hull_ids_for(rme.faction_id)[0])
@@ -1743,9 +1751,9 @@ func _test_intel_ui(main: Node) -> void:
 	for k in st.networks.keys():
 		if int(st.networks[k]["a"]) == me:
 			st.networks.erase(k)
-	_press(KEY_F8)
+	main.toggle_empire_screen("intel")
 	await process_frame
-	_check(screens.current == "intel", "F8 : écran Renseignement")
+	_check(screens.current == "intel" and screens._tab.text.begins_with("DIPLOMATIE"), "écran Renseignement, domaine Diplomatie")
 	_check(screens.intel_buttons.has(rival) and screens.intel_buttons.has(me), "écran Renseignement : lignes du rival et du contre-espionnage")
 	if screens.intel_buttons.has(rival):
 		(screens.intel_buttons[rival][1] as Button).pressed.emit()
@@ -1758,9 +1766,9 @@ func _test_intel_ui(main: Node) -> void:
 	screens.show_screen("intel")
 	await process_frame
 	_check(st.get_empire(me).dossiers.has(rival), "écran Renseignement : dossier ouvert au palier Amirauté")
-	_press(KEY_F8)
+	_press(KEY_F4)
 	await process_frame
-	_check(not screens.is_open(), "F8 referme l'écran Renseignement")
+	_check(not screens.is_open(), "F4 referme l'écran Renseignement")
 
 
 ## Écran Panthéon (F10) : offre, choix, affectation, rappel.
@@ -2309,9 +2317,10 @@ func _find_label(n: Node, prefix: String) -> bool:
 func _test_victory_ui(main: Node) -> void:
 	var screens: EmpireScreens = main._empire_screens
 	var st: GameState = main.simulation.state
-	_press(KEY_F7)
+	screens.domain_last.erase(7)
+	_press(KEY_F8)
 	await process_frame
-	_check(screens.current == "victory", "F7 : écran Victoire")
+	_check(screens.current == "victory", "F8 : domaine Victoire")
 	_check(screens.victory_rows.has("conquete") and screens.victory_rows.has("domination") and screens.victory_rows.has("score"),
 			"écran Victoire : les trois victoires classiques")
 	var mine := Victory.people_ids_for(st.get_empire(main.view_empire).faction())
@@ -2358,9 +2367,9 @@ func _test_victory_ui(main: Node) -> void:
 		screens.set_colony_filter("all")
 		screens.show_screen("victory")
 		await process_frame
-	_press(KEY_F7)
+	_press(KEY_F8)
 	await process_frame
-	_check(not screens.is_open(), "F7 referme l'écran Victoire")
+	_check(not screens.is_open(), "F8 referme l'écran Victoire")
 	# Fin de partie : le panneau s'ouvre au tick suivant la proclamation.
 	st.winner = {"empire": main.view_empire, "victory": "conquete", "tick": st.tick, "allies": []}
 	main.simulation.ticked.emit(st.tick)
@@ -2392,8 +2401,9 @@ func _quiet_minor_contacts(main: Node) -> void:
 	_check(not main.is_modal_open(), "aucune fenêtre ouverte avant les tests de touches de la carte")
 
 
-func _press(keycode: Key, physical: Key = KEY_NONE) -> void:
+func _press(keycode: Key, physical: Key = KEY_NONE, ctrl := false) -> void:
 	var ev := InputEventKey.new()
+	ev.ctrl_pressed = ctrl
 	ev.keycode = keycode
 	ev.physical_keycode = physical if physical != KEY_NONE else keycode
 	ev.pressed = true

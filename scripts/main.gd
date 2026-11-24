@@ -27,7 +27,7 @@ var _net_turn_target := -1
 var player_name := ""
 
 var simulation: Simulation
-## Fichier de sauvegarde rapide (F5 / F9). Les tests le redirigent ailleurs.
+## Fichier de sauvegarde rapide (Ctrl+S / Ctrl+L). Les tests le redirigent ailleurs.
 var save_path := SaveGame.QUICKSAVE_PATH
 ## Faction du joueur local pour les nouvelles parties (choisie dans le menu principal).
 var player_faction := "ossarane"
@@ -183,7 +183,7 @@ func _ready() -> void:
 	_empire_screens.war_requested.connect(declare_war)
 	_empire_screens.codex_requested.connect(func(aid: String) -> void: open_codex(aid))
 	_empire_screens.command_requested.connect(diplomacy_command)
-	_empire_screens.screen_changed.connect(func(id: String) -> void: _hud.bar.set_open_screen(id))
+	_empire_screens.screen_changed.connect(func(_id: String) -> void: _hud.bar.set_open_screen(UiDomains.address(_empire_screens)))
 	_empire_screens.planet_requested.connect(func(pid: int) -> void:
 		close_empire_screen()
 		open_system_view(galaxy.get_planet(pid).system_id, pid))
@@ -509,6 +509,9 @@ func toggle_empire_screen(screen_id: String) -> void:
 	if screen_id == "codex":
 		toggle_codex()
 		return
+	if screen_id.begins_with("domain:"):
+		toggle_domain(int(screen_id.get_slice(":", 1)))
+		return
 	if screen_id == "insolites":
 		InsolitesUi.open_people_menu(self, simulation.state if simulation else null, view_empire)
 		return
@@ -518,7 +521,7 @@ func toggle_empire_screen(screen_id: String) -> void:
 	var sc := EmpireBar.screen_info(screen_id)
 	if not sc.get("ready", false):
 		_hud.notify(String(sc.get("why", "Bientôt.")))
-		_hud.bar.set_open_screen(_empire_screens.current)
+		_hud.bar.set_open_screen(UiDomains.address(_empire_screens))
 		return
 	if not _empire_screens.is_open() and UiSettings.auto_pause_menus and not GameClock.paused and not net.is_active():
 		_auto_paused = true
@@ -527,6 +530,27 @@ func toggle_empire_screen(screen_id: String) -> void:
 	_empire_screens.open(screen_id, simulation.state, view_empire)
 	_hud.set_empire_screen_open(true)
 	_update_map_input()
+
+
+## Ouvre un domaine (F1 à F8) là où on l'avait laissé, ou le ferme s'il est déjà affiché.
+func toggle_domain(d: int) -> void:
+	var st: GameState = simulation.state if simulation else null
+	var open_addr := UiDomains.address(_empire_screens) if _empire_screens.is_open() else ""
+	if open_addr != "" and UiDomains.domain_of(open_addr) == d:
+		close_empire_screen()
+		return
+	var addr := String(_empire_screens.domain_last.get(d, ""))
+	if addr == "" or not UiDomains.offered(st, view_empire, addr):
+		addr = UiDomains.first_of_domain(st, view_empire, d)
+	if addr == "":
+		_hud.bar.set_open_screen(open_addr)
+		return
+	UiDomains.apply_sub(_empire_screens, addr)
+	var screen := UiDomains.screen_of(addr)
+	if _empire_screens.is_open():
+		_empire_screens.show_screen(screen)
+	else:
+		toggle_empire_screen(screen)
 
 
 func close_empire_screen() -> void:
@@ -575,7 +599,7 @@ func toggle_codex(aid := "") -> void:
 
 
 func _on_codex_closed() -> void:
-	_hud.bar.set_open_screen(_empire_screens.current if _empire_screens.is_open() else "")
+	_hud.bar.set_open_screen(UiDomains.address(_empire_screens))
 	if _codex_paused:
 		_codex_paused = false
 		GameClock.set_paused(false)
@@ -1151,7 +1175,7 @@ func resume_network_game() -> bool:
 ## Fin de la session. Un client revient à la page Multijoueur, d'où il retrouve son empire en rejoignant.
 func _on_net_ended(reason: String) -> void:
 	if not _net_client:
-		_hud.notify("Partie en réseau terminée : %s. Vous pouvez sauvegarder (F5) pour la garder." % reason, "bad")
+		_hud.notify("Partie en réseau terminée : %s. Vous pouvez sauvegarder (Ctrl+S) pour la garder." % reason, "bad")
 		return
 	_net_client = false
 	open_main_menu()
@@ -1351,9 +1375,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if _pause_menu.is_open():
 		if key.keycode == KEY_ESCAPE and not _pause_menu.back():
 			close_pause_menu()
-		elif key.keycode == KEY_F5:
+		elif key.keycode == KEY_S and key.ctrl_pressed:
 			save_game()
-		elif key.keycode == KEY_F9:
+		elif key.keycode == KEY_L and key.ctrl_pressed:
 			close_pause_menu()
 			load_game()
 		return
@@ -1376,20 +1400,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				_select(-1)
 			else:
 				open_pause_menu()
-		KEY_F1:
-			toggle_empire_screen("economy")
-		KEY_F2:
-			toggle_empire_screen("colonies")
-		KEY_F3:
-			toggle_empire_screen("research")
-		KEY_F4:
-			toggle_empire_screen("diplomacy")
-		KEY_F6:
-			toggle_empire_screen("shipyard")
-		KEY_F7:
-			toggle_empire_screen("victory")
-		KEY_F8:
-			toggle_empire_screen("intel")
+		KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8:
+			toggle_domain(key.keycode - KEY_F1)
 		KEY_F10:
 			toggle_empire_screen("throne" if key.shift_pressed else "heroes")
 		KEY_F12:
@@ -1400,8 +1412,13 @@ func _unhandled_input(event: InputEvent) -> void:
 				chat.open_input()
 			elif not is_system_view_open() and not is_empire_screen_open():
 				open_system_view(_view.selected_id)
+		KEY_S:
+			if key.ctrl_pressed:
+				save_game()
 		KEY_L:
-			if not is_system_view_open():
+			if key.ctrl_pressed:
+				load_game()
+			elif not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "economy" else "economy")
 		KEY_K:
 			if not is_system_view_open():
@@ -1422,10 +1439,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				_hud.battle_replay.toggle_play()
 			else:
 				toggle_pause_or_turn()
-		KEY_F5:
-			save_game()
-		KEY_F9:
-			load_game()
 		KEY_LEFT, KEY_RIGHT:
 			if is_system_view_open():
 				_system_screen.select_adjacent_planet(-1 if key.keycode == KEY_LEFT else 1)

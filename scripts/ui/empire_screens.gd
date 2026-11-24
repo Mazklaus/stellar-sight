@@ -53,6 +53,12 @@ var _state: GameState
 var _player := 0
 var _root: Control
 var _tab: Button
+## Onglets du domaine ouvert (refonte, A1 et A2) : une rangée sous l'onglet de l'écran.
+var _domain_row: HBoxContainer
+## Boutons de cette rangée, par libellé d'onglet (pour les tests).
+var domain_buttons := {}
+## Dernière adresse visitée dans chaque domaine (voir UiDomains).
+var domain_last := {}
 var _side: PanelContainer
 var _side_box: VBoxContainer
 ## Défilement de la colonne de gauche quand elle dépasse l'écran (beaucoup de peuples, par exemple).
@@ -233,6 +239,16 @@ func _ready() -> void:
 	_tab.pressed.connect(func() -> void: close_requested.emit())
 	_root.add_child(_tab)
 
+	_domain_row = HBoxContainer.new()
+	_domain_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_domain_row.add_theme_constant_override("separation", 22)
+	_domain_row.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	_domain_row.offset_left = CONTENT_LEFT
+	_domain_row.offset_right = -CONTENT_RIGHT
+	_domain_row.offset_top = 38.0
+	_domain_row.offset_bottom = 66.0
+	_root.add_child(_domain_row)
+
 	_side = PanelContainer.new()
 	_side.theme_type_variation = &"SidePanel"
 	_side.position = Vector2(MARGIN, SIDE_TOP)
@@ -249,7 +265,7 @@ func _ready() -> void:
 	_content = MarginContainer.new()
 	_content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_content.offset_left = CONTENT_LEFT
-	_content.offset_top = 64.0
+	_content.offset_top = 78.0
 	_content.offset_right = -CONTENT_RIGHT
 	_content.offset_bottom = -24.0
 	_root.add_child(_content)
@@ -303,8 +319,7 @@ func show_screen(screen_id: String) -> void:
 	_filter_tabs.clear()
 	_col_sig = ""
 	_sys_sig = ""
-	var sc := EmpireBar.screen_info({"transcendence": "victory", "contact": "victory", "kardashev": "victory", "megas": "wonders", "forge": "wonders"}.get(screen_id, screen_id))
-	_tab.text = ("%s     ×" % sc.get("label", screen_id)).to_upper()
+	_fill_domain_row()
 	match screen_id:
 		"economy":
 			_build_economy()
@@ -370,6 +385,44 @@ func show_screen(screen_id: String) -> void:
 			ThroneScreen.build(self)
 	refresh()
 	screen_changed.emit(screen_id)
+
+
+## Ouvre une adresse de domaine (« trade:market », « order:admin », « economy » ; voir UiDomains).
+func show_address(addr: String) -> void:
+	UiDomains.apply_sub(self, addr)
+	show_screen(UiDomains.screen_of(addr))
+
+
+## Onglet du haut (nom du domaine) et rangée de ses onglets. Un écran hors domaine garde son nom.
+func _fill_domain_row() -> void:
+	for c in _domain_row.get_children():
+		_domain_row.remove_child(c)
+		c.queue_free()
+	domain_buttons.clear()
+	var addr := UiDomains.address(self)
+	var at := UiDomains.locate(addr)
+	var d := int(at[0])
+	if d < 0:
+		_tab.text = ("%s     ×" % EmpireBar.screen_info(current).get("label", current)).to_upper()
+		return
+	domain_last[d] = addr
+	var dom: Dictionary = UiDomains.DOMAINS[d]
+	_tab.text = ("%s     ×" % dom["label"]).to_upper()
+	var tabs: Array = dom["tabs"]
+	for t in tabs.size():
+		var target := UiDomains.first_offered(_state, _player, d, t)
+		if target == "":
+			continue
+		var tb := Button.new()
+		tb.theme_type_variation = &"TabButton"
+		tb.add_theme_font_size_override("font_size", 13)
+		tb.toggle_mode = true
+		tb.focus_mode = Control.FOCUS_NONE
+		tb.text = String(tabs[t][0]).to_upper()
+		tb.set_pressed_no_signal(t == int(at[1]))
+		tb.pressed.connect(func() -> void: show_address(target))
+		_domain_row.add_child(tb)
+		domain_buttons[String(tabs[t][0])] = tb
 
 
 ## Met à jour les chiffres (à chaque tick et après chaque ordre).

@@ -79,6 +79,7 @@ static func _tabs(es: EmpireScreens) -> void:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	es._side_box.add_child(row)
+	row.visible = false  # la rangée du domaine porte ces onglets (refonte, A1)
 	for t in [["trone", "Trône"], ["cour", "La Cour"]]:
 		var b := Button.new()
 		b.text = String(t[1])

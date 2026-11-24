@@ -2169,7 +2169,7 @@ static func trait_bbcode(f: Dictionary, col: Color) -> String:
 	var lines := PackedStringArray()
 	# Peuples insolites : la règle de base qu'ils cassent, d'un coup d'œil (prop. 2).
 	if String(f.get("broken_rule", "")) != "":
-		lines.append("[b][color=#%s]Règle cassée : %s[/color][/b]" % [UiTheme.WARN.to_html(false), String(f["broken_rule"])])
+		lines.append("[b][color=#%s]Particularité : %s[/color][/b]" % [UiTheme.WARN.to_html(false), String(f["broken_rule"])])
 	for t: Dictionary in f.get("traits", []):
 		lines.append("[b][color=#%s]%s[/color][/b]  %s" % [col.lightened(0.35).to_html(false), t["name"], t["text"]])
 	return "\n".join(lines) if not lines.is_empty() else String(f.get("trait", ""))
@@ -3009,7 +3009,7 @@ func _build_new_page(root: Control) -> void:
 	var vic := _block_rows(_bottom_block(bottom, "Victoire", 330, 0))
 	_deadline_select = OptionButton.new()
 	_deadline_select.clip_text = true
-	_deadline_select.tooltip_text = "Date limite : à cette date, le meilleur score l'emporte si personne n'a gagné avant.\nLes autres victoires se cochent en dessous (F7 pour suivre la course)."
+	_deadline_select.tooltip_text = "Date limite : à cette date, le meilleur score l'emporte si personne n'a gagné avant.\nLes autres victoires se cochent en dessous (F8 pour suivre la course)."
 	for d: Dictionary in Victory.deadline_options():
 		_deadline_select.add_item("Score : %s" % String(d["label"]).to_lower())
 	_deadline_select.item_selected.connect(func(i: int) -> void: set_deadline(int(Victory.deadline_options()[i]["days"])))
