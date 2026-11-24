@@ -816,9 +816,26 @@ func _test_chains() -> void:
 	var cap := FactionTraits.capital_system(st, a.id)
 	var added: Array[Dictionary] = []
 	_ok(Events.card_ids("monthly").has("pn_1") and not Events.card_ids("monthly").has("pn_2") and Events.card_ids("chain").size() >= 2, "chaînes : seule la première carte se tire, les suites attendent leur tour")
-	for id: String in ["pn_1", "pn_2", "pn_3"]:
-		var txt := String(Events.card(id)["text"])
+	var chain_ids: Array = Events.card_ids("chain")
+	var heads := 0
+	var loose := []
+	for c: Dictionary in Events.data()["cards"]:
+		if not c.has("chain"):
+			continue
+		var id := String(c["id"])
+		var txt := String(c["text"])
 		_ok(txt.length() > 900 and txt.count("\n\n") >= 2 and not txt.contains("—") and not txt.contains("!"), "chaînes : %s est un récit long, en paragraphes" % id)
+		if String(c["trigger"]) != "chain":
+			heads += 1
+		if Events.chain_def(String(c["chain"])).is_empty():
+			loose.append(id)
+		for ch: Dictionary in c["choices"]:
+			if ch.has("then"):
+				var t: Dictionary = ch["then"]
+				if not chain_ids.has(String(t["card"])) or String(Events.card(String(t["card"])).get("chain", "")) != String(c["chain"]) \
+						or (t.has("goal") and (String(t["goal"]) != "fleet" or String(t.get("text", "")) == "" or not ch.has("note"))):
+					loose.append(id)
+	_ok(heads >= 7 and loose.is_empty(), "chaînes : %d affaires, chaque suite existe et reste dans son affaire %s" % [heads, str(loose)])
 	Events.push(st, a.id, "pn_1", {"system": cap}, added)
 	var it1: Dictionary = Events.inbox(st, a.id)[-1]
 	var opts := Events.choices(st, a.id, it1)
