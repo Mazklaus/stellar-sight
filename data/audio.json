@@ -3,6 +3,18 @@
 	"_sources": "Étude : https://claude.ai/artifact/4LTZmMrwj7E2TJQkPB4xvN. Bus et baisse automatique : documentation Godot 4.7 (AudioEffectCompressor, sidechain). Profils d'écoute : Victoria 3, journal n° 63.",
 	"dir": "res://assets/sounds/",
 	"ext": ["ogg", "wav"],
+	"levels": {
+		"_doc": "Niveau de référence de chaque dossier de assets/sounds, en LUFS (volume perçu). tools/audio/son.py y ramène tout fichier qu'il pose, et un test refuse un fichier plus fort de 1,5 dB. La carte et les écrans sont les plus bas : ce sont des fonds, toujours sous la musique (retour du 25/11/2026).",
+		"default": -20.0,
+		"musique": -18.0,
+		"announce": -16.0,
+		"battle": -18.0,
+		"ui": -20.0,
+		"voix": -20.0,
+		"peuples": -24.0,
+		"ecran": -30.0,
+		"carte": -32.0
+	},
 	"voices": 12,
 	"rate": 32000,
 	"buses": [

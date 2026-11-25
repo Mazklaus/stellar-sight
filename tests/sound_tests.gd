@@ -15,6 +15,7 @@ func run(check: Callable) -> void:
 	_test_buttons()
 	_test_announces()
 	_test_options()
+	_test_files()
 	SoundSettings.reset()
 
 
@@ -183,3 +184,50 @@ func _test_options() -> void:
 	panel.reset_defaults()
 	_ok(box.text == "70 %" and not SoundSettings.hover and SoundSettings.profile_id() == "enceintes", "valeurs par défaut")
 	panel.free()
+
+
+## Fichiers son posés dans assets/sounds (outils du son, P5 et P6) : chacun a sa fiche d'origine dans
+## origines.json (outil, licence) et ne dépasse pas le niveau de référence de son dossier. Les niveaux
+## sont mesurés par tools/audio/son.py au moment où il pose le fichier.
+func _test_files() -> void:
+	var levels: Dictionary = Son.data()["levels"]
+	_ok(float(levels["carte"]) <= float(levels["musique"]) - 10.0, "les sons de la carte sont réglés nettement sous la musique")
+	_ok(float(levels["ecran"]) <= float(levels["musique"]) - 10.0, "les lieux des écrans aussi")
+	var good := {"outil": "essai", "licence": "CC0", "lufs": -32.0}
+	_ok(_file_fault("carte/x", good, levels) == "", "fiche complète et niveau tenu : rien à redire")
+	_ok(_file_fault("carte/x", {}, levels) != "", "un fichier sans fiche est refusé")
+	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "", "lufs": -32.0}, levels) != "", "un fichier sans licence est refusé")
+	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "CC0", "lufs": -25.0}, levels) != "", "un son de carte trop fort est refusé")
+	_ok(_file_fault("dossier_neuf/x", {"outil": "essai", "licence": "CC0", "lufs": -20.0}, levels) == "", "dossier inconnu : niveau par défaut")
+	var root := String(Son.data()["dir"])
+	var origins := {}
+	if FileAccess.file_exists(root + "origines.json"):
+		var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(root + "origines.json"))
+		origins = parsed if parsed is Dictionary else {}
+	for id in _sound_files(root, ""):
+		var fault := _file_fault(id, origins.get(id, {}), levels)
+		_ok(fault == "", "fichier %s : %s" % [id, fault if fault != "" else "bon"])
+
+
+func _file_fault(id: String, card: Dictionary, levels: Dictionary) -> String:
+	if card.is_empty():
+		return "pas de fiche d'origine"
+	if String(card.get("outil", "")) == "" or String(card.get("licence", "")) == "":
+		return "fiche sans outil ou sans licence"
+	var top := float(levels.get(id.get_slice("/", 0), levels["default"]))
+	if float(card.get("lufs", 0.0)) > top + 1.5:
+		return "trop fort (%.1f LUFS pour %.1f)" % [float(card.get("lufs", 0.0)), top]
+	return ""
+
+
+func _sound_files(root: String, sub: String) -> Array[String]:
+	var out: Array[String] = []
+	var dir := DirAccess.open(root + sub)
+	if dir == null:
+		return out
+	for d in dir.get_directories():
+		out.append_array(_sound_files(root, sub + d + "/"))
+	for f in dir.get_files():
+		if f.get_extension() in ["ogg", "wav"]:
+			out.append(sub + f.get_basename())
+	return out
