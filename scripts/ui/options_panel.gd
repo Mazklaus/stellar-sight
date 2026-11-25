@@ -9,7 +9,7 @@ signal back_requested
 
 const ROW_WIDTH := 760.0
 const VALUE_WIDTH := 300.0
-const TABS := [["display", "Affichage"], ["map", "Carte"], ["game", "Partie"], ["announce", "Annonces"], ["controls", "Commandes"]]
+const TABS := [["display", "Affichage"], ["map", "Carte"], ["game", "Partie"], ["sound", "Son"], ["announce", "Annonces"], ["controls", "Commandes"]]
 
 var tab := "display"
 ## Rangée des boutons du bas (Retour, Valeurs par défaut), que le menu principal place dans les coins.
@@ -41,6 +41,13 @@ var _tip_links: Button
 var _tip_delay: Button
 var _tip_lock: Button
 var _tip_mode: Button
+## Cases de l'onglet Son (tests) : bus -> bouton du volume.
+var volume_boxes := {}
+var _profile: Button
+var _background: Button
+var _hover: Button
+var _speech: Button
+var _density: Button
 ## Lignes des types d'annonce (tests) : type -> {"row", "look", "pause", "auto"}.
 var announce_rows := {}
 
@@ -194,6 +201,7 @@ func _ready() -> void:
 		UiSettings.cycle_tip_lock()
 		sync())
 	lrow.add_child(_tip_lock)
+	_build_sound(_page("sound"))
 	_build_announce(_page("announce"))
 	var controls := _page("controls")
 	var scroll := ScrollContainer.new()
@@ -222,7 +230,7 @@ func _ready() -> void:
 	foot.add_child(spacer)
 	var reset := Widgets.RoundButton.new("back", "Valeurs par défaut", 18)
 	reset.glyph = "reset"
-	reset.tooltip_text = "Fenêtré, interface à 100 %, sans pause automatique, annonces au préréglage Stratège."
+	reset.tooltip_text = "Fenêtré, interface à 100 %, sans pause automatique, annonces au préréglage Stratège, volumes d'origine."
 	reset.pressed.connect(reset_defaults)
 	foot.add_child(reset)
 	show_tab("display")
@@ -259,6 +267,7 @@ func reset_defaults() -> void:
 	UiSettings._tips_changed()
 	UiSettings.save_settings()
 	AnnounceSettings.reset()
+	SoundSettings.reset()
 	sync()
 
 
@@ -289,8 +298,64 @@ func sync() -> void:
 	_preset.text = AnnounceSettings.preset_label()
 	_anim.text = AnnounceSettings.anim_label()
 	_set_toggle(_sound, AnnounceSettings.sound)
+	for bus in volume_boxes:
+		var vb := volume_boxes[bus] as Button
+		vb.text = SoundSettings.volume_label(String(bus))
+		vb.add_theme_color_override("font_color", UiTheme.TEXT_DIM if SoundSettings.volume(String(bus)) <= 0.001 else UiTheme.TEXT)
+	_profile.text = SoundSettings.profile_label()
+	_profile.tooltip_text = String(GameData.audio().get("profiles", {}).get(SoundSettings.profile_id(), {}).get("tip", ""))
+	_density.text = SoundSettings.density_label()
+	_density.tooltip_text = String(GameData.audio().get("music", {}).get("density", {}).get(SoundSettings.density_id(), {}).get("tip", ""))
+	_set_toggle(_background, SoundSettings.background)
+	_set_toggle(_hover, SoundSettings.hover)
+	_set_toggle(_speech, SoundSettings.speech)
 	for kind in announce_rows:
 		_sync_announce_row(String(kind))
+
+
+## Onglet Son (étude du son, bloc K) : un volume par famille de sons, le profil d'écoute, le son quand
+## le jeu passe au second plan, les sons de survol. Les lignes de volume viennent de data/audio.json.
+func _build_sound(page: VBoxContainer) -> void:
+	for d in GameData.audio().get("volumes", []):
+		var bus := String(d["bus"])
+		var row := _row(page, String(d["label"]), String(d.get("tip", "")))
+		var box := _value_box("", false) as Button
+		box.tooltip_text = "Clic : cran suivant. Clic droit : cran précédent."
+		box.button_mask = MOUSE_BUTTON_MASK_LEFT | MOUSE_BUTTON_MASK_RIGHT
+		box.gui_input.connect(func(e: InputEvent) -> void:
+			if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_RIGHT:
+				box.set_meta("recul", true))
+		box.pressed.connect(func() -> void:
+			SoundSettings.cycle_volume(bus, -1 if box.has_meta("recul") else 1)
+			box.remove_meta("recul")
+			sync())
+		row.add_child(box)
+		volume_boxes[bus] = box
+	var prow := _row(page, "Profil d'écoute", "Adapte le mélange à ce qui diffuse le son.")
+	_profile = _value_box("", false) as Button
+	_profile.pressed.connect(func() -> void:
+		SoundSettings.cycle_profile()
+		sync())
+	prow.add_child(_profile)
+	var drow := _row(page, "Densité de la musique", "Continue : la musique ne s'arrête jamais. Les autres réglages laissent des silences entre les morceaux.")
+	_density = _value_box("", false) as Button
+	_density.pressed.connect(func() -> void:
+		SoundSettings.cycle_density()
+		sync())
+	drow.add_child(_density)
+	_background = _toggle_row(page, "Son hors de la fenêtre", "Le son continue quand le jeu n'est plus au premier plan.", func() -> void:
+		SoundSettings.background = not SoundSettings.background
+		SoundSettings.save_settings()
+		Son.apply_settings()
+		sync())
+	_hover = _toggle_row(page, "Sons de survol", "Un son discret quand le pointeur passe sur un bouton.", func() -> void:
+		SoundSettings.hover = not SoundSettings.hover
+		SoundSettings.save_settings()
+		sync())
+	_speech = _toggle_row(page, "Parole des peuples", "Chaque peuple parle sa langue quand on s'adresse à lui. Coupé, il ne reste que son indicatif.", func() -> void:
+		SoundSettings.speech = not SoundSettings.speech
+		SoundSettings.save_settings()
+		sync())
 
 
 ## Onglet Annonces (étude de la fenêtre d'événement, prop. 29 à 32) : préréglage, animations, son, puis
@@ -311,7 +376,7 @@ func _build_announce(page: VBoxContainer) -> void:
 		AnnounceSettings.cycle_anim()
 		sync())
 	arow.add_child(_anim)
-	_sound = _toggle_row(page, "Son des annonces", "Un son par famille d'annonce, quand l'habillage sonore sera là.", func() -> void:
+	_sound = _toggle_row(page, "Son des annonces", "Un son par famille d'annonce, plus ample quand l'annonce est grave.", func() -> void:
 		AnnounceSettings.sound = not AnnounceSettings.sound
 		AnnounceSettings.save_settings()
 		sync())

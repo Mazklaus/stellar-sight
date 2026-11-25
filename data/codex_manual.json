@@ -2924,7 +2924,7 @@
 {
 "id": "15v-annonces#les-réglages",
 "title": "Les réglages",
-"text": "L'onglet [b]Annonces[/b] des Options règle tout cela pour votre poste (les réglages ne sont pas dans la sauvegarde) :\n\n[table=2][cell padding=6,3,6,3 border=#ffffff1c][b]Préréglage[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Effet[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Chroniqueur[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c]Tout s'ouvre en fenêtre, même les avis : pour découvrir le jeu.[/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Stratège[/b] (défaut)[/cell][cell padding=6,3,6,3 border=#ffffff1c]Le réglage par défaut : Fanfares et décisions s'ouvrent, les Annonces au rythme de deux par mois au plus.[/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Silence[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c]Seules les Fanfares et les décisions s'ouvrent ; le reste attend dans la colonne.[/cell][/table]\n\n• [b]Animations des fenêtres[/b] : Normale, Rapide ou Instantanée.\n• [b]Son des annonces[/b] : une signature par type, par famille ou par gravité, quand l'habillage sonore sera là.\n• Pour [b]chaque type[/b], rangé par famille, avec une recherche : son [b]apparence[/b] (Auto, Chronique, Avis, Fenêtre, Fanfare), sa [b]pause[/b] et son [b]ouverture automatique[/b]. Un type toujours visible garde l'Avis au minimum pour l'empire concerné.\n« Valeurs par défaut » remet le préréglage Stratège.",
+"text": "L'onglet [b]Annonces[/b] des Options règle tout cela pour votre poste (les réglages ne sont pas dans la sauvegarde) :\n\n[table=2][cell padding=6,3,6,3 border=#ffffff1c][b]Préréglage[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Effet[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Chroniqueur[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c]Tout s'ouvre en fenêtre, même les avis : pour découvrir le jeu.[/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Stratège[/b] (défaut)[/cell][cell padding=6,3,6,3 border=#ffffff1c]Le réglage par défaut : Fanfares et décisions s'ouvrent, les Annonces au rythme de deux par mois au plus.[/cell][cell padding=6,3,6,3 border=#ffffff1c][b]Silence[/b][/cell][cell padding=6,3,6,3 border=#ffffff1c]Seules les Fanfares et les décisions s'ouvrent ; le reste attend dans la colonne.[/cell][/table]\n\n• [b]Animations des fenêtres[/b] : Normale, Rapide ou Instantanée.\n• [b]Son des annonces[/b] : une signature par famille, plus ample quand l'annonce est grave. La musique baisse le temps qu'elle sonne.\n• Pour [b]chaque type[/b], rangé par famille, avec une recherche : son [b]apparence[/b] (Auto, Chronique, Avis, Fenêtre, Fanfare), sa [b]pause[/b] et son [b]ouverture automatique[/b]. Un type toujours visible garde l'Avis au minimum pour l'empire concerné.\n« Valeurs par défaut » remet le préréglage Stratège.",
 "captures": []
 },
 {
@@ -3407,6 +3407,65 @@
 "id": "15zb-prises#diplomatie-hauts-faits-et-ia",
 "title": "Diplomatie, hauts faits et IA",
 "text": "La paix peut contenir la clause [b]Rendre les prises[/b] : l'ennemi rend vos vaisseaux pris et vos héros prisonniers, et s'en souvient en bien. Trois hauts faits : [b]Prise d'un titan[/b], [b]Flotte de prises[/b] (10 prises en service) et [b]Ferrailleur[/b] (50 épaves récoltées). L'IA prend la posture à partir du niveau Normal, choisit sa politique d'épaves, répare, démantèle ou revend selon son économie, et ses vétérans abordent le Vaisseau-tombe quand ils le croisent.\n\nLe rapport de bataille a une section [b]Prises et épaves[/b] ; le replay montre les grappins en pointillés et la prise qui change de camp.",
+"captures": []
+}
+]
+},
+{
+"file": "15zc-son",
+"num": "47",
+"label": "Chapitre",
+"title": "Ce qu'on entend",
+"epigraph": "On m'a demandé le bruit que fait une étoile. J'ai répondu qu'il fallait d'abord s'en approcher.",
+"signature": "Preneuse de son, Compagnie des Ondes de Vael",
+"secret": false,
+"sections": [
+{
+"id": "15zc-son",
+"title": "Présentation",
+"text": "Le son de Stellar Sight suit une règle simple : la [b]musique[/b] joue en permanence et tout le reste se tient derrière elle. Ce chapitre dit ce qu'on entend, à quel moment, et comment le régler.\n\nLes idées viennent des jeux écoutés pour l'étude du son : [b]Endless Space 2[/b] (la sobriété des écrans, le thème de l'interlocuteur en diplomatie), [b]Victoria 3[/b] (les profils d'écoute, la virgule musicale avant un événement), [b]Civilization VII[/b] (une musique qui suit l'état de la partie), [b]Sins of a Solar Empire II[/b] (le silence avant les grands coups) et [b]Star Control II[/b] (un peuple se reconnaît à l'oreille).",
+"captures": []
+},
+{
+"id": "15zc-son#la-musique",
+"title": "La musique",
+"text": "Elle ne s'arrête pas et garde le même niveau à tous les zooms. L'état de la partie choisit la famille de morceaux : le menu, la paix, la tension quand une guerre froide couve, la guerre, la crise, puis la victoire ou la défaite. Deux morceaux s'enchaînent en fondu. Un changement d'état doit durer quelques secondes avant de remplacer la musique, pour qu'une déclaration aussitôt retirée ne coupe pas le morceau en cours.\n\nLe réglage [b]Densité de la musique[/b] vaut « Continue » d'origine. « Normale » et « Rare » laissent des silences entre les morceaux.",
+"captures": []
+},
+{
+"id": "15zc-son#la-carte",
+"title": "La carte",
+"text": "Aux paliers Galaxie et Région, on n'entend que la musique. Au palier Système, et seulement en s'approchant beaucoup, une étoile explorée fait entendre son fond, une flotte visible son moteur, un système assiégé son siège. Le son vient du côté de l'écran où se trouve sa source et faiblit quand elle s'éloigne du centre. Douze sources au plus jouent ensemble, les plus proches d'abord, et deux étoiles du même type n'en font qu'une.\n\nDans la vue d'un système, l'étoile et ses planètes forment un fond léger. La planète choisie passe devant, avec la rumeur de sa ville ou de ses usines si elle est colonisée. La pause étouffe ces sons, le voisinage d'un trou noir aussi. Sous le brouillard de guerre, ce qu'on ne voit pas ne s'entend pas.",
+"captures": []
+},
+{
+"id": "15zc-son#les-écrans",
+"title": "Les écrans",
+"text": "Chaque onglet d'un écran d'empire est un [b]lieu[/b] : la salle des comptes pour le Bilan, la rue pour l'Ordre, la cale sèche pour le Chantier, l'hémicycle pour le Sénat. Changer d'onglet fond un lieu dans l'autre. Pendant ce temps la carte reste audible, plus bas, comme derrière une porte.\n\nLe jeu agite le lieu. La rue gronde quand la stabilité baisse, les bureaux chuchotent davantage avec la corruption, la chambre forte résonne selon la dette. Le Sénat enfle avec les doléances, et une ruche n'a pas d'hémicycle : elle bourdonne d'une seule voix. Pendant un interrègne la salle du trône est presque muette. À l'écoute lointaine du Contact, la porteuse se précise à mesure que la jauge de déchiffrement monte.",
+"captures": []
+},
+{
+"id": "15zc-son#les-peuples",
+"title": "Les peuples",
+"text": "Chaque peuple a un [b]indicatif[/b] de quelques notes et une façon de parler. Le choisir sur l'anneau diplomatique joue son indicatif, lu selon vos rapports : doublé à l'octave pour un allié, tel quel en paix, assombri en guerre froide, grave et frappé en guerre. Suivent quelques mots dans sa langue, fabriqués d'après le texte affiché, ce que le réglage [b]Parole des peuples[/b] permet de couper. Au premier contact l'indicatif est joué en entier et lentement, ce qui n'arrive qu'une fois par peuple. Un peuple créé dans l'éditeur reçoit la palette de son registre. Les Silencieux n'ont ni indicatif ni parole.",
+"captures": []
+},
+{
+"id": "15zc-son#les-ordres-et-les-annonces",
+"title": "Les ordres et les annonces",
+"text": "Un ordre accepté dit sa nature : construire, coloniser, déplacer une flotte, voter une loi, envoyer un agent, poser une proposition sur la table, rompre un accord, déclarer la guerre. Un ordre impossible répond par un son mat, avec la raison écrite à l'écran.\n\nUne annonce sonne selon sa famille et sa gravité, et fait baisser la musique le temps de se faire entendre. La même alerte ne sonne pas deux fois en moins d'une minute, et plusieurs annonces du même instant n'en font qu'une. Chaque chaîne d'événements a un motif de quatre notes, rejoué à chacune de ses cartes : on reconnaît la suite d'une affaire ancienne avant d'avoir lu son titre.",
+"captures": []
+},
+{
+"id": "15zc-son#les-batailles",
+"title": "Les batailles",
+"text": "Dans un replay, un tir s'entend du côté où il part et chaque famille d'arme a son timbre. Quand la cadence dépasse huit tirs par seconde, une [b]rumeur de bataille[/b] remplace les tirs un à un et grossit avec eux. Les explosions, les changements de phase et la déroute restent distincts. Un court silence précède l'explosion d'un titan et un bombardement.",
+"captures": []
+},
+{
+"id": "15zc-son#les-réglages",
+"title": "Les réglages",
+"text": "L'onglet [b]Son[/b] des Options réunit tout.\n\n• [b]Six volumes[/b] : général, musique, ambiance (la carte et les lieux), interface et annonces, combats, voix.\n• [b]Profil d'écoute[/b] : « Enceintes » laisse le mélange tel quel, « Casque » resserre la stéréo pour qu'un son placé d'un côté ne reste pas dans une seule oreille, « Nuit » réduit les écarts entre les sons forts et les sons faibles.\n• [b]Densité de la musique[/b], [b]Parole des peuples[/b], [b]Sons de survol[/b] (coupés d'origine) et [b]Son hors de la fenêtre[/b].\nUn limiteur ferme la sortie générale : quel que soit le nombre de sons qui jouent ensemble, le volume ne dépasse pas un plafond fixé une fois pour toutes. Les sons de fond sont réglés au moins vingt décibels sous la musique.",
 "captures": []
 }
 ]
@@ -4855,6 +4914,13 @@
 "kind": "epigraphe",
 "source": "Contremaître d'abordage, Syndicat de Brisecomète",
 "text": "On nous reproche de ne rien construire. C'est faux : nous reconstruisons beaucoup, et très vite, ce que les autres ont construit."
+},
+{
+"id": "15zc-son:epi",
+"chapter": "15zc-son",
+"kind": "epigraphe",
+"source": "Preneuse de son, Compagnie des Ondes de Vael",
+"text": "On m'a demandé le bruit que fait une étoile. J'ai répondu qu'il fallait d'abord s'en approcher."
 },
 {
 "id": "17-peuples:epi",

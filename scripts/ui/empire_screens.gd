@@ -327,11 +327,14 @@ func open(screen_id: String, state: GameState, player: int) -> void:
 	visible = true
 	show_screen(screen_id)
 	if not was_open:
+		Son.cue("ui_ouvrir")
 		_root.modulate.a = 0.0
 		_root.create_tween().tween_property(_root, "modulate:a", 1.0, 0.18)
 
 
 func close() -> void:
+	if visible:
+		Son.cue("ui_fermer")
 	visible = false
 	current = ""
 	if _tech_panel and is_instance_valid(_tech_panel):
@@ -1490,6 +1493,7 @@ func _build_research() -> void:
 		_fill_research_side())
 	research_tree.tech_activated.connect(func(tid: String) -> void:
 		if Research.check_queue(_state, _player, tid, true) == "":
+			Son.research_cue(tid)
 			command_requested.emit(SimCommands.research(_player, tid, true)))
 	research_tree.tech_planned.connect(plan_research_path)
 	research_tree.zoom_changed.connect(func(z: float) -> void: research_zoom = z)
@@ -1914,6 +1918,10 @@ func _build_diplomacy() -> void:
 	diplo_table.setup(_state, _player, diplo_selected)
 	diplo_table.empire_selected.connect(func(id: int) -> void:
 		diplo_selected = id
+		var other := _state.get_empire(id)
+		if other != null:
+			# D4 : l'indicatif du peuple, lu selon le statut ; D5 : quelques mots dans sa langue.
+			PeopleSound.hail(other.faction_id, diplo_table._status(id), diplo_table.status_line(id))
 		show_screen("diplomacy"))
 	var legend := HBoxContainer.new()
 	legend.add_theme_constant_override("separation", 12)

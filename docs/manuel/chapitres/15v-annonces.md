@@ -69,7 +69,7 @@ L'onglet **Annonces** des Options règle tout cela pour votre poste (les réglag
 {{an_presets}}
 
 - **Animations des fenêtres** : Normale, Rapide ou Instantanée.
-- **Son des annonces** : une signature par type, par famille ou par gravité, quand l'habillage sonore sera là.
+- **Son des annonces** : une signature par famille, plus ample quand l'annonce est grave. La musique baisse le temps qu'elle sonne.
 - Pour **chaque type**, rangé par famille, avec une recherche : son **apparence** (Auto, Chronique, Avis, Fenêtre, Fanfare), sa **pause** et son **ouverture automatique**. Un type toujours visible garde l'Avis au minimum pour l'empire concerné.
 
 « Valeurs par défaut » remet le préréglage Stratège.

@@ -633,7 +633,7 @@ func _test_map_options() -> void:
 	var panel := OptionsPanel.new()
 	Engine.get_main_loop().root.add_child(panel)
 	panel.show_tab("map")
-	_ok(panel._pages.has("map") and panel._pages["map"].visible and OptionsPanel.TABS.size() == 5, "options : un cinquième onglet, Carte")
+	_ok(panel._pages.has("map") and panel._pages["map"].visible and OptionsPanel.TABS.size() == 6, "options : onglet Carte, six onglets avec le Son")
 	UiSettings.map_glide = "normal"
 	UiSettings.map_labels = "all"
 	panel.sync()

@@ -92,6 +92,11 @@ func open(state: GameState, player: int, item: Dictionary) -> void:
 	# Premier contact (refonte, E4) : la scène du peuple rencontré, sa voix, son salut, puis votre réponse.
 	var contact := bool(c.get("contact", false))
 	var rival := state.get_empire(int(item.get("rival", -1)))
+	# G2 : le motif de la chaîne revient à chacune de ses cartes. D7 : au premier contact, l'indicatif
+	# du peuple rencontré, joué en entier et lentement.
+	Son.chain_motif(String(c.get("chain", "")))
+	if contact and rival != null:
+		PeopleSound.hail(rival.faction_id, "contact", body)
 	_voice.visible = contact and rival != null
 	_head.text = "Votre réponse" if contact else "Votre décision"
 	for n in _title.get_parent().get_children():

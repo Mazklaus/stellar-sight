@@ -132,6 +132,7 @@ func _ready() -> void:
 	SpeciesLibrary.load_all()
 	UiSettings.load_settings()
 	UiSettings.apply()
+	Son.setup()
 	get_tree().root.theme = UiTheme.theme()
 	_view = GalaxyView.new()
 	_view.viewer = view_empire
@@ -187,6 +188,13 @@ func _ready() -> void:
 	_system_screen = SystemScreen.new()
 	add_child(_system_screen)
 	_system_screen.close_requested.connect(close_system_view)
+	var map_sound := MapSound.new()
+	map_sound.name = "MapSound"
+	map_sound.view = _view
+	map_sound.camera = _camera
+	map_sound.system_screen = _system_screen
+	map_sound.modal = is_modal_open
+	add_child(map_sound)
 	_system_screen.cycle_requested.connect(cycle_system)
 	_hud.system_mode_requested.connect(func(m: bool) -> void: _system_screen.set_manage_mode(m))
 	_system_screen.mode_changed.connect(_hud.set_manage_tab)
@@ -201,6 +209,16 @@ func _ready() -> void:
 
 	_empire_screens = EmpireScreens.new()
 	add_child(_empire_screens)
+	var screen_sound := ScreenSound.new()
+	screen_sound.name = "ScreenSound"
+	screen_sound.screens = _empire_screens
+	add_child(screen_sound)
+	var music := MusicPlayer.new()
+	music.name = "MusicPlayer"
+	music.probe = func() -> Dictionary:
+		var playing := game_in_progress and simulation != null and _main_menu != null and not _main_menu.is_open()
+		return {"state": simulation.state if playing else null, "player": view_empire, "menu": not playing}
+	add_child(music)
 	_empire_screens.close_requested.connect(close_empire_screen)
 	_empire_screens.ground_replay_requested.connect(func(rid: int) -> void:
 		var rep := Ground.report(simulation.state, rid)
@@ -1050,7 +1068,9 @@ func _start(state: GameState) -> void:
 	Intel.lens = -1 if spectator else view_empire
 	simulation = Simulation.new(state)
 	simulation.command_applied.connect(_on_command_applied)
-	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
+	simulation.command_rejected.connect(func(cmd: Dictionary, reason: String) -> void:
+		if int(cmd.get("player", view_empire)) == view_empire:
+			Son.cue("ui_refus")
 		_hud.notify("Ordre refusé : %s" % reason, "bad"))
 	simulation.chronicle_added.connect(_hud.show_chronicle)
 	simulation.combat_event.connect(_on_combat_event)
@@ -1157,7 +1177,10 @@ func _submit(cmd: Dictionary) -> bool:
 		if why != "":
 			_hud.notify("Ordre refusé : %s" % why, "bad")
 		return why == ""
-	return simulation.submit(cmd)
+	var ok := simulation.submit(cmd)
+	if ok:
+		Son.cue(Son.order_cue(cmd))
+	return ok
 
 
 # --- Multijoueur en réseau ------------------------------------------------------------------------
