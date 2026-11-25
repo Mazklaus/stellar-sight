@@ -42,7 +42,9 @@ var _tip_delay: Button
 var _tip_lock: Button
 var _tip_mode: Button
 ## Cases de l'onglet Son (tests) : bus -> bouton du volume.
-var volume_boxes := {}
+## Curseurs de volume et leur valeur affichée, par bus.
+var volume_sliders := {}
+var volume_labels := {}
 var _profile: Button
 var _background: Button
 var _hover: Button
@@ -298,10 +300,9 @@ func sync() -> void:
 	_preset.text = AnnounceSettings.preset_label()
 	_anim.text = AnnounceSettings.anim_label()
 	_set_toggle(_sound, AnnounceSettings.sound)
-	for bus in volume_boxes:
-		var vb := volume_boxes[bus] as Button
-		vb.text = SoundSettings.volume_label(String(bus))
-		vb.add_theme_color_override("font_color", UiTheme.TEXT_DIM if SoundSettings.volume(String(bus)) <= 0.001 else UiTheme.TEXT)
+	for bus in volume_sliders:
+		(volume_sliders[bus] as HSlider).set_value_no_signal(SoundSettings.volume(String(bus)) * 100.0)
+		_sync_volume(String(bus))
 	_profile.text = SoundSettings.profile_label()
 	_profile.tooltip_text = String(GameData.audio().get("profiles", {}).get(SoundSettings.profile_id(), {}).get("tip", ""))
 	_density.text = SoundSettings.density_label()
@@ -313,24 +314,43 @@ func sync() -> void:
 		_sync_announce_row(String(kind))
 
 
+func _sync_volume(bus: String) -> void:
+	var l := volume_labels[bus] as Label
+	l.text = SoundSettings.volume_label(bus)
+	l.add_theme_color_override("font_color", UiTheme.TEXT_DIM if SoundSettings.volume(bus) <= 0.001 else UiTheme.TEXT)
+
+
 ## Onglet Son (étude du son, bloc K) : un volume par famille de sons, le profil d'écoute, le son quand
 ## le jeu passe au second plan, les sons de survol. Les lignes de volume viennent de data/audio.json.
 func _build_sound(page: VBoxContainer) -> void:
 	for d in GameData.audio().get("volumes", []):
 		var bus := String(d["bus"])
 		var row := _row(page, String(d["label"]), String(d.get("tip", "")))
-		var box := _value_box("", false) as Button
-		box.tooltip_text = "Clic : cran suivant. Clic droit : cran précédent."
-		box.button_mask = MOUSE_BUTTON_MASK_LEFT | MOUSE_BUTTON_MASK_RIGHT
-		box.gui_input.connect(func(e: InputEvent) -> void:
-			if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_RIGHT:
-				box.set_meta("recul", true))
-		box.pressed.connect(func() -> void:
-			SoundSettings.cycle_volume(bus, -1 if box.has_meta("recul") else 1)
-			box.remove_meta("recul")
-			sync())
-		row.add_child(box)
-		volume_boxes[bus] = box
+		var pair := HBoxContainer.new()
+		pair.custom_minimum_size = Vector2(VALUE_WIDTH, 36)
+		pair.add_theme_constant_override("separation", 12)
+		row.add_child(pair)
+		var sl := HSlider.new()
+		sl.min_value = 0.0
+		sl.max_value = 100.0
+		sl.step = 5.0
+		sl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		sl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		sl.focus_mode = Control.FOCUS_NONE
+		sl.tooltip_text = String(d.get("tip", ""))
+		sl.set_value_no_signal(SoundSettings.volume(bus) * 100.0)
+		pair.add_child(sl)
+		var pct := Label.new()
+		pct.custom_minimum_size = Vector2(64, 0)
+		pct.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		pair.add_child(pct)
+		# Le volume suit le curseur pendant qu'on le tire ; le réglage s'écrit quand on le lâche.
+		sl.value_changed.connect(func(v: float) -> void:
+			SoundSettings.set_volume(bus, v / 100.0, false)
+			_sync_volume(bus))
+		sl.drag_ended.connect(func(_changed: bool) -> void: SoundSettings.save_settings())
+		volume_sliders[bus] = sl
+		volume_labels[bus] = pct
 	var prow := _row(page, "Profil d'écoute", "Adapte le mélange à ce qui diffuse le son.")
 	_profile = _value_box("", false) as Button
 	_profile.pressed.connect(func() -> void:
