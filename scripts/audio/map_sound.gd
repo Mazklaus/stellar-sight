@@ -161,14 +161,21 @@ static func build_buses() -> void:
 		var lp := AudioEffectLowPassFilter.new()
 		lp.cutoff_hz = float(c.get("open_hz", 20500.0))
 		AudioServer.add_bus_effect(at, lp)
-	for i in int(c.get("voices", 12)):
-		var id := VOICE_BUS % i
+	build_voice_buses(VOICE_BUS, int(c.get("voices", 12)), main)
+
+
+## Bus de voix à panoramique (un par lecteur), versés dans un bus du mélange.
+static func build_voice_buses(pattern: String, count: int, send: String) -> void:
+	if AudioServer.get_bus_index(send) < 0:
+		return
+	for i in count:
+		var id := pattern % i
 		if AudioServer.get_bus_index(id) >= 0:
 			continue
 		AudioServer.add_bus()
 		var b := AudioServer.bus_count - 1
 		AudioServer.set_bus_name(b, id)
-		AudioServer.set_bus_send(b, main)
+		AudioServer.set_bus_send(b, send)
 		AudioServer.add_bus_effect(b, AudioEffectPanner.new())
 
 

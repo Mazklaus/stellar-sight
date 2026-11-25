@@ -161,6 +161,30 @@
 			"victory": ["observatoire", ""], "transcendence": ["seuil", ""], "contact": ["porteuse", "contact"], "kardashev": ["centrale", ""]
 		}
 	},
+	"battle": {
+		"_doc": "Lot 7, bloc H de l'étude : le son des vues de bataille. cues : esquisse d'un repère tant que son fichier manque (assets/sounds/battle/<repère>.ogg) ; un repère tir_<arme> sans recette prend celle de « tir ». pan : part du panoramique (H2). crowd : au-delà de rate tirs ou impacts par seconde, les tirs un à un se taisent et une rumeur de bataille prend le relais, plus ou moins forte selon la cadence jusqu'à full (H4) ; les repères de keep jouent toujours. hush : un silence de pause secondes précède ces grands coups (H5).",
+		"vol": -10.0,
+		"pan": 0.7,
+		"crowd": {"rate": 8, "full": 30, "vol": -14.0, "keep": ["explosion", "explosion_titan", "phase", "fin", "bombardement", "deroute"], "bed": {"f": 62, "noise": 0.85, "lp": 0.2, "wobble": 1.5}},
+		"hush": {"pause": 0.5, "cues": ["explosion_titan", "bombardement"]},
+		"cues": {
+			"tir": {"w": "square", "f": 660, "notes": [0], "len": 0.09, "a": 0.002, "slide": -12, "lp": 0.5, "gain": 0.4},
+			"tir_laser": {"w": "saw", "f": 1400, "notes": [0], "len": 0.12, "a": 0.002, "slide": -18, "lp": 0.6, "gain": 0.35},
+			"tir_kinetic": {"w": "noise", "f": 500, "notes": [0], "len": 0.07, "a": 0.001, "slide": -8, "lp": 0.4, "gain": 0.5},
+			"tir_missile": {"w": "noise", "f": 300, "notes": [0], "len": 0.35, "a": 0.05, "slide": 12, "lp": 0.3, "gain": 0.4},
+			"impact_bouclier": {"w": "sine", "f": 880, "notes": [0, 7], "step": 0.02, "len": 0.14, "a": 0.002, "slide": -4, "gain": 0.35},
+			"impact_coque": {"w": "noise", "f": 220, "notes": [0], "len": 0.12, "a": 0.001, "slide": -10, "lp": 0.25, "gain": 0.55},
+			"explosion": {"w": "noise", "f": 160, "notes": [0], "len": 0.7, "a": 0.004, "slide": -14, "lp": 0.2, "gain": 0.6},
+			"explosion_titan": {"w": "noise", "f": 110, "notes": [0, -5], "step": 0.25, "len": 1.6, "a": 0.006, "slide": -16, "lp": 0.15, "gain": 0.65},
+			"phase": {"w": "triangle", "f": 196, "notes": [0, 7], "step": 0.12, "len": 0.4, "a": 0.01, "gain": 0.4},
+			"fin": {"w": "triangle", "f": 147, "notes": [0, 5, 12], "step": 0.2, "len": 0.9, "a": 0.02, "gain": 0.4},
+			"salve": {"w": "noise", "f": 700, "notes": [0, 0, 0], "step": 0.05, "len": 0.05, "a": 0.001, "lp": 0.5, "gain": 0.45},
+			"obus": {"w": "noise", "f": 180, "notes": [0], "len": 0.3, "a": 0.002, "slide": -9, "lp": 0.2, "gain": 0.55},
+			"roquette": {"w": "noise", "f": 400, "notes": [0], "len": 0.4, "a": 0.06, "slide": 10, "lp": 0.35, "gain": 0.4},
+			"bombardement": {"w": "noise", "f": 90, "notes": [0, -3, -7], "step": 0.3, "len": 1.2, "a": 0.005, "slide": -12, "lp": 0.15, "gain": 0.6},
+			"deroute": {"w": "saw", "f": 196, "notes": [0, -2, -5, -9], "step": 0.16, "len": 0.4, "a": 0.01, "lp": 0.3, "gain": 0.4}
+		}
+	},
 	"orders": {
 		"_doc": "F2 : un ordre accepté dit sa nature. Type de l'ordre (SimCommands) vers repère. Un ordre absent de la table garde le son de son bouton. Un ordre refusé joue ui_refus (F7).",
 		"build": "ordre_batir", "queue_build": "ordre_batir", "build_ship": "ordre_batir", "megastructures": "ordre_batir", "worldforge": "ordre_batir", "defense": "ordre_batir", "refit": "ordre_batir", "rush": "ordre_batir",

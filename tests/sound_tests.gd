@@ -22,6 +22,7 @@ func run(check: Callable) -> void:
 	_test_peoples()
 	_test_music()
 	_test_orders()
+	_test_battle()
 	SoundSettings.reset()
 
 
@@ -595,3 +596,32 @@ func _test_orders() -> void:
 	var m := Son.measure(SoundSynth.samples(a))
 	_ok(float(m["peak_db"]) + float(Son.data()["chains"]["vol"]) <= float(cap["cue_peak_db"]), "le motif d'une chaîne reste sous le plafond")
 	_ok(not PeopleSound.jingle("vael", "contact").is_empty() and float(PeopleSound.jingle("vael", "contact")["len"]) > float(PeopleSound.jingle("vael")["len"]), "premier contact : l'indicatif en entier, lentement")
+
+
+## Lot 7 : le son des batailles.
+func _test_battle() -> void:
+	var b: Dictionary = BattleSounds.mix()
+	var cap: Dictionary = Son.data()["ceiling"]
+	for id in ["tir_laser", "tir_kinetic", "tir_arme_inconnue", "impact_bouclier", "impact_coque", "explosion", "explosion_titan", "phase", "fin", "salve", "obus", "roquette", "bombardement", "deroute"]:
+		var r := BattleSounds.recipe_of(id)
+		_ok(not r.is_empty(), "le repère de bataille %s a son esquisse" % id)
+		var m := Son.measure(SoundSynth.samples(r))
+		_ok(float(m["peak_db"]) + float(b["vol"]) <= float(cap["cue_peak_db"]) + 3.0 and float(m["rms_db"]) + float(b["vol"]) <= float(cap["cue_rms_db"]) + 3.0, "%s sous le plafond des combats" % id)
+	_ok(BattleSounds.recipe_of("inconnu").is_empty(), "un repère inconnu ne joue rien")
+	_ok(is_zero_approx(BattleSounds.pan_of(Vector2(500, 300), 1000.0)) and BattleSounds.pan_of(Vector2(900, 300), 1000.0) > 0.3 and BattleSounds.pan_of(Vector2(100, 300), 1000.0) < -0.3, "un tir s'entend du côté où il part")
+	_ok(is_zero_approx(BattleSounds.pan_of(Vector2.ZERO, 1000.0)), "sans position, au milieu")
+	var rate := float(b["crowd"]["rate"])
+	_ok(is_zero_approx(BattleSounds.crowd_level(rate - 1.0)) and BattleSounds.crowd_level(rate) > 0.0, "la rumeur de bataille naît au-delà du seuil de tirs")
+	_ok(BattleSounds.crowd_level(float(b["crowd"]["full"])) > BattleSounds.crowd_level(rate) and BattleSounds.crowd_level(1000.0) <= 1.0, "elle grossit avec la cadence, sans dépasser")
+	_ok(BattleSounds.kept("explosion_titan") and not BattleSounds.kept("tir_laser"), "les événements marquants restent audibles un à un")
+	var bed := Son.measure(SoundSynth.bed_samples(b["crowd"]["bed"]))
+	_ok(float(bed["rms_db"]) + float(b["crowd"]["vol"]) <= float(cap["bed_rms_db"]) + 6.0, "la rumeur reste contenue")
+	var holder := Control.new()
+	holder.size = Vector2(1000, 600)
+	(Engine.get_main_loop() as SceneTree).root.add_child(holder)
+	var bs := BattleSounds.new()
+	holder.add_child(bs)
+	bs.play("tir_laser", Vector2(900, 300))
+	_ok(bs.heard.has("tir_laser") and AudioServer.get_bus_index("CombatV0") >= 0 and AudioServer.get_bus_send(AudioServer.get_bus_index("CombatV0")) == &"Combat", "les voix de bataille passent par le bus Combat")
+	_ok((AudioServer.get_bus_effect(AudioServer.get_bus_index("CombatV0"), 0) as AudioEffectPanner).pan > 0.3, "le tir de droite est placé à droite")
+	holder.free()
