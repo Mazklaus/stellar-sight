@@ -600,10 +600,14 @@ func _sync_pin() -> void:
 func _add_capture(path: String) -> void:
 	var tex: Texture2D = _tex_cache.get(path)
 	if tex == null:
-		var img := Image.load_from_file(ProjectSettings.globalize_path("res://" + path))
-		if img == null or img.is_empty():
-			return
-		tex = ImageTexture.create_from_image(img)
+		# Dans le jeu exporté, l'image n'existe plus qu'importée : passer d'abord par ResourceLoader.
+		if ResourceLoader.exists("res://" + path):
+			tex = load("res://" + path) as Texture2D
+		if tex == null:
+			var img := Image.load_from_file(ProjectSettings.globalize_path("res://" + path))
+			if img == null or img.is_empty():
+				return
+			tex = ImageTexture.create_from_image(img)
 		_tex_cache[path] = tex
 	var tr := TextureRect.new()
 	tr.texture = tex
