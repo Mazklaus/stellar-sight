@@ -196,6 +196,52 @@ static func module_cue(slot: String) -> String:
 	return String(data().get("module_cues", {}).get(slot, "module_soutien"))
 
 
+## F2 : repère d'un ordre accepté, d'après son type ("" : l'ordre garde le son de son bouton).
+static func order_cue(cmd: Dictionary) -> String:
+	var v: Variant = data().get("orders", {}).get(String(cmd.get("type", "")), "")
+	return String(v) if v is String else ""
+
+
+## G2 : motif d'une chaîne d'événements, quatre notes tirées de son nom (toujours les mêmes).
+static func chain_recipe(chain: String) -> Dictionary:
+	var c: Dictionary = data().get("chains", {})
+	var scale: Array = c.get("scale", [0, 3, 7, 12])
+	var out: Dictionary = (c.get("synth", {}) as Dictionary).duplicate()
+	var rng := RandomNumberGenerator.new()
+	rng.seed = chain.hash()
+	var notes: Array = []
+	for i in 4:
+		notes.append(float(scale[rng.randi() % scale.size()]))
+	out["notes"] = notes
+	out["f"] = float(out.get("f", 220.0)) * pow(2.0, float(rng.randi_range(-3, 3)) / 12.0)
+	return out
+
+
+static func chain_motif(chain: String) -> void:
+	if chain == "":
+		return
+	heard.append("chaine:" + chain)
+	var c: Dictionary = data().get("chains", {})
+	play_stream(SoundSynth.stream(chain_recipe(chain)), String(c.get("bus", "Signaux")), float(c.get("vol", -15.0)))
+
+
+## F5 : une alerte ne se répète pas. Faux si ce type vient de sonner (repeat_s) ou si une autre
+## annonce a sonné à l'instant (burst_s).
+static var _told := {}
+static var _last_told := -100000.0
+
+
+static func announce_allowed(kind: String, now_s: float) -> bool:
+	var cfg: Dictionary = data().get("announce", {})
+	if now_s - _last_told < float(cfg.get("burst_s", 0.6)):
+		return false
+	if _told.has(kind) and now_s - float(_told[kind]) < float(cfg.get("repeat_s", 60.0)):
+		return false
+	_told[kind] = now_s
+	_last_told = now_s
+	return true
+
+
 ## Esquisse d'une annonce (F4) : la famille donne le timbre et le motif, la gravité le nombre de notes
 ## et leur durée. Rien pour une Chronique.
 static func announce_recipe(family: String, gravity: int) -> Dictionary:

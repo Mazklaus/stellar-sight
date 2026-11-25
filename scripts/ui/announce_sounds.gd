@@ -32,6 +32,8 @@ static func play(kind: String, gravity: int) -> void:
 		heard.remove_at(0)
 	if not AnnounceSettings.sound:
 		return
+	if not Son.announce_allowed(kind, float(Time.get_ticks_msec()) / 1000.0):
+		return
 	var p := ""
 	for id in [kind, Announce.family_of(kind), "gravite_%d" % gravity]:
 		p = path_of(id)

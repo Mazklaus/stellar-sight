@@ -90,6 +90,17 @@
 		"module_defense": {"bus": "Interface", "label": "Module posé : défense", "vol": -12, "gap": 60, "synth": {"w": "triangle", "f": 330, "notes": [0, 5], "step": 0.03, "len": 0.14, "a": 0.004, "gain": 0.45}},
 		"module_soutien": {"bus": "Interface", "label": "Module posé : soutien", "vol": -12, "gap": 60, "synth": {"w": "sine", "f": 660, "notes": [0], "len": 0.1, "a": 0.003, "slide": 3, "gain": 0.4}},
 		"modele_valide": {"bus": "Interface", "label": "Modèle de vaisseau enregistré", "vol": -10, "gap": 200, "synth": {"w": "triangle", "f": 220, "notes": [0, 7, 12, 16], "step": 0.06, "len": 0.3, "a": 0.005, "gain": 0.4}},
+		"ordre_batir": {"bus": "Interface", "label": "Ordre : construire", "vol": -12, "gap": 120, "synth": {"w": "square", "f": 110, "notes": [0, 0], "step": 0.09, "len": 0.08, "a": 0.002, "lp": 0.25, "gain": 0.5}},
+		"ordre_coloniser": {"bus": "Interface", "label": "Ordre : coloniser", "vol": -11, "gap": 200, "synth": {"w": "sine", "f": 294, "notes": [0, 7, 14], "step": 0.09, "len": 0.3, "a": 0.01, "gain": 0.4}},
+		"ordre_flotte": {"bus": "Interface", "label": "Ordre de flotte", "vol": -13, "gap": 100, "synth": {"w": "noise", "f": 700, "notes": [0], "len": 0.25, "a": 0.03, "slide": 9, "lp": 0.3, "gain": 0.45}},
+		"ordre_fusion": {"bus": "Interface", "label": "Flottes réunies ou séparées", "vol": -13, "gap": 100, "synth": {"w": "triangle", "f": 392, "notes": [0, -5], "step": 0.05, "len": 0.12, "a": 0.004, "gain": 0.45}},
+		"ordre_attaque": {"bus": "Interface", "label": "Ordre d'attaque", "vol": -11, "gap": 200, "synth": {"w": "saw", "f": 98, "notes": [0, 0, 3], "step": 0.08, "len": 0.14, "a": 0.003, "lp": 0.3, "gain": 0.45}},
+		"ordre_loi": {"bus": "Interface", "label": "Loi ou décret", "vol": -11, "gap": 200, "synth": {"w": "square", "f": 131, "notes": [0], "len": 0.2, "a": 0.002, "slide": -3, "lp": 0.2, "gain": 0.55}},
+		"ordre_agent": {"bus": "Interface", "label": "Agent envoyé", "vol": -14, "gap": 200, "synth": {"w": "sine", "f": 740, "notes": [0, -1, -6], "step": 0.07, "len": 0.16, "a": 0.01, "lp": 0.5, "gain": 0.35}},
+		"ordre_recruter": {"bus": "Interface", "label": "Recrutement", "vol": -12, "gap": 150, "synth": {"w": "triangle", "f": 196, "notes": [0, 5], "step": 0.08, "len": 0.16, "a": 0.004, "gain": 0.45}},
+		"accord_propose": {"bus": "Interface", "label": "Proposition posée sur la table", "vol": -12, "gap": 200, "synth": {"w": "triangle", "f": 330, "notes": [0, 4], "step": 0.12, "len": 0.3, "a": 0.01, "gain": 0.4}},
+		"accord_rupture": {"bus": "Interface", "label": "Accord rompu", "vol": -11, "gap": 300, "synth": {"w": "saw", "f": 220, "notes": [0, -6], "step": 0.14, "len": 0.3, "a": 0.005, "lp": 0.3, "gain": 0.4}},
+		"guerre_declaree": {"bus": "Interface", "label": "Guerre déclarée", "vol": -10, "gap": 500, "synth": {"w": "saw", "f": 73, "notes": [0, 0, -5], "step": 0.22, "len": 0.5, "a": 0.004, "lp": 0.25, "gain": 0.5}},
 		"tour_pret": {"bus": "Interface", "label": "Tour suivant", "vol": -12, "gap": 300, "synth": {"w": "sine", "f": 660, "notes": [0, 5], "step": 0.1, "len": 0.3, "a": 0.01, "gain": 0.4}}
 	},
 	"map": {
@@ -150,6 +161,45 @@
 			"victory": ["observatoire", ""], "transcendence": ["seuil", ""], "contact": ["porteuse", "contact"], "kardashev": ["centrale", ""]
 		}
 	},
+	"battle": {
+		"_doc": "Lot 7, bloc H de l'étude : le son des vues de bataille. cues : esquisse d'un repère tant que son fichier manque (assets/sounds/battle/<repère>.ogg) ; un repère tir_<arme> sans recette prend celle de « tir ». pan : part du panoramique (H2). crowd : au-delà de rate tirs ou impacts par seconde, les tirs un à un se taisent et une rumeur de bataille prend le relais, plus ou moins forte selon la cadence jusqu'à full (H4) ; les repères de keep jouent toujours. hush : un silence de pause secondes précède ces grands coups (H5).",
+		"vol": -10.0,
+		"pan": 0.7,
+		"crowd": {"rate": 8, "full": 30, "vol": -14.0, "keep": ["explosion", "explosion_titan", "phase", "fin", "bombardement", "deroute"], "bed": {"f": 62, "noise": 0.85, "lp": 0.2, "wobble": 1.5}},
+		"hush": {"pause": 0.5, "cues": ["explosion_titan", "bombardement"]},
+		"cues": {
+			"tir": {"w": "square", "f": 660, "notes": [0], "len": 0.09, "a": 0.002, "slide": -12, "lp": 0.5, "gain": 0.4},
+			"tir_laser": {"w": "saw", "f": 1400, "notes": [0], "len": 0.12, "a": 0.002, "slide": -18, "lp": 0.6, "gain": 0.35},
+			"tir_kinetic": {"w": "noise", "f": 500, "notes": [0], "len": 0.07, "a": 0.001, "slide": -8, "lp": 0.4, "gain": 0.5},
+			"tir_missile": {"w": "noise", "f": 300, "notes": [0], "len": 0.35, "a": 0.05, "slide": 12, "lp": 0.3, "gain": 0.4},
+			"impact_bouclier": {"w": "sine", "f": 880, "notes": [0, 7], "step": 0.02, "len": 0.14, "a": 0.002, "slide": -4, "gain": 0.35},
+			"impact_coque": {"w": "noise", "f": 220, "notes": [0], "len": 0.12, "a": 0.001, "slide": -10, "lp": 0.25, "gain": 0.55},
+			"explosion": {"w": "noise", "f": 160, "notes": [0], "len": 0.7, "a": 0.004, "slide": -14, "lp": 0.2, "gain": 0.6},
+			"explosion_titan": {"w": "noise", "f": 110, "notes": [0, -5], "step": 0.25, "len": 1.6, "a": 0.006, "slide": -16, "lp": 0.15, "gain": 0.65},
+			"phase": {"w": "triangle", "f": 196, "notes": [0, 7], "step": 0.12, "len": 0.4, "a": 0.01, "gain": 0.4},
+			"fin": {"w": "triangle", "f": 147, "notes": [0, 5, 12], "step": 0.2, "len": 0.9, "a": 0.02, "gain": 0.4},
+			"salve": {"w": "noise", "f": 700, "notes": [0, 0, 0], "step": 0.05, "len": 0.05, "a": 0.001, "lp": 0.5, "gain": 0.45},
+			"obus": {"w": "noise", "f": 180, "notes": [0], "len": 0.3, "a": 0.002, "slide": -9, "lp": 0.2, "gain": 0.55},
+			"roquette": {"w": "noise", "f": 400, "notes": [0], "len": 0.4, "a": 0.06, "slide": 10, "lp": 0.35, "gain": 0.4},
+			"bombardement": {"w": "noise", "f": 90, "notes": [0, -3, -7], "step": 0.3, "len": 1.2, "a": 0.005, "slide": -12, "lp": 0.15, "gain": 0.6},
+			"deroute": {"w": "saw", "f": 196, "notes": [0, -2, -5, -9], "step": 0.16, "len": 0.4, "a": 0.01, "lp": 0.3, "gain": 0.4}
+		}
+	},
+	"orders": {
+		"_doc": "F2 : un ordre accepté dit sa nature. Type de l'ordre (SimCommands) vers repère. Un ordre absent de la table garde le son de son bouton. Un ordre refusé joue ui_refus (F7).",
+		"build": "ordre_batir", "queue_build": "ordre_batir", "build_ship": "ordre_batir", "megastructures": "ordre_batir", "worldforge": "ordre_batir", "defense": "ordre_batir", "refit": "ordre_batir", "rush": "ordre_batir",
+		"colonize": "ordre_coloniser", "queue_claim": "ordre_coloniser",
+		"move_fleet": "ordre_flotte", "patrol_fleet": "ordre_flotte", "set_fleet_order": "ordre_flotte", "stop_fleet": "ordre_flotte", "probe": "ordre_flotte",
+		"merge_fleets": "ordre_fusion", "split_fleet": "ordre_fusion",
+		"invade": "ordre_attaque", "capture": "ordre_attaque", "requisition": "ordre_attaque",
+		"law_adopt": "ordre_loi", "law_revoke": "ordre_loi", "decree": "ordre_loi", "politics_action": "ordre_loi", "amph_vote": "ordre_loi",
+		"spy_op": "ordre_agent", "spy_cells": "ordre_agent", "bribe_heir": "ordre_agent",
+		"hero_hire": "ordre_recruter", "pirate_hire": "ordre_recruter", "ground_act": "ordre_recruter",
+		"propose_treaty": "accord_propose", "deal_offer": "accord_propose", "amph_propose": "accord_propose", "research_pact": "accord_propose",
+		"cancel_treaty": "accord_rupture", "embargo": "accord_rupture", "deal_cancel": "accord_rupture",
+		"declare_war": "guerre_declaree"
+	},
+	"chains": {"_doc": "G2 : chaque chaîne d'événements a un motif de quatre notes tiré de son nom, rejoué à chacune de ses cartes. scale : gamme des notes ; recette commune du motif.", "bus": "Signaux", "vol": -15.0, "scale": [0, 2, 3, 7, 8, 12], "synth": {"w": "triangle", "f": 220, "step": 0.28, "len": 0.6, "a": 0.03, "lp": 0.4, "gain": 0.4}},
 	"music": {
 		"_doc": "Lot 5, bloc E de l'étude : la musique couvre le jeu en permanence (décision du 25/11/2026). Les morceaux d'un état sont les fichiers assets/sounds/musique/<état>_1.ogg à <état>_9.ogg ; ils s'enchaînent en fondu, jamais deux fois de suite le même. states : états dans l'ordre de priorité, avec l'état de repli tant que ses morceaux manquent. density : silence entre deux morceaux, en secondes [min, max] ; « continue » est le réglage d'origine. fade : fondu d'un morceau à l'autre ; switch : fondu quand l'état change. hold : secondes pendant lesquelles un état doit durer avant de remplacer la musique (une escarmouche ne change pas le morceau).",
 		"bus": "Musique",
@@ -186,7 +236,8 @@
 			"peace": {"semis": 0, "len": 1.0, "lp": 1.0},
 			"cold": {"semis": -2, "len": 1.15, "lp": 0.7},
 			"war": {"semis": -5, "len": 1.25, "lp": 0.6, "hit": true},
-			"none": {"semis": -7, "len": 1.5, "lp": 0.4}
+			"none": {"semis": -7, "len": 1.5, "lp": 0.4},
+			"contact": {"semis": 0, "len": 1.8, "lp": 0.8}
 		},
 		"voices": {
 			"formant": {"w": "saw", "lp": 0.35, "spread": 5},
@@ -238,6 +289,8 @@
 	"speed_semitones": [0, 3, 5, 8, 12],
 	"announce": {
 		"_doc": "F4 : la famille donne le timbre, la gravité donne l'ampleur. Esquisse jouée quand aucun fichier n'est déposé dans assets/sounds/announce/. counts : nombre de notes du motif par gravité (0 Chronique à 3 Fanfare).",
+		"repeat_s": 60.0,
+		"burst_s": 0.6,
 		"bus": "Annonces",
 		"vol": -9,
 		"counts": [0, 1, 3, 5],
