@@ -124,6 +124,9 @@
 		"calm": 0.55,
 		"pitch": 0.6,
 		"rest": 0.4,
+		"regime_places": {"_doc": "C3 : un régime peut changer le lieu d'un onglet. La ruche n'a pas d'hémicycle, elle bourdonne d'une seule voix.", "ruche": {"senate": "ruche"}},
+		"grievances_full": 4,
+		"faste_full": 100,
 		"places": {
 			"economy": ["comptes", "deficit"], "colonies": ["mondes", "colonies"], "peoples": ["peuples", ""],
 			"order:ordre": ["rue", "stability"], "order:admin": ["bureaux", "corruption"], "order:tresor": ["tresor", "debt"],
@@ -135,7 +138,7 @@
 			"amphictyony": ["hemicycle", ""], "intel": ["ecoute", ""],
 			"trade:routes": ["quai", "routes"], "trade:market": ["corbeille", ""], "trade:resources": ["corbeille", ""],
 			"trade:knowledge": ["cabinet", ""], "trade:private": ["comptoirs", ""], "trade:ports": ["spatioport", ""],
-			"throne:trone": ["trone", ""], "throne:cour": ["cour", ""], "senate": ["senat", "stability"], "faith": ["temple", ""],
+			"throne:trone": ["trone", "throne"], "throne:cour": ["cour", "court"], "senate": ["senat", "senate"], "faith": ["temple", ""],
 			"culture": ["theatre", ""], "heroes": ["galerie", ""],
 			"chronicles:quests": ["chroniqueur", ""], "chronicles:events": ["chroniqueur", ""], "chronicles:crisis": ["chroniqueur", ""],
 			"chronicles:announces": ["chroniqueur", ""], "chronicles:annals": ["archives", ""], "chronicles:deeds": ["archives", ""],

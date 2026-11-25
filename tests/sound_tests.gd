@@ -380,9 +380,12 @@ func _test_screens() -> void:
 	var st := GameState.create(11)
 	var rest := float(c["rest"])
 	_ok(is_equal_approx(ScreenSound.agitation(st, 0, ""), rest) and is_equal_approx(ScreenSound.agitation(null, 0, "stability"), rest), "sans donnée, le lieu est au repos")
-	for vary in ["stability", "corruption", "debt", "deficit", "fleets", "routes", "colonies"]:
+	for vary in ["stability", "corruption", "debt", "deficit", "fleets", "routes", "colonies", "senate", "throne", "court", "contact"]:
 		var a := ScreenSound.agitation(st, 0, vary)
 		_ok(a >= 0.0 and a <= 1.0, "agitation « %s » entre 0 et 1" % vary)
+	_ok(String(ScreenSound.place_of("senate", st, 0)[0]) in ["senat", "ruche"], "le Sénat a son lieu selon le régime")
+	var swap: Dictionary = c["regime_places"]["ruche"]
+	_ok(MapSound.stream_for("lieu_" + String(swap["senate"]), String(c["dir"])) != null, "la ruche bourdonne à la place de l'hémicycle")
 	var calm := ScreenSound.agitation(st, 0, "deficit")
 	st.get_empire(0).starving = true
 	_ok(ScreenSound.agitation(st, 0, "deficit") > calm, "une famine agite la salle des comptes")

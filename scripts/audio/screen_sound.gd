@@ -21,8 +21,13 @@ static func cfg() -> Dictionary:
 
 
 ## [son, donnée] de l'adresse d'un onglet ; ["", ""] si l'onglet n'a pas de lieu.
-static func place_of(addr: String) -> Array:
+static func place_of(addr: String, state: GameState = null, player := -1) -> Array:
 	var places: Dictionary = cfg().get("places", {})
+	if state != null and state.get_empire(player) != null:
+		# C3 : le régime peut changer le lieu (la ruche n'a pas d'hémicycle).
+		var swap: Dictionary = cfg().get("regime_places", {}).get(Politics.regime_id(state, player), {})
+		if swap.has(addr) and places.has(addr):
+			return [swap[addr], places[addr][1]]
 	if places.has(addr):
 		return places[addr]
 	var screen := UiDomains.screen_of(addr)
@@ -64,6 +69,15 @@ static func agitation(state: GameState, player: int, vary: String) -> float:
 					all += 1
 					moving += 1 if f.is_moving() else 0
 			return float(moving) / float(all) if all > 0 else 0.0
+		"senate":
+			# C3 : la rumeur enfle avec les doléances et quand la stabilité baisse.
+			var plaints := float(Grievances.current(state, player).size()) / maxf(1.0, float(cfg().get("grievances_full", 4)))
+			return clampf(maxf(plaints, agitation(state, player, "stability")), 0.0, 1.0)
+		"throne":
+			# C4 : pendant un interrègne, la salle du trône est presque muette.
+			return 0.0 if Grievances.interregnum(state, player) else rest
+		"court":
+			return clampf(float(CourtBridges.faste(state, player)) / maxf(1.0, float(cfg().get("faste_full", 100))), 0.0, 1.0)
 		"contact":
 			return clampf(float(Contact.gauge_pct(state, player)) / 100.0, 0.0, 1.0)
 		"routes":
@@ -91,7 +105,7 @@ func _process(delta: float) -> void:
 	if _clock <= 0.0:
 		_clock = 0.25
 		var addr := UiDomains.address(screens) if screens != null and screens.is_open() else ""
-		var place := place_of(addr) if addr != "" else ["", ""]
+		var place := place_of(addr, screens._state, screens._player) if addr != "" else ["", ""]
 		enter(String(place[0]))
 		if String(place[0]) != "":
 			_level = agitation(screens._state, screens._player, String(place[1]))
