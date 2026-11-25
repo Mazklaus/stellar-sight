@@ -1,0 +1,87 @@
+{
+	"_doc": "Le son du jeu (étude du son, 25/11/2026, bloc A et J). Catalogue ouvert : ajouter un repère ici suffit. Un repère joue le fichier <dir><dossier>/<id>.ogg (dossier : champ dir du repère, « ui » par défaut) ou .wav s'il existe (variantes <id>_1 à <id>_5), sinon son esquisse de synthèse (bloc synth), sinon rien. Esquisse : w onde (sine, triangle, saw, square, noise), f fréquence de base en Hz, notes en demi-tons, step écart entre deux notes (s), len durée d'une note (s), a attaque (s), slide glissement en demi-tons sur la note, lp filtre passe-bas (0 fermé à 1 ouvert), gain.",
+	"_sources": "Étude : https://claude.ai/artifact/4LTZmMrwj7E2TJQkPB4xvN. Bus et baisse automatique : documentation Godot 4.7 (AudioEffectCompressor, sidechain). Profils d'écoute : Victoria 3, journal n° 63.",
+	"dir": "res://assets/sounds/",
+	"ext": ["ogg", "wav"],
+	"voices": 12,
+	"rate": 32000,
+	"buses": [
+		{"id": "Musique", "send": "Master"},
+		{"id": "Ambiance", "send": "Master"},
+		{"id": "Carte", "send": "Ambiance"},
+		{"id": "Ecran", "send": "Ambiance"},
+		{"id": "Signaux", "send": "Master"},
+		{"id": "Interface", "send": "Signaux"},
+		{"id": "Annonces", "send": "Signaux"},
+		{"id": "Combat", "send": "Master"},
+		{"id": "Voix", "send": "Master"}
+	],
+	"volumes": [
+		{"bus": "Master", "label": "Volume général", "tip": "Tout le son du jeu.", "default": 0.8},
+		{"bus": "Musique", "label": "Musique", "tip": "Thèmes et nappes. La musique joue en continu.", "default": 0.7},
+		{"bus": "Ambiance", "label": "Ambiance", "tip": "Étoiles, planètes et flottes vues de près, lieux des écrans.", "default": 0.8},
+		{"bus": "Signaux", "label": "Interface et annonces", "tip": "Clics, ordres, cadran du temps, annonces et alertes.", "default": 0.8},
+		{"bus": "Combat", "label": "Combats", "tip": "Vues de bataille dans l'espace et au sol.", "default": 0.8},
+		{"bus": "Voix", "label": "Voix", "tip": "Parole des peuples et rumeurs de foule.", "default": 0.8}
+	],
+	"volume_steps": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+	"profiles": {
+		"enceintes": {"label": "Enceintes", "tip": "Le mélange tel quel."},
+		"casque": {"label": "Casque", "tip": "Stéréo resserrée : un son placé d'un côté ne s'entend pas dans une seule oreille.", "pan_pullout": 0.6},
+		"nuit": {"label": "Nuit", "tip": "Écarts de volume réduits : les sons forts sont retenus, les sons faibles restent audibles.", "threshold_db": -26.0, "ratio": 4.0, "gain_db": 6.0}
+	},
+	"default_profile": "enceintes",
+	"duck": {
+		"_doc": "A3 : la musique et l'ambiance baissent quand le bus déclencheur sonne.",
+		"targets": ["Musique", "Ambiance"],
+		"trigger": "Annonces",
+		"threshold_db": -30.0,
+		"ratio": 6.0,
+		"attack_us": 40.0,
+		"release_ms": 600.0
+	},
+	"buttons": {
+		"_doc": "Sons posés d'office sur les boutons de l'interface. Un bouton choisit un autre repère par set_meta(\"son\", \"<id>\"), ou se tait par set_meta(\"son\", \"\").",
+		"default": "ui_clic",
+		"tab": "ui_onglet",
+		"toggle": "ui_bascule",
+		"hover": "ui_survol"
+	},
+	"cues": {
+		"ui_clic": {"bus": "Interface", "label": "Clic", "vol": -14, "gap": 40, "pitch": 0.03, "synth": {"w": "sine", "f": 1320, "notes": [0], "len": 0.045, "a": 0.002, "slide": -5, "gain": 0.5}},
+		"ui_onglet": {"bus": "Interface", "label": "Changement d'onglet", "vol": -14, "gap": 60, "pitch": 0.02, "synth": {"w": "triangle", "f": 880, "notes": [0, 7], "step": 0.035, "len": 0.06, "a": 0.002, "gain": 0.45}},
+		"ui_bascule": {"bus": "Interface", "label": "Bascule", "vol": -14, "gap": 60, "synth": {"w": "sine", "f": 990, "notes": [0, 5], "step": 0.04, "len": 0.05, "a": 0.002, "gain": 0.45}},
+		"ui_survol": {"bus": "Interface", "label": "Survol", "vol": -26, "gap": 50, "pitch": 0.05, "synth": {"w": "sine", "f": 2200, "notes": [0], "len": 0.02, "a": 0.002, "gain": 0.3}},
+		"ui_ouvrir": {"bus": "Interface", "label": "Ouverture d'un écran", "vol": -12, "gap": 120, "synth": {"w": "noise", "f": 900, "notes": [0], "len": 0.22, "a": 0.08, "slide": 14, "lp": 0.25, "gain": 0.5}},
+		"ui_fermer": {"bus": "Interface", "label": "Fermeture d'un écran", "vol": -12, "gap": 120, "synth": {"w": "noise", "f": 1600, "notes": [0], "len": 0.18, "a": 0.02, "slide": -14, "lp": 0.25, "gain": 0.5}},
+		"ui_valider": {"bus": "Interface", "label": "Validation", "vol": -11, "gap": 80, "synth": {"w": "triangle", "f": 660, "notes": [0, 7, 12], "step": 0.05, "len": 0.12, "a": 0.003, "gain": 0.45}},
+		"ui_refus": {"bus": "Interface", "label": "Ordre impossible", "vol": -12, "gap": 200, "synth": {"w": "triangle", "f": 196, "notes": [0, -1], "step": 0.07, "len": 0.09, "a": 0.004, "lp": 0.3, "gain": 0.5}},
+		"temps_pause": {"bus": "Interface", "label": "Pause", "vol": -12, "gap": 150, "synth": {"w": "sine", "f": 523, "notes": [0, -5], "step": 0.07, "len": 0.14, "a": 0.004, "gain": 0.45}},
+		"temps_reprise": {"bus": "Interface", "label": "Reprise", "vol": -12, "gap": 150, "synth": {"w": "sine", "f": 392, "notes": [0, 5], "step": 0.07, "len": 0.14, "a": 0.004, "gain": 0.45}},
+		"temps_vitesse": {"bus": "Interface", "label": "Cran de vitesse", "vol": -13, "gap": 60, "synth": {"w": "triangle", "f": 440, "notes": [0], "len": 0.07, "a": 0.002, "gain": 0.45}},
+		"tour_fin": {"bus": "Interface", "label": "Fin de tour", "vol": -10, "gap": 300, "synth": {"w": "triangle", "f": 330, "notes": [0, 7, 12, 19], "step": 0.07, "len": 0.25, "a": 0.005, "gain": 0.4}},
+		"tour_pret": {"bus": "Interface", "label": "Tour suivant", "vol": -12, "gap": 300, "synth": {"w": "sine", "f": 660, "notes": [0, 5], "step": 0.1, "len": 0.3, "a": 0.01, "gain": 0.4}}
+	},
+	"speed_semitones": [0, 3, 5, 8, 12],
+	"announce": {
+		"_doc": "F4 : la famille donne le timbre, la gravité donne l'ampleur. Esquisse jouée quand aucun fichier n'est déposé dans assets/sounds/announce/. counts : nombre de notes du motif par gravité (0 Chronique à 3 Fanfare).",
+		"bus": "Annonces",
+		"vol": -9,
+		"counts": [0, 1, 3, 5],
+		"len": [0.0, 0.18, 0.3, 0.7],
+		"step": [0.0, 0.0, 0.13, 0.26],
+		"default": {"w": "sine", "f": 440, "notes": [0, 5, 7, 12, 17]},
+		"families": {
+			"guerre": {"w": "saw", "f": 98, "notes": [0, 0, 3, -2, 7], "lp": 0.18},
+			"diplomatie": {"w": "sine", "f": 660, "notes": [0, 4, 7, 12, 16]},
+			"perils": {"w": "square", "f": 208, "notes": [0, 1, 6, 1, 7], "lp": 0.22},
+			"trone": {"w": "triangle", "f": 294, "notes": [0, 7, 5, 12, 16]},
+			"foi": {"w": "sine", "f": 392, "notes": [0, 5, 0, 7, 12]},
+			"savoir": {"w": "triangle", "f": 523, "notes": [0, 2, 7, 9, 14]},
+			"au_dela": {"w": "sine", "f": 880, "notes": [0, -5, 2, -7, 7]},
+			"economie": {"w": "triangle", "f": 587, "notes": [0, 0, 5, 9, 12]},
+			"ombres": {"w": "sine", "f": 233, "notes": [0, 6, 1, 7, 0], "lp": 0.3},
+			"colonies": {"w": "triangle", "f": 349, "notes": [0, 4, 7, 9, 12]}
+		}
+	}
+}

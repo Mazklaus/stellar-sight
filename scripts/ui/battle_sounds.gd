@@ -4,7 +4,8 @@ extends Node
 ## play(repère, position) quand un événement du replay passe (tir, impact, explosion, phase, déroute…) ;
 ## le son joue si un fichier existe à <dir><repère>.<ext> (bloc "sounds" de data/battle_visuals.json),
 ## sinon rien. Le signal cue(repère, position) part dans tous les cas : un futur mixeur (spatialisation,
-## musique qui suit la bataille) s'y branche sans toucher aux vues.
+## musique qui suit la bataille) s'y branche sans toucher aux vues. Les voix sortent sur le bus Combat
+## (étude du son, A1), réglable dans les Options.
 
 signal cue(id: String, at: Vector2)
 
@@ -41,6 +42,8 @@ func _ready() -> void:
 	for i in int(cfg().get("voices", 12)):
 		var p := AudioStreamPlayer.new()
 		p.volume_db = float(cfg().get("volume_db", -6.0))
+		if AudioServer.get_bus_index("Combat") >= 0:
+			p.bus = &"Combat"
 		add_child(p)
 		_players.append(p)
 

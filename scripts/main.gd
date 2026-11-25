@@ -132,6 +132,7 @@ func _ready() -> void:
 	SpeciesLibrary.load_all()
 	UiSettings.load_settings()
 	UiSettings.apply()
+	Son.setup()
 	get_tree().root.theme = UiTheme.theme()
 	_view = GalaxyView.new()
 	_view.viewer = view_empire

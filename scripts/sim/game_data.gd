@@ -580,6 +580,11 @@ static func battle_visuals() -> Dictionary:
 	return _load("battle_visuals")
 
 
+## Le son : bus, volumes, profils d'écoute, repères et esquisses de synthèse (data/audio.json).
+static func audio() -> Dictionary:
+	return _load("audio")
+
+
 ## Combat au sol et armées (voir Ground).
 static func ground() -> Dictionary:
 	return _load("ground")

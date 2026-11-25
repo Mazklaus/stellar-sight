@@ -327,11 +327,14 @@ func open(screen_id: String, state: GameState, player: int) -> void:
 	visible = true
 	show_screen(screen_id)
 	if not was_open:
+		Son.cue("ui_ouvrir")
 		_root.modulate.a = 0.0
 		_root.create_tween().tween_property(_root, "modulate:a", 1.0, 0.18)
 
 
 func close() -> void:
+	if visible:
+		Son.cue("ui_fermer")
 	visible = false
 	current = ""
 	if _tech_panel and is_instance_valid(_tech_panel):
