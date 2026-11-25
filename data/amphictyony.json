@@ -1280,9 +1280,9 @@
 		]
 	},
 	"presidency_lines": [
-		"%s préside la séance. Personne ne sait très bien à quoi sert la fonction, mais le fauteuil est magnifique.",
-		"%s reçoit le marteau de la présidence. Il paraît qu'il est en bois de comète.",
-		"%s préside : son premier acte est de faire repeindre la salle à ses couleurs.",
-		"%s monte au perchoir. Les interprètes soupirent : il faudra traduire ses plaisanteries."
+		"%s préside la séance et en fixe l'ordre du jour.",
+		"%s reçoit le marteau de la présidence, taillé dans le bois d'un arbre du premier monde fondateur.",
+		"%s prend la présidence. Selon l'usage, ses couleurs sont tendues au fond de l'hémicycle pour la durée de la session.",
+		"%s monte au perchoir. Les interprètes des loges se préparent à traduire son discours d'ouverture dans toutes les langues de l'assemblée."
 	]
 }

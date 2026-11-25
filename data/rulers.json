@@ -223,7 +223,7 @@
 	"archetypes": {
 		"batisseur": {
 			"label": "Bâtisseur",
-			"text": "Pense en pierres et en siècles.",
+			"text": "Un souverain qui gouverne par les chantiers. Il suit en personne l'avancement des grands travaux et juge ses ministres à ce qu'ils ont fait bâtir.",
 			"fx": {
 				"building_cost_pct": -5
 			},
@@ -246,7 +246,7 @@
 		},
 		"conquerant": {
 			"label": "Conquérant",
-			"text": "Ne voit sur la carte que des frontières provisoires.",
+			"text": "Un souverain de guerre, qui tient toutes les frontières pour provisoires. Il passe plus de temps à l'état-major qu'au conseil.",
 			"fx": {
 				"ship_days_pct": -5
 			},
@@ -269,7 +269,7 @@
 		},
 		"diplomate": {
 			"label": "Diplomate",
-			"text": "Serre chaque main deux fois, en comptant ses doigts.",
+			"text": "Un souverain de négociation. Il reçoit lui-même les ambassadeurs, connaît les généalogies des cours étrangères et n'engage jamais l'empire sans avoir sondé ses voisins.",
 			"fx": {
 				"opinion_all": 5
 			},
@@ -291,7 +291,7 @@
 		},
 		"savant": {
 			"label": "Savant",
-			"text": "Prend des notes pendant les banquets.",
+			"text": "Un souverain lettré, formé à l'Académie. Il lit les rapports de recherche, assiste aux soutenances et finance sur sa cassette les travaux qui l'intéressent.",
 			"fx": {
 				"knowledge_pct": 5
 			},
@@ -313,7 +313,7 @@
 		},
 		"zelote": {
 			"label": "Zélote",
-			"text": "Prie fort, et de préférence en public.",
+			"text": "Un souverain dévot, qui gouverne en serviteur de la foi. Il préside les grandes cérémonies et consulte le clergé avant toute décision d'importance.",
 			"fx": {
 				"stability": 2
 			},
@@ -336,7 +336,7 @@
 		},
 		"marchand": {
 			"label": "Marchand",
-			"text": "Connaît le prix de tout, et le cours de demain.",
+			"text": "Un souverain formé au négoce. Il suit les cours des marchés et mène les affaires de l'État comme celles d'une maison de commerce.",
 			"fx": {
 				"trade_income_pct": 5
 			},
@@ -358,7 +358,7 @@
 		},
 		"intrigant": {
 			"label": "Intrigant",
-			"text": "Sourit toujours, ne répond jamais.",
+			"text": "Un souverain du secret. Il parle peu en conseil, entretient son propre réseau d'informateurs et apprend souvent les nouvelles avant ses ministres.",
 			"fx": {
 				"spy_cost_pct": -10
 			},
@@ -381,7 +381,7 @@
 		},
 		"heros": {
 			"label": "Héros",
-			"text": "Monte en première ligne, ce que ses généraux n'apprécient qu'à moitié.",
+			"text": "Un souverain qui commande en personne. Il monte en première ligne, au grand souci de ses généraux et de sa garde.",
 			"fx": {
 				"troops_pct": 10
 			},
@@ -2579,7 +2579,7 @@
 		"plaisir": [
 			{
 				"id": "parade",
-				"label": "Une parade de trois jours, feux d'artifice compris",
+				"label": "Une parade de trois jours et des feux sur la capitale",
 				"fx": {
 					"stability": 5,
 					"opinion_all": 3

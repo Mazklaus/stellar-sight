@@ -386,7 +386,7 @@
 			},
 			"culte_partis": {
 				"label": "Culte des Partis",
-				"text": "Transcendance (issue Départ) : on prie ceux qui ont quitté la galaxie. Ne se révèle qu'une fois qu'un peuple est parti. Plus les Partis ont de fidèles chez un empire, plus ils interviennent pour lui (+2 % par tranche de 10 fidèles, 40 % au plus). On se demande s'ils ne s'en nourrissent pas.",
+				"text": "Transcendance (issue Départ) : on prie ceux qui ont quitté la galaxie. Ne se révèle qu'une fois qu'un peuple est parti. Plus les Partis ont de fidèles chez un empire, plus ils interviennent pour lui (+2 % par tranche de 10 fidèles, 40 % au plus). Certains théologiens soupçonnent qu'ils se nourrissent de cette ferveur.",
 				"src": "Étude de la Transcendance (prop. 24) ; les Ori de Stargate"
 			},
 			"grand_spectacle": {
@@ -396,7 +396,7 @@
 			},
 			"traversee": {
 				"label": "la Traversée",
-				"text": "La mort n'est qu'une porte, et Asphodèle tient la poignée. Les morts de ses colonies fidèles rejoignent la Cité des Trépassés à toute distance ; une colonie à Ossuaire (ou d'Asphodèle) prêche 30 % plus fort. Les fois de cette nature honorent Asphodèle (opinion +15). Contre : la loi « Rites funéraires protégés ».",
+				"text": "La mort n'est qu'une porte, et Asphodèle se tient de l'autre côté. Les morts de ses colonies fidèles rejoignent la Cité des Trépassés à toute distance ; une colonie à Ossuaire (ou d'Asphodèle) prêche 30 % plus fort. Les fois de cette nature honorent Asphodèle (opinion +15). Contre : la loi « Rites funéraires protégés ».",
 				"src": "Nécropole et passeur des morts : idée de l'étude des peuples insolites (prop. 107) ; Charon et les Champs d'Asphodèle de la mythologie grecque, de mémoire."
 			}
 		},

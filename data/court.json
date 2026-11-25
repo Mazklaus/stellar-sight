@@ -286,7 +286,7 @@
 		"new_ruler_others": -5
 	},
 	"vocations": [
-		{"id": "souche_songe", "label": "Souche du Songe", "psionics": true, "current": "academie", "apt": "eloquence", "sys": {"knowledge": 3}, "seat": {"psi_felure_pct": -10}, "seat_text": "Fêlures -10 %", "likes": [{"k": "building", "id": "college_sensitifs", "per": 10, "max": 20, "label": "Collèges des sensitifs dans ses fiefs"}, {"k": "law", "id": "registre_sensitifs", "v": 15, "label": "Registre des sensitifs"}], "dislikes": [{"k": "law", "id": "persecution", "v": -30, "label": "Persécution des sensitifs"}], "goods": ["cristal_memoire", "larmes_quasar"], "traits": ["erudit"], "text": "Pouvoirs psioniques en jeu : une maison où l'on naît sensitif depuis dix générations. On y rêve beaucoup, et juste."},
+		{"id": "souche_songe", "label": "Souche du Songe", "psionics": true, "current": "academie", "apt": "eloquence", "sys": {"knowledge": 3}, "seat": {"psi_felure_pct": -10}, "seat_text": "Fêlures -10 %", "likes": [{"k": "building", "id": "college_sensitifs", "per": 10, "max": 20, "label": "Collèges des sensitifs dans ses fiefs"}, {"k": "law", "id": "registre_sensitifs", "v": 15, "label": "Registre des sensitifs"}], "dislikes": [{"k": "law", "id": "persecution", "v": -30, "label": "Persécution des sensitifs"}], "goods": ["cristal_memoire", "larmes_quasar"], "traits": ["erudit"], "text": "Pouvoirs psioniques en jeu : une maison où naissent des sensitifs depuis dix générations. Ses rêveurs conseillent la cour, et se trompent rarement."},
 		{
 			"id": "armateurs",
 			"label": "Armateurs",
@@ -612,7 +612,7 @@
 				"loyal",
 				"fier"
 			],
-			"text": "Les grandes familles terriennes ; leurs fiefs nourrissent l'empire et elles en veulent toujours plus."
+			"text": "Les grandes familles terriennes ; leurs fiefs nourrissent l'empire, et elles réclament sans cesse de nouvelles terres."
 		},
 		{
 			"id": "mecenes",
@@ -773,7 +773,7 @@
 				"intrigant",
 				"temperant"
 			],
-			"text": "Ils connaissent les routes de saut comme leur poche ; leurs fiefs extraient plus de cristaux."
+			"text": "Ils connaissent les routes de saut mieux que les cartes de l'amirauté ; leurs fiefs extraient plus de cristaux."
 		},
 		{
 			"id": "ombres",
@@ -973,7 +973,7 @@
 				"erudit",
 				"fier"
 			],
-			"text": "Une guilde de pilotes transformés par la drogue des routes ; on ne les commande pas, on les loue.",
+			"text": "Une guilde de pilotes transformés par la drogue des routes de saut. Ils ne servent personne : ils se louent, au voyage.",
 			"registres": [
 				"Médiéval spatial"
 			]
@@ -1022,7 +1022,7 @@
 				"cupide",
 				"ambitieux"
 			],
-			"text": "Une lettre patente scellée il y a mille ans les autorise à commercer, à piller et à se croire au-dessus des lois.",
+			"text": "Une lettre patente scellée il y a mille ans les autorise à commercer et à faire la course, et ils la tiennent pour supérieure aux lois de l'empire.",
 			"registres": [
 				"Grimdark"
 			]
@@ -1118,7 +1118,7 @@
 				"temperant",
 				"cupide"
 			],
-			"text": "Ingénieurs, actionnaires et brevets : la noblesse s'achète ici en parts sociales.",
+			"text": "Ingénieurs, actionnaires et détenteurs de brevets : on y entre en achetant des parts.",
 			"registres": [
 				"Classique / hard SF"
 			]
@@ -1172,7 +1172,7 @@
 				"cupide",
 				"bretteur"
 			],
-			"text": "Contrebande, paris et sourires : la famille rend service, et n'oublie jamais une dette.",
+			"text": "Contrebande, paris et prêts entre amis : la famille rend service, et tient le compte de chaque dette.",
 			"registres": [
 				"Picaresque / pulp"
 			]
@@ -1271,7 +1271,7 @@
 				"mecene",
 				"vieux_renard"
 			],
-			"text": "Ils dorment pour l'empire et rapportent de leurs songes des vérités inconfortables.",
+			"text": "Ils dorment pour l'empire et rapportent de leurs songes des vérités que la cour préférerait ignorer.",
 			"registres": [
 				"Cosmique / étrange"
 			]
@@ -1969,7 +1969,7 @@
 		{
 			"id": "court_ev_duel",
 			"title": "Un duel à l'aube",
-			"text": "{head}, de {house}, a giflé {rival_head}, de {rival_house}, avec un gant de cotte de mailles. Rendez-vous est pris à l'aube sur le pont d'envol. La cour retient son souffle et ouvre les paris.",
+			"text": "{head}, de {house}, a frappé {rival_head}, de {rival_house}, au visage, devant la cour réunie pour l'audience du soir. L'offense portait sur une affaire de préséance à la table du souverain. Les témoins ont été désignés dans l'heure.\n\nLe duel est fixé à l'aube, sur le pont d'envol du palais, à l'arme blanche et sans armure. Le capitaine de la garde rappelle que les duels sont interdits dans l'enceinte depuis le règne précédent, mais qu'il n'a jamais reçu l'ordre de les empêcher. Les deux maisons attendent de savoir si le trône assistera.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2008,7 +2008,7 @@
 					]
 				},
 				{
-					"label": "Arbitrer soi-même, avec panache",
+					"label": "Présider le duel en personne",
 					"fx": [
 						{
 							"k": "court",
@@ -2036,12 +2036,12 @@
 		{
 			"id": "court_ev_banquet",
 			"title": "Le banquet raté",
-			"text": "Le grand banquet offert par {house} tourne au désastre : le plat de résistance a résisté, et s'est enfui par une bouche d'aération. On rit sous cape.",
+			"text": "Le banquet donné hier par {house} en l'honneur du trône s'est achevé dans la confusion. La pièce maîtresse du repas, une bête des marais que l'usage de la maison veut servir vivante, s'est dégagée de son plat avant le service et s'est réfugiée dans les gaines d'aération du palais. Les cuisiniers ne l'ont pas retrouvée.\n\nPersonne n'a été blessé. La cour ne parle que de cela depuis le matin, et la maison craint de passer pour incapable de tenir une table. Son chef demande à être reçu.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
 				{
-					"label": "Rire avec eux",
+					"label": "Prendre l'incident avec bonne humeur",
 					"fx": [
 						{
 							"k": "court",
@@ -2095,7 +2095,7 @@
 		{
 			"id": "court_ev_mesalliance",
 			"title": "Mésalliance",
-			"text": "L'héritière de {house} veut épouser un simple pilote de cargo. Sa famille hurle, la cour se délecte, le pilote se cache.",
+			"text": "L'héritière de {house} a fait savoir qu'elle épouserait Tavin Orl, pilote de cargo sur la ligne de la capitale, rencontré au cours d'une traversée. Il n'a ni titre ni fortune. Le chef de la maison a refusé son consentement, et l'héritière a quitté la résidence familiale pour s'installer chez une tante.\n\nLe mariage d'une héritière de grande maison exige l'accord du trône. Les deux parties ont déposé leur requête au même greffe, le même jour. Le pilote n'a pas reparu à son poste depuis.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2149,7 +2149,7 @@
 		{
 			"id": "court_ev_heritage",
 			"title": "Héritage contesté",
-			"text": "La mort du vieil oncle de {house} laisse deux testaments, trois veuves et une station minière. {rival_house} réclame sa part au nom d'un cousinage douteux.",
+			"text": "Le vieux Corrant, oncle du chef de {house}, est mort sans enfant. Il laisse une station minière de la ceinture extérieure et deux testaments, rédigés à dix ans d'écart, qui ne désignent pas le même légataire. Sa veuve conteste le second, la maison le premier.\n\n{rival_house} est entrée dans l'affaire avec un acte de cousinage qui ferait d'elle l'héritière naturelle. Les archivistes du palais le jugent authentique, mais établi bien après les faits. La station continue de produire, et personne ne sait à qui livrer son minerai.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2216,7 +2216,7 @@
 		{
 			"id": "court_ev_complot",
 			"title": "Un complot éventé",
-			"text": "Nos gardes ont intercepté des lettres codées : {head}, de {house}, aurait comploté contre le trône. Ou bien c'est un faux grossier de {rival_house}.",
+			"text": "La garde du palais a saisi sur un courrier une liasse de lettres chiffrées adressées à {head}, de {house}. Une fois déchiffrées, elles décrivent les rondes de la garde et l'emploi du temps du souverain pour le mois à venir. L'auteur n'est pas nommé.\n\n{head} nie tout et accuse {rival_house} d'avoir fait fabriquer ces lettres. Le chiffre employé est ancien et connu des deux maisons. Le Maître des Murmures dit avoir besoin de temps pour trancher, et ce temps a un prix.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2277,7 +2277,7 @@
 		{
 			"id": "court_ev_dette",
 			"title": "Les dettes de {house}",
-			"text": "{house} est criblée de dettes auprès des usuriers de la station orbitale. Elle implore un prêt, « remboursable aux calendes stellaires ».",
+			"text": "{house} doit plus de deux ans de revenus aux banquiers de la station orbitale, qui ont fait saisir la semaine dernière deux de ses cargos à quai. Les dettes remontent aux fêtes données pour le dernier mariage de la maison. Ses fiefs suffisent à peine à payer les intérêts.\n\nLe chef de la maison sollicite un prêt du trésor. Il propose de le rembourser sur les revenus de ses fiefs, sans fixer de date.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2299,7 +2299,7 @@
 					]
 				},
 				{
-					"label": "Prêter contre un fief de leur choix… plus tard",
+					"label": "Prêter contre la promesse d'un fief",
 					"fx": [
 						{
 							"k": "res",
@@ -2332,7 +2332,7 @@
 		{
 			"id": "court_ev_portrait",
 			"title": "Le portrait officiel",
-			"text": "{house} offre au trône un portrait colossal du souverain, peint par un maître. Il est hideux, et accroché dans la grande salle.",
+			"text": "{house} a offert au trône un portrait du souverain haut de six mètres, commandé à Esme Varran, le peintre le plus en vue de la capitale. La toile a été dévoilée devant la cour. Elle montre le souverain vieilli, le regard las, sous un ciel d'orage, et l'assistance s'est tue.\n\nLe peintre dit avoir peint ce qu'il voyait. La maison assure n'avoir pas vu l'œuvre avant sa livraison. Le portrait est accroché pour l'instant dans la grande salle, où chaque visiteur s'arrête devant.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2391,7 +2391,7 @@
 		{
 			"id": "court_ev_tournoi",
 			"title": "Le grand tournoi",
-			"text": "{house} propose d'organiser un tournoi de chasseurs stellaires en l'honneur du trône. {rival_house} jure qu'elle le gagnera.",
+			"text": "{house} propose d'organiser en l'honneur du trône un tournoi de chasseurs stellaires sur le circuit des lunes de la capitale. Une vingtaine d'équipages s'y affronteraient pendant dix jours, devant les tribunes orbitales. La maison demande que le trésor prenne la moitié des frais à sa charge.\n\n{rival_house} a fait savoir qu'elle engagerait ses meilleurs pilotes et qu'elle comptait gagner.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2435,7 +2435,7 @@
 					]
 				},
 				{
-					"label": "Refuser : nous sommes en deuil budgétaire",
+					"label": "Refuser : le trésor ne le permet pas",
 					"fx": [
 						{
 							"k": "court",
@@ -2451,7 +2451,7 @@
 		{
 			"id": "court_ev_scandale",
 			"title": "Scandale au palais",
-			"text": "On a surpris {head}, de {house}, à jouer aux dés le sceau de l'empire dans une taverne de la basse ville. Il a perdu, puis regagné, puis reperdu.",
+			"text": "Hier soir, dans une maison de jeu de la basse ville, {head}, de {house}, a mis en gage le sceau de l'empire, dont sa charge lui confie la garde. Le sceau a été perdu aux dés, racheté sur parole, puis perdu de nouveau. Il est à présent entre les mains d'un prêteur du quartier des docks.\n\nAucun acte n'a été scellé depuis. Le prêteur sait ce qu'il détient et en demande un prix en rapport.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2510,7 +2510,7 @@
 		{
 			"id": "court_ev_prophete",
 			"title": "Le prophète de la maison",
-			"text": "Un mystique protégé par {house} annonce que la maison est destinée au trône. Les autres maisons s'agitent.",
+			"text": "Un mystique entretenu par {house} prêche depuis un mois sur le parvis de la résidence de la maison. Il annonce qu'un enfant de la maison montera sur le trône avant dix ans. Ses auditeurs sont chaque jour plus nombreux, et l'on a vu parmi eux des courtisans d'autres maisons.\n\nLe chef de {house} assure ne pas soutenir ces discours et ne pas pouvoir les interdire. Les autres maisons demandent au trône ce qu'il compte faire.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2565,7 +2565,7 @@
 		{
 			"id": "court_ev_jardin",
 			"title": "Les jardins suspendus",
-			"text": "{house} veut construire, à ses frais, des jardins suspendus en orbite basse. Ils masqueraient le soleil de la capitale deux heures par jour.",
+			"text": "{house} veut construire à ses frais des jardins suspendus en orbite basse, au-dessus de la capitale : trois anneaux de serres et de terrasses, visibles depuis la surface. Les plans ont été soumis au palais. D'après les ingénieurs du trésor, les anneaux masqueraient le soleil sur la ville basse deux heures par jour.\n\nLes quartiers concernés ont déjà adressé une pétition au gouverneur. La maison offre d'ouvrir les jardins au public avant de les ouvrir à la cour.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2618,7 +2618,7 @@
 		{
 			"id": "court_ev_espion",
 			"title": "Un espion dans la maison",
-			"text": "Le Maître des Murmures assure que {house} héberge un espion étranger, déguisé en cuisinier. Les plats ont d'ailleurs un goût de trahison.",
+			"text": "Le Maître des Murmures affirme qu'un agent étranger travaille aux cuisines de {house}, sous l'identité d'un cuisinier entré au service de la maison il y a deux ans. Il aurait copié les menus et les listes d'invités de tous ses dîners, où se retrouvent souvent des officiers de la flotte.\n\nLa maison n'a pas été prévenue. Le cuisinier est toujours en place et prépare le dîner qu'elle donne dans six jours.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2673,7 +2673,7 @@
 		{
 			"id": "court_ev_rancune",
 			"title": "Vieille rancune",
-			"text": "{house} et {rival_house} se haïssent depuis qu'un ancêtre a volé la place de parking orbital de l'autre, il y a trois siècles. Elles demandent un arbitrage.",
+			"text": "{house} et {rival_house} sont brouillées depuis trois siècles, depuis qu'un ancêtre de l'une a pris à l'autre son poste d'amarrage au quai d'honneur du palais. Le poste a changé de mains quatre fois depuis, toujours sur décision du trône, et la querelle a survécu à chacune.\n\nCe mois-ci, les deux maisons ont fait amarrer leurs navires au même poste, à une heure d'écart. La capitainerie refuse de trancher. Les deux chefs demandent un arbitrage.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2740,7 +2740,7 @@
 		{
 			"id": "court_ev_cadeau",
 			"title": "Le cadeau empoisonné",
-			"text": "{rival_house} offre au trône un œuf de créature du vide, « symbole de sa loyauté ». {house} affirme qu'il éclora au pire moment.",
+			"text": "{rival_house} a offert au trône un œuf de créature du vide, de la taille d'un homme, rapporté d'un nid de ses fiefs, en gage de sa loyauté. L'œuf est vivant et tiède. Les éleveurs consultés pensent qu'il éclora dans l'année.\n\n{house} a fait remettre au chambellan un rapport selon lequel l'espèce est dangereuse à l'éclosion. Les éleveurs ne le confirment pas et ne le démentent pas.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2794,7 +2794,7 @@
 		{
 			"id": "court_ev_mode",
 			"title": "Une nouvelle mode",
-			"text": "{house} lance une mode : des fraises de col si larges qu'on ne passe plus les sas. Toute la cour l'adopte en une semaine.",
+			"text": "{house} a paru au dernier bal dans des manteaux de cour montés sur armature, si larges aux épaules qu'il fallait se présenter de côté pour passer une porte. En une semaine, toute la cour les a adoptés, et les tailleurs de la capitale ont doublé leurs prix.\n\nLes sas du palais, prévus pour la garde en armure, ne laissent plus passer qu'un courtisan à la fois. Les audiences prennent du retard, et le chambellan demande une décision.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2859,7 +2859,7 @@
 		{
 			"id": "court_ev_bal",
 			"title": "Le bal des masques",
-			"text": "Lors du bal masqué, {head} a dansé toute la nuit avec un inconnu. C'était un ambassadeur rival, et il a beaucoup parlé.",
+			"text": "Au bal masqué donné au palais, {head}, de {house}, a passé la nuit avec un invité dont personne n'a vu le visage. La garde l'a identifié au matin grâce aux registres des sas : c'était un attaché de l'ambassade d'un empire rival. Tous deux ont longuement parlé à l'écart.\n\n{head} dit avoir ignoré l'identité de son interlocuteur et n'avoir parlé que de musique. L'ambassade n'a fait aucun commentaire.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2913,7 +2913,7 @@
 		{
 			"id": "court_ev_reliquat",
 			"title": "Les archives de famille",
-			"text": "{house} retrouve dans ses archives un traité oublié qui lui donne droit à… un dixième des impôts de la capitale.",
+			"text": "En faisant classer ses archives, {house} a retrouvé un traité scellé il y a quatre règnes, qui lui accordait un dixième des impôts de la capitale en remerciement d'un prêt de guerre. Le traité n'a jamais été dénoncé, ni jamais appliqué.\n\nLes archivistes du palais confirment le sceau. La maison réclame les sommes dues depuis, ou à défaut l'application du traité à compter de cette année.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2968,7 +2968,7 @@
 		{
 			"id": "court_ev_prodige",
 			"title": "Un enfant prodige",
-			"text": "Un enfant de {house} résout à neuf ans un problème que nos savants traînaient depuis trente ans. Sa famille réclame une chaire à l'université.",
+			"text": "Une enfant de {house}, âgée de neuf ans, a fait parvenir à l'Académie une démonstration qui résout un problème de navigation resté ouvert depuis trente ans. Trois professeurs l'ont relue sans y trouver d'erreur. L'enfant refuse d'expliquer comment elle y est arrivée.\n\nSa famille réclame pour elle une chaire à l'université de la capitale. L'Académie préférerait la confier à l'un de ses maîtres.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -2990,7 +2990,7 @@
 					]
 				},
 				{
-					"label": "Le garder sous notre aile",
+					"label": "La placer sous notre tutelle",
 					"fx": [
 						{
 							"k": "court",
@@ -3007,7 +3007,7 @@
 					]
 				},
 				{
-					"label": "Le renvoyer à ses jouets",
+					"label": "La renvoyer dans sa famille",
 					"fx": [
 						{
 							"k": "court",
@@ -3023,7 +3023,7 @@
 		{
 			"id": "court_ev_greve",
 			"title": "Grève des serviteurs",
-			"text": "Les serviteurs du palais, recrutés chez {house}, cessent le travail : ils réclament des pauses et le droit de goûter aux plats.",
+			"text": "Les serviteurs du palais, recrutés depuis trois générations dans les fiefs de {house}, ont cessé le travail ce matin. Ils réclament un jour de repos par semaine et le droit de prendre leurs repas sur les restes des cuisines, comme leurs aînés avant le dernier règlement du chambellan.\n\nLes cuisines sont fermées et les appartements ne sont plus entretenus. La maison dit ne pas avoir encouragé le mouvement. Elle ne l'a pas désavoué non plus.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3083,7 +3083,7 @@
 		{
 			"id": "court_ev_chasse",
 			"title": "La grande chasse",
-			"text": "{house} invite le souverain à chasser la bête du vide dans ses terres. On promet du gibier, de l'adrénaline et peu de survivants parmi les rabatteurs.",
+			"text": "{house} invite le souverain à chasser la bête du vide dans la ceinture de ses fiefs, où un troupeau a pris ses quartiers d'hiver. La chasse se mène en navette légère, au harpon, et dure une semaine. La maison promet des prises dignes du trône.\n\nLe capitaine de la garde rappelle que la dernière chasse de ce genre a coûté la vie à quatre rabatteurs. Si le souverain s'y rend, il demande à composer lui-même l'escorte.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3131,7 +3131,7 @@
 		{
 			"id": "court_ev_vin",
 			"title": "Le vin empoisonné",
-			"text": "Une coupe de vin destinée au souverain a fait tomber raide le goûteur. Les regards se tournent vers {house}. Elle jure son innocence et accuse {rival_house}.",
+			"text": "Le goûteur du souverain s'est effondré au dîner d'hier, après avoir bu à la coupe qui était destinée à son maître. Il vit, mais les médecins ne savent pas s'il remarchera. Le vin venait des celliers de {house}.\n\nLa maison jure son innocence et accuse {rival_house}, dont un échanson servait ce soir-là. Le poison n'est pas encore identifié. La cour attend que le trône désigne un coupable.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3170,7 +3170,7 @@
 					]
 				},
 				{
-					"label": "Engager un meilleur goûteur",
+					"label": "Renforcer la garde des cuisines",
 					"fx": [
 						{
 							"k": "res",
@@ -3185,8 +3185,8 @@
 		},
 		{
 			"id": "court_ev_monument",
-			"title": "Un monument à notre gloire",
-			"text": "{house} propose d'ériger une statue du souverain sur la lune de la capitale. Visible de partout, à toute heure, même la nuit.",
+			"title": "Un monument au souverain",
+			"text": "{house} propose d'élever une statue du souverain sur la principale lune de la capitale, taillée à même le relief et éclairée jour et nuit. Haute de deux kilomètres, elle serait visible de toute la face éclairée de la planète. La maison fournirait les ingénieurs, le trésor la pierre et le métal.\n\nLes travaux dureraient six ans. Les astronomes de l'Académie se plaignent déjà de l'éclairage.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3250,7 +3250,7 @@
 		{
 			"id": "court_ev_alliance",
 			"title": "Une alliance de maisons",
-			"text": "{house} et {rival_house} annoncent leur réconciliation et un mariage entre leurs héritiers. Ensemble, elles pèsent lourd à la cour.",
+			"text": "{house} et {rival_house} annoncent la fin de leur brouille et le mariage de leurs héritiers, qui sera célébré au printemps. Le contrat met en commun une partie de leurs fiefs. Ensemble, les deux maisons tiendraient près du tiers des sièges du conseil de cour.\n\nLes autres maisons ont demandé audience le jour même. Aucune n'a encore dit ce qu'elle attend du trône.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3317,7 +3317,7 @@
 		{
 			"id": "court_ev_exil",
 			"title": "Le retour de l'exilé",
-			"text": "Un cousin banni de {house} revient de l'exil avec une flotte de trois navires, des cicatrices et une rancune. Il demande le pardon.",
+			"text": "Un cousin de {house}, banni il y a douze ans pour avoir tué un officier en duel, s'est présenté hier à la frontière avec trois navires armés et leurs équipages. Il dit avoir servi depuis comme capitaine de fortune dans les marches. Il ne porte plus le nom de sa maison.\n\nIl demande sa grâce et le droit de rentrer chez les siens. Sa maison n'a pas pris position. La famille de l'officier tué n'a rien oublié.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3366,7 +3366,7 @@
 		{
 			"id": "court_ev_astrologue",
 			"title": "L'astrologue de la cour",
-			"text": "L'astrologue de {house} prédit une éclipse funeste pour le règne. Les marchés s'affolent, les courtisans font leurs malles.",
+			"text": "L'astrologue de {house} a publié une prédiction selon laquelle l'éclipse de la fin de l'année marquera la fin du règne. Le texte circule dans toute la capitale. Sur les marchés, l'or a monté, et plusieurs courtisans ont fait partir leurs familles vers leurs fiefs.\n\nL'astrologue maintient sa prédiction et refuse de dire sur quoi elle repose. La maison le protège depuis vingt ans et ne veut pas le désavouer.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3425,7 +3425,7 @@
 		{
 			"id": "court_ev_corruption",
 			"title": "Pots-de-vin",
-			"text": "{head}, de {house}, aurait touché des pots-de-vin pour faire passer des contrats d'armement. La preuve : un manteau de fourrure de comète tout neuf.",
+			"text": "Les inspecteurs du trésor ont relevé que trois contrats d'armement passés cette année l'ont été avec le même fournisseur, à un prix supérieur d'un quart à celui de ses concurrents. Les trois dossiers portent la signature de {head}, de {house}.\n\nLe mois dernier, ce fournisseur a offert au signataire un manteau de fourrure de comète, d'une valeur supérieure à un an de traitement. {head} parle d'un cadeau d'usage.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3485,7 +3485,7 @@
 		{
 			"id": "court_ev_poete",
 			"title": "Le poète satirique",
-			"text": "Un poète protégé par {house} se moque du trône dans des vers que toute la galaxie fredonne. Le refrain est malheureusement très entraînant.",
+			"text": "Un poète protégé par {house} fait circuler depuis un mois une chanson sur le souverain, qui raille sa mine, ses dépenses et ses défaites. On la chante dans les tavernes de la capitale, puis dans les ports, et les relais l'ont portée jusqu'aux colonies. Les cuisines du palais la fredonnent aussi.\n\nLe poète n'a rien signé. La maison ne le renie pas.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3543,7 +3543,7 @@
 		{
 			"id": "court_ev_ambassade",
 			"title": "L'ambassade de {house}",
-			"text": "{house} propose de mener à ses frais une ambassade auprès d'un empire voisin, en échange de quelques privilèges commerciaux.",
+			"text": "{house} propose de mener à ses frais une ambassade auprès d'un empire voisin, avec lequel ses comptoirs commercent depuis longtemps. Elle fournirait les navires, les présents et l'ambassadeur. En échange, elle demande pour ses comptoirs dix ans d'exemption des droits de douane.\n\nLe chancelier fait observer que l'ambassadeur parlerait au nom du trône et serait payé par la maison.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3598,7 +3598,7 @@
 		{
 			"id": "court_ev_jumeaux",
 			"title": "Les jumeaux",
-			"text": "{house} vient d'avoir des jumeaux. Problème : on ne sait plus lequel est l'aîné. La sage-femme a tiré à pile ou face, et perdu la pièce.",
+			"text": "Des jumeaux sont nés dans la famille du chef de {house}. Dans le désordre de la nuit, la sage-femme n'a pas noté lequel était venu le premier, et les deux nourrices se contredisent. L'aîné héritera de la maison et de ses fiefs.\n\nLe chef de la maison s'en remet au trône. Les deux branches de la famille ont déjà choisi chacune son enfant.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3652,7 +3652,7 @@
 		{
 			"id": "court_ev_fete_lune",
 			"title": "La fête des lunes",
-			"text": "{house} veut célébrer la conjonction des trois lunes par une semaine de fêtes. Ses voisins de {rival_house} préfèrent dormir.",
+			"text": "La conjonction des trois lunes de la capitale revient cette année, pour la première fois depuis quarante ans. {house} veut la célébrer comme le veut sa tradition, par une semaine de fêtes dans ses quartiers, avec feux, musique et défilés de nuit.\n\nSes voisins de {rival_house}, dont la résidence donne sur la même place, ont porté plainte avant même la publication du programme.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
@@ -3717,8 +3717,8 @@
 		},
 		{
 			"id": "court_ev_carte",
-			"title": "La carte au trésor",
-			"text": "{head}, de {house}, prétend détenir la carte d'une épave chargée de cristaux. Il demande une escorte et la moitié du butin.",
+			"title": "L'épave aux cristaux",
+			"text": "{head}, de {house}, dit connaître la position d'une épave de cargo perdue il y a soixante ans avec une cargaison de cristaux de saut. Le relevé viendrait d'un ancien membre de l'équipage, mort depuis, et {head} n'en montre qu'une partie.\n\n{house} demande une escorte de la flotte pour se rendre sur place, et la moitié de ce qui sera récupéré.",
 			"trigger": "court",
 			"art": "throne",
 			"choices": [
