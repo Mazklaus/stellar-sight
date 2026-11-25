@@ -209,6 +209,10 @@ func _ready() -> void:
 
 	_empire_screens = EmpireScreens.new()
 	add_child(_empire_screens)
+	var screen_sound := ScreenSound.new()
+	screen_sound.name = "ScreenSound"
+	screen_sound.screens = _empire_screens
+	add_child(screen_sound)
 	_empire_screens.close_requested.connect(close_empire_screen)
 	_empire_screens.ground_replay_requested.connect(func(rid: int) -> void:
 		var rep := Ground.report(simulation.state, rid)

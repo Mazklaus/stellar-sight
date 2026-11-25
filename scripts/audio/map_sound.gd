@@ -126,9 +126,9 @@ static func system_emitters(screen: SystemScreen) -> Array:
 
 ## Son d'une source : son fichier (assets/sounds/carte/<id>.ogg ou .wav, mis en boucle), sinon le
 ## fond de synthèse de son préfixe.
-static func stream_for(sound: String) -> AudioStream:
+static func stream_for(sound: String, dir := "") -> AudioStream:
 	var c := cfg()
-	var base := "%s%s/%s" % [String(Son.data().get("dir", "res://assets/sounds/")), String(c.get("dir", "carte")), sound]
+	var base := "%s%s/%s" % [String(Son.data().get("dir", "res://assets/sounds/")), dir if dir != "" else String(c.get("dir", "carte")), sound]
 	for ext in Son.data().get("ext", ["ogg", "wav"]):
 		var p := "%s.%s" % [base, String(ext)]
 		var s: AudioStream = null
@@ -223,7 +223,9 @@ func sources() -> Array:
 		_cut_target = float(c.get("pause_hz", 1400.0))
 	var factor := 1.0
 	if modal.is_valid() and modal.call():
-		factor = float(c.get("modal", 0.0))
+		# Un écran plein éloigne la carte : plus bas, derrière un filtre (C1).
+		factor = float(c.get("modal", 0.25))
+		_cut_target = minf(_cut_target, float(c.get("modal_hz", 900.0)))
 	var out: Array = []
 	if system_screen != null and system_screen.is_open():
 		out = mix(system_emitters(system_screen), {"factor": factor})

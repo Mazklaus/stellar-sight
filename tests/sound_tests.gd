@@ -17,6 +17,7 @@ func run(check: Callable) -> void:
 	_test_options()
 	_test_files()
 	_test_map()
+	_test_screens()
 	SoundSettings.reset()
 
 
@@ -344,3 +345,61 @@ func _test_map() -> void:
 	_ok(not inside.is_empty() and String(inside[0]["sound"]) == cap, "vue système : la planète choisie passe devant")
 	_ok(inside.any(func(e: Dictionary) -> bool: return String(e["sound"]).begins_with("etoile_")), "vue système : l'étoile en fond")
 	screen.free()
+
+
+## Lot 3 : les lieux des écrans.
+func _test_screens() -> void:
+	var c: Dictionary = ScreenSound.cfg()
+	var places: Dictionary = c["places"]
+	var missing: Array = []
+	var mute: Array = []
+	for dom: Dictionary in UiDomains.DOMAINS:
+		for tab: Array in dom["tabs"]:
+			for addr: String in tab[1]:
+				if not places.has(addr):
+					missing.append(addr)
+					continue
+				var s := MapSound.stream_for("lieu_" + String(places[addr][0]), String(c["dir"]))
+				var loops := s is AudioStreamWAV and (s as AudioStreamWAV).loop_mode == AudioStreamWAV.LOOP_FORWARD
+				if not (loops or (s is AudioStreamOggVorbis and (s as AudioStreamOggVorbis).loop)):
+					mute.append(addr)
+	_ok(missing.is_empty(), "chaque onglet d'un domaine a son lieu (%s)" % ", ".join(missing))
+	_ok(mute.is_empty(), "chaque lieu a un son en boucle (%s)" % ", ".join(mute))
+	_ok(String(ScreenSound.place_of("order")[0]) == "rue" and String(ScreenSound.place_of("trade")[0]) == "quai", "un écran à onglets s'ouvre sur son lieu d'origine")
+	_ok(String(ScreenSound.place_of("inconnu")[0]) == "", "pas de lieu pour un écran inconnu")
+	var st := GameState.create(11)
+	var rest := float(c["rest"])
+	_ok(is_equal_approx(ScreenSound.agitation(st, 0, ""), rest) and is_equal_approx(ScreenSound.agitation(null, 0, "stability"), rest), "sans donnée, le lieu est au repos")
+	for vary in ["stability", "corruption", "debt", "deficit", "fleets", "routes", "colonies"]:
+		var a := ScreenSound.agitation(st, 0, vary)
+		_ok(a >= 0.0 and a <= 1.0, "agitation « %s » entre 0 et 1" % vary)
+	var calm := ScreenSound.agitation(st, 0, "deficit")
+	st.get_empire(0).starving = true
+	_ok(ScreenSound.agitation(st, 0, "deficit") > calm, "une famine agite la salle des comptes")
+	var before := ScreenSound.agitation(st, 0, "fleets")
+	var mine: Fleet = null
+	for fid: int in st.fleets:
+		if (st.fleets[fid] as Fleet).owner == 0:
+			mine = st.fleets[fid]
+			break
+	_ok(mine != null and before < 1.0, "des flottes à quai, un pont calme")
+	var node := ScreenSound.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(node)
+	node.set_process(false)
+	node.enter("rue")
+	_ok(node.place() == "rue", "ouvrir un écran installe son lieu")
+	node.enter("tresor")
+	_ok(node.place() == "tresor" and node._sounds.has("rue"), "changer d'onglet : le lieu d'avant s'efface en fondu")
+	node._clock = 100.0
+	node._process(10.0)
+	_ok(not node._sounds.has("rue"), "le lieu quitté se tait")
+	node.enter("")
+	_ok(node.place() == "", "fermer l'écran rend la carte")
+	node.free()
+	var es := EmpireScreens.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(es)
+	es.open("economy", st, 0)
+	_ok(String(ScreenSound.place_of(UiDomains.address(es))[0]) == "comptes", "le Bilan ouvre la salle des comptes")
+	es.open("order", st, 0)
+	_ok(String(ScreenSound.place_of(UiDomains.address(es))[0]) in ["rue", "bureaux", "tresor"], "l'écran de l'Ordre ouvre un de ses lieux")
+	es.free()
