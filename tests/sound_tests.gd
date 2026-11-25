@@ -18,6 +18,7 @@ func run(check: Callable) -> void:
 	_test_files()
 	_test_map()
 	_test_screens()
+	_test_ceiling()
 	SoundSettings.reset()
 
 
@@ -200,6 +201,8 @@ func _test_files() -> void:
 	_ok(_file_fault("carte/x", {}, levels) != "", "un fichier sans fiche est refusé")
 	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "", "lufs": -32.0}, levels) != "", "un fichier sans licence est refusé")
 	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "CC0", "lufs": -25.0}, levels) != "", "un son de carte trop fort est refusé")
+	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "CC0", "lufs": -32.0, "crete": -8.0}, levels) != "", "un fond dont un claquement ressort est refusé")
+	_ok(_file_fault("ui/x", {"outil": "essai", "licence": "CC0", "lufs": -20.0, "crete": -1.0}, levels) != "", "une crête au ras du plafond est refusée")
 	_ok(_file_fault("dossier_neuf/x", {"outil": "essai", "licence": "CC0", "lufs": -20.0}, levels) == "", "dossier inconnu : niveau par défaut")
 	var root := String(Son.data()["dir"])
 	var origins := {}
@@ -219,6 +222,13 @@ func _file_fault(id: String, card: Dictionary, levels: Dictionary) -> String:
 	var top := float(levels.get(id.get_slice("/", 0), levels["default"]))
 	if float(card.get("lufs", 0.0)) > top + 1.5:
 		return "trop fort (%.1f LUFS pour %.1f)" % [float(card.get("lufs", 0.0)), top]
+	var cap: Dictionary = Son.data()["ceiling"]
+	var peak := float(cap["peak_db"])
+	var crest: Dictionary = cap["crest_db"]
+	if crest.has(id.get_slice("/", 0)):
+		peak = minf(peak, top + float(crest[id.get_slice("/", 0)]))
+	if float(card.get("crete", -100.0)) > peak + 0.5:
+		return "crête trop haute (%.1f dB pour %.1f)" % [float(card.get("crete", 0.0)), peak]
 	return ""
 
 
@@ -370,9 +380,12 @@ func _test_screens() -> void:
 	var st := GameState.create(11)
 	var rest := float(c["rest"])
 	_ok(is_equal_approx(ScreenSound.agitation(st, 0, ""), rest) and is_equal_approx(ScreenSound.agitation(null, 0, "stability"), rest), "sans donnée, le lieu est au repos")
-	for vary in ["stability", "corruption", "debt", "deficit", "fleets", "routes", "colonies"]:
+	for vary in ["stability", "corruption", "debt", "deficit", "fleets", "routes", "colonies", "senate", "throne", "court", "contact"]:
 		var a := ScreenSound.agitation(st, 0, vary)
 		_ok(a >= 0.0 and a <= 1.0, "agitation « %s » entre 0 et 1" % vary)
+	_ok(String(ScreenSound.place_of("senate", st, 0)[0]) in ["senat", "ruche"], "le Sénat a son lieu selon le régime")
+	var swap: Dictionary = c["regime_places"]["ruche"]
+	_ok(MapSound.stream_for("lieu_" + String(swap["senate"]), String(c["dir"])) != null, "la ruche bourdonne à la place de l'hémicycle")
 	var calm := ScreenSound.agitation(st, 0, "deficit")
 	st.get_empire(0).starving = true
 	_ok(ScreenSound.agitation(st, 0, "deficit") > calm, "une famine agite la salle des comptes")
@@ -403,3 +416,40 @@ func _test_screens() -> void:
 	es.open("order", st, 0)
 	_ok(String(ScreenSound.place_of(UiDomains.address(es))[0]) in ["rue", "bureaux", "tresor"], "l'écran de l'Ordre ouvre un de ses lieux")
 	es.free()
+
+
+## Garde-fous de niveau : rien ne sort trop fort.
+func _test_ceiling() -> void:
+	var cap: Dictionary = Son.data()["ceiling"]
+	Son.build_buses()
+	var last := AudioServer.get_bus_effect_count(0) - 1
+	var lim := AudioServer.get_bus_effect(0, last) as AudioEffectHardLimiter
+	_ok(lim != null and AudioServer.is_bus_effect_enabled(0, last), "un limiteur ferme la sortie générale")
+	_ok(lim != null and is_equal_approx(lim.ceiling_db, float(cap["master_db"])) and lim.ceiling_db <= -1.0, "plafond de sortie sous 0 dB")
+	for d in Son.data()["volumes"]:
+		_ok(float(d["default"]) <= 0.8, "volume d'origine de %s sans surplus" % d["bus"])
+	var loud: Array = []
+	for id: String in Son.data()["cues"]:
+		var def: Dictionary = Son.cue_def(id)
+		if not def.has("synth"):
+			continue
+		var m := Son.measure(SoundSynth.samples(def["synth"]))
+		var vol := float(def.get("vol", 0.0))
+		if float(m["peak_db"]) + vol > float(cap["cue_peak_db"]) or float(m["rms_db"]) + vol > float(cap["cue_rms_db"]):
+			loud.append("%s %.1f/%.1f" % [id, float(m["peak_db"]) + vol, float(m["rms_db"]) + vol])
+	_ok(loud.is_empty(), "aucun repère au-dessus du plafond (%s)" % ", ".join(loud))
+	var ann: Dictionary = Son.data()["announce"]
+	var worst := -100.0
+	for fam: String in ann.get("families", {}):
+		var m := Son.measure(SoundSynth.samples(Son.announce_recipe(fam, 3)))
+		worst = maxf(worst, float(m["peak_db"]) + float(ann.get("vol", -9.0)))
+	_ok(worst <= float(cap["cue_peak_db"]) + 3.0, "une fanfare reste sous le plafond (%.1f dB)" % worst)
+	for spec: Array in [[MapSound.cfg(), "carte"], [ScreenSound.cfg(), "écrans"]]:
+		var c: Dictionary = spec[0]
+		var beds: Dictionary = MapSound.cfg()["beds"]
+		var top := -100.0
+		for k: String in beds:
+			top = maxf(top, float(Son.measure(SoundSynth.bed_samples(beds[k]))["rms_db"]) + float(c["vol"]))
+		_ok(top <= float(cap["bed_rms_db"]), "fonds (%s) sous le plafond (%.1f dB)" % [spec[1], top])
+	_ok(float(Son.data()["levels"]["carte"]) + float(MapSound.cfg()["vol"]) <= float(Son.data()["levels"]["musique"]) - 20.0, "une voix de la carte joue au moins 20 dB sous la musique")
+	_ok(float(Son.data()["levels"]["ecran"]) + float(ScreenSound.cfg()["vol"]) <= float(Son.data()["levels"]["musique"]) - 18.0, "un lieu joue au moins 18 dB sous la musique")

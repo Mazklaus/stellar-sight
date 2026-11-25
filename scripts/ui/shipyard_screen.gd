@@ -358,6 +358,7 @@ func place_module(mid: String) -> void:
 	if target < 0:
 		return
 	draft["slots"][target] = mid
+	Son.cue(Son.module_cue(kind))
 	# On avance vers l'emplacement libre suivant du même type, pour poser vite plusieurs modules.
 	slot_index = target
 	for i in range(target + 1, sl.size()):
@@ -415,6 +416,7 @@ func save_draft() -> void:
 		return
 	var id := "m%d_%d" % [_player, _state.next_design_id]
 	command_requested.emit(SimCommands.save_design(_player, spec))
+	Son.cue("modele_valide")
 	if _state.designs.has(id):
 		select_design(id)
 	else:

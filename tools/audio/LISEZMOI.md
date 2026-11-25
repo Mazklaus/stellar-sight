@@ -19,3 +19,7 @@ sont réglés bas : ce sont des fonds, toujours sous la musique.
 
 Le nom du fichier décide de son emploi : `assets/sounds/ui/ui_valider.ogg` remplace l'esquisse de synthèse
 du repère `ui_valider` (voir `data/audio.json`), sans rien changer au code.
+
+## Garde-fous de niveau
+
+Le bloc `ceiling` de `data/audio.json` fixe les plafonds : sortie générale (limiteur en bout de chaîne), crête d'un fichier, crête et niveau moyen d'un repère, écart crête-niveau d'un fond. `son.py` arrondit les crêtes au moment de poser un son, `son.py verifier` les contrôle, et `son.py renormer` reprend d'un coup tous les fichiers hors plafond sans changer leur fiche d'origine. Les tests du son refusent tout ce qui dépasse.

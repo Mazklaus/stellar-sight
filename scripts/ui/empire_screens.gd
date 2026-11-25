@@ -1493,6 +1493,7 @@ func _build_research() -> void:
 		_fill_research_side())
 	research_tree.tech_activated.connect(func(tid: String) -> void:
 		if Research.check_queue(_state, _player, tid, true) == "":
+			Son.research_cue(tid)
 			command_requested.emit(SimCommands.research(_player, tid, true)))
 	research_tree.tech_planned.connect(plan_research_path)
 	research_tree.zoom_changed.connect(func(z: float) -> void: research_zoom = z)

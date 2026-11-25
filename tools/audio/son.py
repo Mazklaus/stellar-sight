@@ -63,12 +63,31 @@ def crete(x):
     return 20.0 * np.log10(max(float(np.max(np.abs(x))) if len(x) else 0.0, 1e-9))
 
 
-def niveler(x, cible):
-    """Ramène au niveau cible, sans jamais dépasser -1 dB en crête."""
+def plafond_crete(dossier):
+    """Crête la plus haute admise pour un fichier de ce dossier (bloc ceiling de data/audio.json)."""
+    garde = config().get("ceiling", {})
+    haut = float(garde.get("peak_db", -3.0))
+    ecart = garde.get("crest_db", {}).get(dossier)
+    return haut if ecart is None else min(haut, niveau_cible(dossier) + float(ecart))
+
+
+def arrondir(x, plafond_db):
+    """Arrondit en douceur ce qui dépasse le plafond (genou en tangente hyperbolique à 6 dB dessous)."""
+    haut = 10 ** (plafond_db / 20.0)
+    genou = haut * 0.5
+    a = np.abs(x)
+    y = np.where(a > genou, np.sign(x) * (genou + (haut - genou) * np.tanh((a - genou) / (haut - genou))), x)
+    return y
+
+
+def niveler(x, cible, plafond_db=-3.0):
+    """Ramène au niveau cible ; les crêtes au-delà du plafond sont arrondies, puis le niveau repris."""
     y = x * 10 ** ((cible - lufs(x)) / 20.0)
-    depasse = crete(y) + 1.0
-    if depasse > 0:
-        y *= 10 ** (-depasse / 20.0)
+    for _ in range(3):
+        if crete(y) <= plafond_db:
+            break
+        y = arrondir(y, plafond_db)
+        y = y * 10 ** (min(0.0, cible - lufs(y)) / 20.0)
     return y
 
 
@@ -119,7 +138,7 @@ def inscrire(ident, fiche):
 
 def poser(x, ident, args, en_boucle):
     dossier = ident.split("/")[0]
-    y = niveler(x, niveau_cible(dossier))
+    y = niveler(x, niveau_cible(dossier), plafond_crete(dossier))
     ecrire_ogg(y, SONS / (ident + ".ogg"))
     fiche = {"outil": args.outil, "consigne": args.consigne, "licence": args.licence, "date": datetime.date.today().isoformat(),
              "source": pathlib.Path(args.source).name, "duree": round(len(y) / TAUX, 3), "lufs": round(lufs(y), 1),
@@ -145,6 +164,8 @@ def verifier():
             notes.append("fiche sans outil ou sans licence")
         if mesure > cible + 1.5:
             notes.append("trop fort de %.1f dB" % (mesure - cible))
+        if crete(x) > plafond_crete(ident.split("/")[0]) + 0.5:
+            notes.append("crête trop haute (%.1f dB pour %.1f)" % (crete(x), plafond_crete(ident.split("/")[0])))
         if fiche and fiche.get("boucle") and raccord(x) > 1.5:
             notes.append("la boucle claque au raccord")
         fautes += bool(notes)
@@ -157,12 +178,36 @@ def verifier():
     return 1 if fautes else 0
 
 
+def renormer():
+    """Reprend chaque fichier trop fort ou à la crête trop haute : même son, niveau et crêtes ramenés."""
+    tout = json.loads(ORIGINES.read_text(encoding="utf-8")) if ORIGINES.exists() else {}
+    repris = 0
+    for p in sorted(SONS.rglob("*.ogg")):
+        ident = str(p.relative_to(SONS).with_suffix("")).replace("\\", "/")
+        dossier = ident.split("/")[0]
+        x = lire(p)
+        cible, haut = niveau_cible(dossier), plafond_crete(dossier)
+        if lufs(x) <= cible + 1.5 and crete(x) <= haut + 0.5:
+            continue
+        y = niveler(x, cible, haut)
+        ecrire_ogg(y, p)
+        y = lire(p)
+        fiche = tout.get(ident, {})
+        fiche.update({"lufs": round(lufs(y), 1), "crete": round(crete(y), 1)})
+        inscrire(ident, fiche)
+        tout[ident] = fiche
+        repris += 1
+        print("%-36s repris : %.1f LUFS, crête %.1f dB" % (ident, fiche["lufs"], fiche["crete"]))
+    print("%d fichier(s) repris." % repris)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
     sp.add_parser("mesurer").add_argument("fichiers", nargs="+")
     sp.add_parser("tempo").add_argument("source")
     sp.add_parser("verifier")
+    sp.add_parser("renormer")
     for nom in ("boucler", "poser"):
         p = sp.add_parser(nom)
         p.add_argument("source")
@@ -186,6 +231,8 @@ def main():
         print("%.1f à la minute" % tempo(lire(args.source)))
     elif args.cmd == "verifier":
         sys.exit(verifier())
+    elif args.cmd == "renormer":
+        renormer()
     elif args.cmd == "poser":
         poser(lire(args.source), args.ident, args, False)
     elif args.cmd == "boucler":

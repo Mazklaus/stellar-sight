@@ -66,6 +66,12 @@ static func build_buses() -> void:
 		AudioServer.add_bus_effect(0, AudioEffectCompressor.new())
 	if _effect_at(0, "AudioEffectStereoEnhance") < 0:
 		AudioServer.add_bus_effect(0, AudioEffectStereoEnhance.new())
+	# Dernier de la chaîne : le limiteur qui plafonne la sortie générale, quoi qu'il se joue.
+	if _effect_at(0, "AudioEffectHardLimiter") < 0:
+		var lim := AudioEffectHardLimiter.new()
+		lim.ceiling_db = float(data().get("ceiling", {}).get("master_db", -3.0))
+		lim.pre_gain_db = 0.0
+		AudioServer.add_bus_effect(0, lim)
 
 
 static func _effect_at(bus: int, type: String) -> int:
@@ -179,6 +185,17 @@ static func button_cue(b: BaseButton) -> String:
 	return String(cfg.get("default", ""))
 
 
+## C6 : lancer une recherche joue le repère du savoir, transposé selon le domaine de la technologie.
+static func research_cue(tech_id: String) -> void:
+	var domain := String(Research.tech(tech_id).get("domain", ""))
+	cue("savoir_choix", float(data().get("research_semitones", {}).get(domain, 0)))
+
+
+## C7 : repère d'un module posé au chantier, selon le type de son emplacement.
+static func module_cue(slot: String) -> String:
+	return String(data().get("module_cues", {}).get(slot, "module_soutien"))
+
+
 ## Esquisse d'une annonce (F4) : la famille donne le timbre et le motif, la gravité le nombre de notes
 ## et leur durée. Rien pour une Chronique.
 static func announce_recipe(family: String, gravity: int) -> Dictionary:
@@ -203,3 +220,14 @@ static func announce(family: String, gravity: int) -> void:
 	if recipe.is_empty():
 		return
 	play_stream(SoundSynth.stream(recipe), String(cfg.get("bus", "Annonces")), float(cfg.get("vol", -9.0)))
+
+
+## Crête et niveau moyen d'un son de synthèse, en dB (garde-fous de niveau).
+static func measure(buf: PackedFloat32Array) -> Dictionary:
+	var peak := 0.0
+	var sum := 0.0
+	for v in buf:
+		peak = maxf(peak, absf(v))
+		sum += v * v
+	var rms := sqrt(sum / float(maxi(1, buf.size())))
+	return {"peak_db": linear_to_db(maxf(peak, 0.00001)), "rms_db": linear_to_db(maxf(rms, 0.00001))}
