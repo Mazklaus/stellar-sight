@@ -15,6 +15,15 @@
 		"ecran": -30.0,
 		"carte": -32.0
 	},
+	"ceiling": {
+		"_doc": "Garde-fous de niveau (demande du 25/11/2026 : jamais trop fort en jeu). master_db : plafond du limiteur posé en bout de chaîne sur la sortie générale, rien ne le dépasse. peak_db : crête la plus haute admise pour un fichier déposé. cue_peak_db et cue_rms_db : crête et niveau moyen les plus hauts admis pour un repère une fois son volume appliqué (esquisses comprises). bed_rms_db : niveau moyen le plus haut d'un fond de la carte ou d'un écran, volume de voix appliqué. Un test refuse tout ce qui dépasse.",
+		"master_db": -3.0,
+		"peak_db": -3.0,
+		"cue_peak_db": -9.0,
+		"cue_rms_db": -20.0,
+		"bed_rms_db": -24.0,
+		"crest_db": {"_doc": "Écart le plus grand admis entre la crête d'un fichier et le niveau de son dossier : un fond ne doit pas avoir de claquement qui ressort. tools/audio/son.py arrondit les crêtes au-delà.", "carte": 20.0, "ecran": 20.0, "peuples": 22.0}
+	},
 	"voices": 12,
 	"rate": 32000,
 	"buses": [
@@ -72,6 +81,11 @@
 		"temps_reprise": {"bus": "Interface", "label": "Reprise", "vol": -12, "gap": 150, "synth": {"w": "sine", "f": 392, "notes": [0, 5], "step": 0.07, "len": 0.14, "a": 0.004, "gain": 0.45}},
 		"temps_vitesse": {"bus": "Interface", "label": "Cran de vitesse", "vol": -13, "gap": 60, "synth": {"w": "triangle", "f": 440, "notes": [0], "len": 0.07, "a": 0.002, "gain": 0.45}},
 		"tour_fin": {"bus": "Interface", "label": "Fin de tour", "vol": -10, "gap": 300, "synth": {"w": "triangle", "f": 330, "notes": [0, 7, 12, 19], "step": 0.07, "len": 0.25, "a": 0.005, "gain": 0.4}},
+		"savoir_choix": {"bus": "Interface", "label": "Recherche lancée (C6 : la hauteur dit la branche)", "vol": -11, "gap": 120, "synth": {"w": "sine", "f": 523, "notes": [0, 7, 12], "step": 0.06, "len": 0.22, "a": 0.006, "gain": 0.4}},
+		"module_arme": {"bus": "Interface", "label": "Module posé : arme", "vol": -12, "gap": 60, "synth": {"w": "square", "f": 147, "notes": [0], "len": 0.09, "a": 0.002, "slide": -7, "lp": 0.3, "gain": 0.5}},
+		"module_defense": {"bus": "Interface", "label": "Module posé : défense", "vol": -12, "gap": 60, "synth": {"w": "triangle", "f": 330, "notes": [0, 5], "step": 0.03, "len": 0.14, "a": 0.004, "gain": 0.45}},
+		"module_soutien": {"bus": "Interface", "label": "Module posé : soutien", "vol": -12, "gap": 60, "synth": {"w": "sine", "f": 660, "notes": [0], "len": 0.1, "a": 0.003, "slide": 3, "gain": 0.4}},
+		"modele_valide": {"bus": "Interface", "label": "Modèle de vaisseau enregistré", "vol": -10, "gap": 200, "synth": {"w": "triangle", "f": 220, "notes": [0, 7, 12, 16], "step": 0.06, "len": 0.3, "a": 0.005, "gain": 0.4}},
 		"tour_pret": {"bus": "Interface", "label": "Tour suivant", "vol": -12, "gap": 300, "synth": {"w": "sine", "f": 660, "notes": [0, 5], "step": 0.1, "len": 0.3, "a": 0.01, "gain": 0.4}}
 	},
 	"map": {
@@ -126,9 +140,11 @@
 			"chronicles:quests": ["chroniqueur", ""], "chronicles:events": ["chroniqueur", ""], "chronicles:crisis": ["chroniqueur", ""],
 			"chronicles:announces": ["chroniqueur", ""], "chronicles:annals": ["archives", ""], "chronicles:deeds": ["archives", ""],
 			"chronicles:bestiary": ["vivarium", ""],
-			"victory": ["observatoire", ""], "transcendence": ["seuil", ""], "contact": ["porteuse", ""], "kardashev": ["centrale", ""]
+			"victory": ["observatoire", ""], "transcendence": ["seuil", ""], "contact": ["porteuse", "contact"], "kardashev": ["centrale", ""]
 		}
 	},
+	"research_semitones": {"_doc": "C6 : transposition du repère savoir_choix selon le domaine de la technologie.", "armement": -5, "genie": 0, "economie": 4, "societe": 7},
+	"module_cues": {"_doc": "C7 : repère joué quand un module est posé, selon le type de son emplacement.", "weapon": "module_arme", "heavy": "module_arme", "titanic": "module_arme", "colossal": "module_arme", "astral": "module_arme", "defense": "module_defense", "support": "module_soutien", "integrated": "module_soutien"},
 	"speed_semitones": [0, 3, 5, 8, 12],
 	"announce": {
 		"_doc": "F4 : la famille donne le timbre, la gravité donne l'ampleur. Esquisse jouée quand aucun fichier n'est déposé dans assets/sounds/announce/. counts : nombre de notes du motif par gravité (0 Chronique à 3 Fanfare).",

@@ -64,6 +64,8 @@ static func agitation(state: GameState, player: int, vary: String) -> float:
 					all += 1
 					moving += 1 if f.is_moving() else 0
 			return float(moving) / float(all) if all > 0 else 0.0
+		"contact":
+			return clampf(float(Contact.gauge_pct(state, player)) / 100.0, 0.0, 1.0)
 		"routes":
 			return clampf(float(Trade.routes_of(state, player).size()) / 10.0, 0.0, 1.0)
 		"colonies":

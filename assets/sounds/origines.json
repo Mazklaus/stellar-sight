@@ -194,7 +194,7 @@
 		"source": "monde_abri.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -10.8,
+		"crete": -12.6,
 		"boucle": true
 	},
 	"carte/monde_anneau": {
@@ -215,8 +215,8 @@
 		"date": "2026-11-25",
 		"source": "monde_arctic.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -8.1,
+		"lufs": -32.3,
+		"crete": -12.0,
 		"boucle": true
 	},
 	"carte/monde_asteroids": {
@@ -259,8 +259,8 @@
 		"date": "2026-11-25",
 		"source": "monde_coquille.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -10.7,
+		"lufs": -32.1,
+		"crete": -12.5,
 		"boucle": true
 	},
 	"carte/monde_creux": {
