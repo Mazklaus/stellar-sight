@@ -13,6 +13,8 @@ static var profile := ""
 static var background := false
 ## Un son au survol des boutons (K4 : coupé d'origine).
 static var hover := false
+## Les peuples parlent leur langue quand on s'adresse à eux (Q3 : réglable).
+static var speech := true
 ## Les tests coupent l'écriture du fichier.
 static var persist := true
 
@@ -26,6 +28,7 @@ static func load_settings() -> void:
 	profile = String(cfg.get_value("sound", "profile", ""))
 	background = bool(cfg.get_value("sound", "background", false))
 	hover = bool(cfg.get_value("sound", "hover", false))
+	speech = bool(cfg.get_value("sound", "speech", true))
 
 
 static func save_settings() -> void:
@@ -37,6 +40,7 @@ static func save_settings() -> void:
 	cfg.set_value("sound", "profile", profile)
 	cfg.set_value("sound", "background", background)
 	cfg.set_value("sound", "hover", hover)
+	cfg.set_value("sound", "speech", speech)
 	cfg.save(PATH)
 
 
@@ -45,6 +49,7 @@ static func reset() -> void:
 	profile = ""
 	background = false
 	hover = false
+	speech = true
 	save_settings()
 	Son.apply_settings()
 

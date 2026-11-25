@@ -46,6 +46,7 @@ var volume_boxes := {}
 var _profile: Button
 var _background: Button
 var _hover: Button
+var _speech: Button
 ## Lignes des types d'annonce (tests) : type -> {"row", "look", "pause", "auto"}.
 var announce_rows := {}
 
@@ -304,6 +305,7 @@ func sync() -> void:
 	_profile.tooltip_text = String(GameData.audio().get("profiles", {}).get(SoundSettings.profile_id(), {}).get("tip", ""))
 	_set_toggle(_background, SoundSettings.background)
 	_set_toggle(_hover, SoundSettings.hover)
+	_set_toggle(_speech, SoundSettings.speech)
 	for kind in announce_rows:
 		_sync_announce_row(String(kind))
 
@@ -339,6 +341,10 @@ func _build_sound(page: VBoxContainer) -> void:
 		sync())
 	_hover = _toggle_row(page, "Sons de survol", "Un son discret quand le pointeur passe sur un bouton.", func() -> void:
 		SoundSettings.hover = not SoundSettings.hover
+		SoundSettings.save_settings()
+		sync())
+	_speech = _toggle_row(page, "Parole des peuples", "Chaque peuple parle sa langue quand on s'adresse à lui. Coupé, il ne reste que son indicatif.", func() -> void:
+		SoundSettings.speech = not SoundSettings.speech
 		SoundSettings.save_settings()
 		sync())
 

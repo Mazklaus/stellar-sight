@@ -148,6 +148,65 @@
 			"victory": ["observatoire", ""], "transcendence": ["seuil", ""], "contact": ["porteuse", "contact"], "kardashev": ["centrale", ""]
 		}
 	},
+	"peoples": {
+		"_doc": "Lot 4, bloc D de l'étude : la signature sonore des peuples. signatures : par peuple, sa matière (label), son indicatif (synth, mêmes champs que les repères), sa façon de parler (voice et voice_f, hauteur de la voix en Hz). mute : un peuple sans voix (les Silencieux). moods : l'humeur transforme l'indicatif selon le statut diplomatique (D4) : semis transposition, len durée des notes, lp filtre, octave doublure à l'octave, hit coup grave d'ouverture. registers : palette d'un peuple créé dans l'éditeur, d'après son registre (D3). Fichier assets/sounds/peuples/indicatif_<id>.ogg s'il existe. speech : la parole fabriquée d'après le texte affiché (D5), une syllabe tous les chars caractères, max secondes au plus.",
+		"bus": "Signaux",
+		"vol": -14.0,
+		"speech_bus": "Voix",
+		"speech_vol": -18.0,
+		"speech": {"chars": 9, "max": 1.8, "syllable": 0.11},
+		"moods": {
+			"alliance": {"semis": 0, "len": 1.1, "lp": 1.2, "octave": true},
+			"peace": {"semis": 0, "len": 1.0, "lp": 1.0},
+			"cold": {"semis": -2, "len": 1.15, "lp": 0.7},
+			"war": {"semis": -5, "len": 1.25, "lp": 0.6, "hit": true},
+			"none": {"semis": -7, "len": 1.5, "lp": 0.4}
+		},
+		"voices": {
+			"formant": {"w": "saw", "lp": 0.35, "spread": 5},
+			"chant": {"w": "triangle", "lp": 0.3, "spread": 0, "slow": 2.0},
+			"multi": {"w": "saw", "lp": 0.4, "spread": 7, "double": true},
+			"click": {"w": "noise", "lp": 0.9, "spread": 12, "slow": 0.5},
+			"tones": {"w": "sine", "lp": 1.0, "spread": 12},
+			"noise": {"w": "noise", "lp": 0.25, "spread": 3, "slow": 1.6},
+			"drone": {"w": "saw", "lp": 0.15, "spread": 1, "slow": 3.0},
+			"mumble": {"w": "triangle", "lp": 0.25, "spread": 3},
+			"modem": {"w": "square", "lp": 0.6, "spread": 12, "slow": 0.4},
+			"wood": {"w": "triangle", "lp": 0.5, "spread": 7}
+		},
+		"registers": {
+			"Médiéval spatial": "ossarane", "Grimdark": "choeur", "Space opera héroïque": "vael", "Hard SF": "teyl",
+			"Classique / hard SF": "teyl", "Cosmique": "murmurants", "Cosmique / étrange": "murmurants",
+			"Picaresque": "brisecomete", "Picaresque / pulp": "brisecomete", "Horreur biologique": "khthari"
+		},
+		"default": "vael",
+		"signatures": {
+			"ossarane": {"label": "Cordes pincées, cor grave, bois de marine.", "motif": "Une quinte qui monte, posée, puis la tierce.", "parole": "Voix graves, voyelles longues, débit de cérémonie.", "synth": {"w": "triangle", "f": 147, "notes": [0, 7, 12, 16], "step": 0.42, "len": 0.672, "a": 0.02, "lp": 0.47, "gain": 0.45}, "voice": "formant", "voice_f": 110},
+			"choeur": {"label": "Chœur d'hommes à l'unisson, orgue, cloche.", "motif": "Les quatre premières notes de l'hymne, toujours les mêmes.", "parole": "Psalmodie sur une note, réponse en chœur.", "synth": {"w": "triangle", "f": 110, "notes": [0, 0, 3, 2], "step": 0.6, "len": 0.96, "a": 0.15, "lp": 0.34, "gain": 0.45}, "voice": "chant", "voice_f": 98},
+			"vael": {"label": "Cuivres clairs, harpe, rumeur d'assemblée.", "motif": "Motif majeur ouvert, qui finit en l'air.", "parole": "Plusieurs voix qui se chevauchent : une délégation.", "synth": {"w": "saw", "f": 196, "notes": [0, 4, 7, 14], "step": 0.3, "len": 0.48, "a": 0.03, "lp": 0.57, "gain": 0.45}, "voice": "multi", "voice_f": 170},
+			"khthari": {"label": "Stridulations, peaux humides, souffle.", "motif": "Pas de mélodie. Un cliquetis qui accélère.", "parole": "Clics et sifflements, aucune voyelle.", "synth": {"w": "noise", "f": 900, "notes": [0, 0, 0, 0, 0, 0, 0, 0], "step": 0.16, "len": 0.256, "a": 0.001, "lp": 0.87, "gain": 0.45}, "voice": "click", "voice_f": 2400},
+			"teyl": {"label": "Tons purs, verre.", "motif": "Deux intervalles exacts, repris en écho par un autre nœud.", "parole": "Phrases de tons, deux nœuds en canon.", "synth": {"w": "sine", "f": 440, "notes": [0, 7, 12, 7], "step": 0.22, "len": 0.352, "a": 0.005, "lp": 1.0, "gain": 0.45}, "voice": "tones", "voice_f": 660},
+			"ferrocornes": {"label": "Métal frappé, tambours de coque, cornes.", "motif": "Trois coups de marteau, puis la corne.", "parole": "Gutturale et brève.", "synth": {"w": "square", "f": 82, "notes": [0, 0, 0, 5], "step": 0.28, "len": 0.448, "a": 0.002, "lp": 0.3, "gain": 0.45}, "voice": "formant", "voice_f": 75},
+			"brisecomete": {"label": "Accordéon de bord, ferraille, sifflet d'équipe.", "motif": "Un air de travail à cinq notes, un peu faux.", "parole": "Sabir de plusieurs langues, coupé de sifflets.", "synth": {"w": "saw", "f": 220, "notes": [0, 2, 4, 7, 4], "step": 0.2, "len": 0.32, "a": 0.03, "lp": 0.5, "gain": 0.45}, "voice": "multi", "voice_f": 140},
+			"murmurants": {"label": "Parasites radio, souffle, sifflements d'ionosphère.", "motif": "Un motif qui se dégage du bruit et y retourne.", "parole": "Bruit modulé, très lent.", "synth": {"w": "sine", "f": 520, "notes": [0, -5, 2, -7], "step": 0.7, "len": 1.12, "a": 0.3, "lp": 0.61, "gain": 0.45}, "voice": "noise", "voice_f": 800},
+			"exode": {"label": "Une voix seule, cordes frottées, cloche de bord.", "motif": "Quatre notes d'un chant de marin, qui redescend.", "parole": "Sobre, basse, sans effet.", "synth": {"w": "triangle", "f": 196, "notes": [7, 5, 3, 0], "step": 0.5, "len": 0.8, "a": 0.08, "lp": 0.43, "gain": 0.45}, "voice": "formant", "voice_f": 130},
+			"zambalu": {"label": "Orgue de foire, cuivres, grosse caisse.", "motif": "Un appel de parade.", "parole": "Bonimenteur, rires dans le fond.", "synth": {"w": "square", "f": 262, "notes": [0, 4, 7, 4, 12], "step": 0.16, "len": 0.256, "a": 0.005, "lp": 0.63, "gain": 0.45}, "voice": "formant", "voice_f": 210},
+			"halcyre": {"label": "Infrasons, chants de fond marin, roche.", "motif": "Une seule note très grave, qui enfle.", "parole": "Une houle lente.", "synth": {"w": "sine", "f": 49, "notes": [0], "step": 2.6, "len": 4.16, "a": 1.2, "lp": 0.19, "gain": 0.45}, "voice": "drone", "voice_f": 55},
+			"kraal": {"label": "Appels de troupeau, os entrechoqués, souffle.", "motif": "Deux appels graves qui se répondent.", "parole": "Mugissements.", "synth": {"w": "saw", "f": 65, "notes": [0, -2, 0], "step": 0.9, "len": 1.44, "a": 0.3, "lp": 0.23, "gain": 0.45}, "voice": "drone", "voice_f": 70},
+			"ventrelune": {"label": "Piano feutré, horloge, téléscripteur.", "motif": "Un carillon de bureau, quatre notes polies.", "parole": "Voix de comptoir, égale, la même formule d'accueil.", "synth": {"w": "sine", "f": 392, "notes": [4, 0, 2, -5], "step": 0.34, "len": 0.544, "a": 0.004, "lp": 0.71, "gain": 0.45}, "voice": "formant", "voice_f": 185},
+			"bureau": {"label": "Tampons, machines à écrire, sonnette de guichet.", "motif": "La sonnette, puis le tampon.", "parole": "Marmonnement administratif.", "synth": {"w": "sine", "f": 1320, "notes": [0, -12], "step": 0.25, "len": 0.4, "a": 0.002, "lp": 0.87, "gain": 0.45}, "voice": "mumble", "voice_f": 120},
+			"signal": {"label": "Porteuse, télémétrie.", "motif": "Une salve de données répétée, avec une erreur de copie.", "parole": "Trame de données.", "synth": {"w": "square", "f": 880, "notes": [0, 5, 0, 7, 0, 5, 0, 8], "step": 0.07, "len": 0.112, "a": 0.001, "lp": 0.79, "gain": 0.45}, "voice": "modem", "voice_f": 1200},
+			"ysmer": {"label": "Boîte à musique lente, respiration.", "motif": "Une berceuse qui s'arrête avant la fin.", "parole": "Chuchotement de dormeur.", "synth": {"w": "sine", "f": 523, "notes": [0, -3, -5, -3, 0], "step": 0.5, "len": 0.8, "a": 0.01, "lp": 0.66, "gain": 0.45}, "voice": "noise", "voice_f": 1800},
+			"asphodele": {"label": "Chœur lointain sans vibrato, pierre, glas.", "motif": "Un glas, et sa réponse un demi-ton plus bas.", "parole": "Plusieurs voix d'espèces différentes, en léger retard.", "synth": {"w": "triangle", "f": 131, "notes": [0, -1], "step": 1.1, "len": 1.76, "a": 0.25, "lp": 0.3, "gain": 0.45}, "voice": "multi", "voice_f": 95},
+			"cassivel": {"label": "Clavecin, horloges de vitrine.", "motif": "Une ritournelle précieuse.", "parole": "Une seule voix, maniérée.", "synth": {"w": "saw", "f": 330, "notes": [0, 4, 7, 12, 11, 7], "step": 0.13, "len": 0.208, "a": 0.001, "lp": 0.81, "gain": 0.45}, "voice": "formant", "voice_f": 240},
+			"silencieux": {"label": "Aucune. Le bruit de leur travail : extraction, assemblage.", "mute": true},
+			"quietude": {"label": "Pierre frottée, bol chantant.", "motif": "Deux notes très espacées.", "parole": "Basse, lente, avec de longs blancs.", "synth": {"w": "sine", "f": 174, "notes": [0, 5], "step": 1.4, "len": 2.24, "a": 0.5, "lp": 0.39, "gain": 0.45}, "voice": "drone", "voice_f": 90},
+			"sablier": {"label": "Cordes, voix humaines, sable qui coule.", "motif": "Le motif à l'envers, puis à l'endroit.", "parole": "Humaine, avec un écho qui arrive avant la voix.", "synth": {"w": "triangle", "f": 220, "notes": [12, 7, 3, 0, 3, 7, 12], "step": 0.2, "len": 0.32, "a": 0.03, "lp": 0.55, "gain": 0.45}, "voice": "formant", "voice_f": 150},
+			"gravea": {"label": "Roche qui travaille.", "motif": "Un grondement continu, sans début.", "parole": "Une syllabe, tenue pendant toute l'audience.", "synth": {"w": "saw", "f": 41, "notes": [0], "step": 3, "len": 4.8, "a": 1.5, "lp": 0.14, "gain": 0.45}, "voice": "drone", "voice_f": 45},
+			"myrr": {"label": "Bulles, craquements humides, pluie de spores.", "motif": "Une poussée, puis des retombées éparses.", "parole": "Poussées lentes.", "synth": {"w": "noise", "f": 300, "notes": [0, 3, 1, 5, 2], "step": 0.3, "len": 0.48, "a": 0.01, "lp": 0.42, "gain": 0.45}, "voice": "noise", "voice_f": 400},
+			"vergemonde": {"label": "Bois qui craque, feuilles, flûtes de roseau.", "motif": "Trois notes de flûte sur un craquement.", "parole": "Craquements articulés, chœur aigu des Pousses.", "synth": {"w": "sine", "f": 587, "notes": [0, -2, 5], "step": 0.4, "len": 0.64, "a": 0.06, "lp": 0.61, "gain": 0.45}, "voice": "wood", "voice_f": 300}
+		}
+	},
 	"research_semitones": {"_doc": "C6 : transposition du repère savoir_choix selon le domaine de la technologie.", "armement": -5, "genie": 0, "economie": 4, "societe": 7},
 	"module_cues": {"_doc": "C7 : repère joué quand un module est posé, selon le type de son emplacement.", "weapon": "module_arme", "heavy": "module_arme", "titanic": "module_arme", "colossal": "module_arme", "astral": "module_arme", "defense": "module_defense", "support": "module_soutien", "integrated": "module_soutien"},
 	"speed_semitones": [0, 3, 5, 8, 12],

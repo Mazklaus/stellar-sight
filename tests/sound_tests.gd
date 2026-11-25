@@ -19,6 +19,7 @@ func run(check: Callable) -> void:
 	_test_map()
 	_test_screens()
 	_test_ceiling()
+	_test_peoples()
 	SoundSettings.reset()
 
 
@@ -456,3 +457,60 @@ func _test_ceiling() -> void:
 		_ok(top <= float(cap["bed_rms_db"]), "fonds (%s) sous le plafond (%.1f dB)" % [spec[1], top])
 	_ok(float(Son.data()["levels"]["carte"]) + float(MapSound.cfg()["vol"]) <= float(Son.data()["levels"]["musique"]) - 20.0, "une voix de la carte joue au moins 20 dB sous la musique")
 	_ok(float(Son.data()["levels"]["ecran"]) + float(ScreenSound.cfg()["vol"]) <= float(Son.data()["levels"]["musique"]) - 18.0, "un lieu joue au moins 18 dB sous la musique")
+
+
+## Lot 4 : la signature sonore des peuples.
+func _test_peoples() -> void:
+	var c: Dictionary = PeopleSound.cfg()
+	var cap: Dictionary = Son.data()["ceiling"]
+	var seen := {}
+	var loud: Array = []
+	for f: Dictionary in GameData.factions():
+		var id := String(f["id"])
+		_ok(c["signatures"].has(id), "le peuple %s a sa signature" % id)
+		if PeopleSound.is_mute(id):
+			continue
+		var j := PeopleSound.jingle(id)
+		var key := "%s/%s/%s" % [j["w"], j["f"], j["notes"]]
+		_ok(not seen.has(key), "l'indicatif de %s ne ressemble à aucun autre" % id)
+		seen[key] = true
+		for mood: String in c["moods"]:
+			var m := Son.measure(SoundSynth.samples(PeopleSound.jingle(id, mood)))
+			if float(m["peak_db"]) + float(c["vol"]) > float(cap["cue_peak_db"]) or float(m["rms_db"]) + float(c["vol"]) > float(cap["cue_rms_db"]):
+				loud.append("%s/%s %.1f/%.1f" % [id, mood, float(m["peak_db"]) + float(c["vol"]), float(m["rms_db"]) + float(c["vol"])])
+		var sp := Son.measure(SoundSynth.samples(PeopleSound.speech(id, "Nous saluons votre maison, et nous attendons.")))
+		if float(sp["peak_db"]) + float(c["speech_vol"]) > float(cap["cue_peak_db"]):
+			loud.append("parole de %s" % id)
+	_ok(loud.is_empty(), "indicatifs et paroles sous le plafond (%s)" % ", ".join(loud))
+	_ok(PeopleSound.is_mute("silencieux") and PeopleSound.jingle("silencieux").is_empty() and PeopleSound.speech("silencieux", "Rien.").is_empty(), "les Silencieux se taisent")
+	var peace := PeopleSound.jingle("ossarane", "peace")
+	var war := PeopleSound.jingle("ossarane", "war")
+	var ally := PeopleSound.jingle("ossarane", "alliance")
+	_ok(float(war["f"]) < float(peace["f"]) and (war["notes"] as Array).size() == (peace["notes"] as Array).size() + 1, "en guerre : plus grave, avec un coup d'ouverture")
+	_ok((ally["notes"] as Array).size() == (peace["notes"] as Array).size() + 1 and float(ally["f"]) == float(peace["f"]), "allié : le même motif, doublé à l'octave")
+	_ok(float(PeopleSound.jingle("ossarane", "cold")["lp"]) < float(peace["lp"]), "guerre froide : assombri")
+	var short := PeopleSound.speech("vael", "Soit.")
+	var long := PeopleSound.speech("vael", "La Concorde a reçu votre proposition, elle en débat, et sa réponse viendra quand chacun aura parlé.")
+	_ok((long["notes"] as Array).size() > (short["notes"] as Array).size(), "un texte long se dit en plus de syllabes")
+	_ok(float(long["step"]) * float((long["notes"] as Array).size()) <= float(c["speech"]["max"]) + 0.3, "la parole reste brève")
+	_ok(str(PeopleSound.speech("vael", "Soit.")) == str(short), "le même texte se dit toujours de la même façon")
+	_ok((long["notes"] as Array).has(-60.0), "la ponctuation fait des silences")
+	_ok(not PeopleSound.jingle("peuple_inconnu_42").is_empty(), "un peuple créé reçoit une signature")
+	Son.heard.clear()
+	SoundSettings.speech = true
+	PeopleSound.hail("teyl", "war", "En guerre.")
+	_ok(Son.heard.has("peuple:teyl:war"), "saluer un peuple joue son indicatif")
+	var st := GameState.create(11)
+	var es := EmpireScreens.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(es)
+	es.open("diplomacy", st, 0)
+	Son.heard.clear()
+	var other := 1
+	es.diplo_table.empire_selected.emit(other)
+	_ok(Son.heard.any(func(h: String) -> bool: return h.begins_with("peuple:" + st.get_empire(other).faction_id)), "choisir un empire sur l'anneau fait entendre son peuple")
+	es.free()
+	var op := OptionsPanel.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(op)
+	op.show_tab("sound")
+	_ok(op._speech != null, "réglage « Parole des peuples » dans les Options")
+	op.free()

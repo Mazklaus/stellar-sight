@@ -1918,6 +1918,10 @@ func _build_diplomacy() -> void:
 	diplo_table.setup(_state, _player, diplo_selected)
 	diplo_table.empire_selected.connect(func(id: int) -> void:
 		diplo_selected = id
+		var other := _state.get_empire(id)
+		if other != null:
+			# D4 : l'indicatif du peuple, lu selon le statut ; D5 : quelques mots dans sa langue.
+			PeopleSound.hail(other.faction_id, diplo_table._status(id), diplo_table.status_line(id))
 		show_screen("diplomacy"))
 	var legend := HBoxContainer.new()
 	legend.add_theme_constant_override("separation", 12)
