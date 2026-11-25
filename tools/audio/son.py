@@ -80,10 +80,16 @@ def arrondir(x, plafond_db):
     return y
 
 
-def coupe_bas(x):
+def part_grave_max(dossier):
+    garde = config().get("ceiling", {})
+    return float(garde.get("sub_share_by_dir", {}).get(dossier, garde.get("sub_share", 0.5)))
+
+
+def coupe_bas(x, dossier=""):
     """Retire les grondements sous lowcut_hz (pente douce d'une demi-octave). Passe par le spectre
     entier : une boucle reste une boucle."""
-    f0 = float(config().get("ceiling", {}).get("lowcut_hz", 45.0))
+    garde = config().get("ceiling", {})
+    f0 = float(garde.get("lowcut_by_dir", {}).get(dossier, garde.get("lowcut_hz", 45.0)))
     if f0 <= 0 or len(x) < 2048:
         return x
     spectre = np.fft.rfft(x, axis=0)
@@ -171,7 +177,7 @@ def inscrire(ident, fiche):
 
 def poser(x, ident, args, en_boucle):
     dossier = ident.split("/")[0]
-    y = niveler(coupe_bas(x), niveau_cible(dossier), plafond_crete(dossier))
+    y = niveler(coupe_bas(x, dossier), niveau_cible(dossier), plafond_crete(dossier))
     ecrire_ogg(y, SONS / (ident + ".ogg"))
     fiche = {"outil": args.outil, "consigne": args.consigne, "licence": args.licence, "date": datetime.date.today().isoformat(),
              "source": pathlib.Path(args.source).name, "duree": round(len(y) / TAUX, 3), "lufs": round(lufs(y), 1),
@@ -199,7 +205,7 @@ def verifier():
             notes.append("trop fort de %.1f dB" % (mesure - cible))
         if crete(x) > plafond_crete(ident.split("/")[0]) + 0.5:
             notes.append("crête trop haute (%.1f dB pour %.1f)" % (crete(x), plafond_crete(ident.split("/")[0])))
-        if part_grave(x) > float(config().get("ceiling", {}).get("sub_share", 0.5)):
+        if part_grave(x) > part_grave_max(ident.split("/")[0]):
             notes.append("trop de grondement sous 60 Hz (%d %%)" % round(part_grave(x) * 100))
         if fiche and fiche.get("boucle") and raccord(x) > 1.5:
             notes.append("la boucle claque au raccord")
@@ -222,12 +228,12 @@ def renormer():
         dossier = ident.split("/")[0]
         x = lire(p)
         cible, haut = niveau_cible(dossier), plafond_crete(dossier)
-        trop_grave = part_grave(x) > float(config().get("ceiling", {}).get("sub_share", 0.5))
+        trop_grave = part_grave(x) > part_grave_max(dossier)
         fiche = tout.get(ident, {})
         claque = bool(fiche.get("boucle")) and raccord(x) > 1.5
         if lufs(x) <= cible + 1.5 and crete(x) <= haut + 0.5 and not trop_grave and "grave" in fiche and not claque:
             continue
-        y = niveler(coupe_bas(x) if trop_grave or "grave" not in fiche else x, cible, haut)
+        y = niveler(coupe_bas(x, dossier) if trop_grave or "grave" not in fiche else x, cible, haut)
         if fiche.get("boucle"):
             y = recoudre(y)
         ecrire_ogg(y, p)

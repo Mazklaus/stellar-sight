@@ -213,6 +213,12 @@ func _ready() -> void:
 	screen_sound.name = "ScreenSound"
 	screen_sound.screens = _empire_screens
 	add_child(screen_sound)
+	var music := MusicPlayer.new()
+	music.name = "MusicPlayer"
+	music.probe = func() -> Dictionary:
+		var playing := game_in_progress and simulation != null and _main_menu != null and not _main_menu.is_open()
+		return {"state": simulation.state if playing else null, "player": view_empire, "menu": not playing}
+	add_child(music)
 	_empire_screens.close_requested.connect(close_empire_screen)
 	_empire_screens.ground_replay_requested.connect(func(rid: int) -> void:
 		var rep := Ground.report(simulation.state, rid)

@@ -20,6 +20,7 @@ func run(check: Callable) -> void:
 	_test_screens()
 	_test_ceiling()
 	_test_peoples()
+	_test_music()
 	SoundSettings.reset()
 
 
@@ -229,7 +230,7 @@ func _file_fault(id: String, card: Dictionary, levels: Dictionary) -> String:
 	var crest: Dictionary = cap["crest_db"]
 	if crest.has(id.get_slice("/", 0)):
 		peak = minf(peak, top + float(crest[id.get_slice("/", 0)]))
-	if float(card.get("grave", 0.0)) > float(cap["sub_share"]):
+	if float(card.get("grave", 0.0)) > float(cap.get("sub_share_by_dir", {}).get(id.get_slice("/", 0), cap["sub_share"])):
 		return "trop de grondement sous 60 Hz"
 	if float(card.get("crete", -100.0)) > peak + 0.5:
 		return "crête trop haute (%.1f dB pour %.1f)" % [float(card.get("crete", 0.0)), peak]
@@ -514,3 +515,54 @@ func _test_peoples() -> void:
 	op.show_tab("sound")
 	_ok(op._speech != null, "réglage « Parole des peuples » dans les Options")
 	op.free()
+
+
+## Lot 5 : la musique.
+func _test_music() -> void:
+	var c: Dictionary = MusicPlayer.cfg()
+	var ids := {}
+	for s: Dictionary in c["states"]:
+		ids[String(s["id"])] = String(s["fallback"])
+	for id: String in ids:
+		_ok(ids[id] == "" or ids.has(ids[id]), "le repli de l'état %s existe" % id)
+	var st := GameState.create(11)
+	_ok(MusicPlayer.state_of(null, 0, true) == "menu" and MusicPlayer.state_of(st, 0, true) == "menu", "au menu, la musique du menu")
+	var base := MusicPlayer.state_of(st, 0, false)
+	_ok(base in ["paix", "tension", "crise"], "une partie qui commence n'est pas en guerre")
+	st.get_empire(0).wars.append(1)
+	_ok(MusicPlayer.state_of(st, 0, false) == "guerre", "en guerre, la musique de guerre")
+	st.winner = {"empire": 0}
+	_ok(MusicPlayer.state_of(st, 0, false) == "victoire", "victoire du joueur")
+	st.winner = {"empire": 1}
+	_ok(MusicPlayer.state_of(st, 0, false) == "defaite", "victoire d'un autre : défaite")
+	for id: String in ids:
+		_ok(ids.has(MusicPlayer.playable(id)) or MusicPlayer.playable(id) == "", "l'état %s retombe sur un état connu" % id)
+	MusicPlayer._lists = {"paix": ["paix_1", "paix_2", "paix_3"], "guerre": [], "tension": [], "crise": []}
+	_ok(MusicPlayer.playable("crise") == "paix", "un état sans morceau prend ceux de son repli")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	var last := ""
+	var twice := false
+	for i in 40:
+		var n := MusicPlayer.next_piece("paix", last, rng)
+		twice = twice or n == last
+		last = n
+	_ok(not twice, "jamais deux fois de suite le même morceau")
+	MusicPlayer._lists = {"paix": ["paix_1"]}
+	_ok(MusicPlayer.next_piece("paix", "paix_1") == "paix_1", "un seul morceau : il revient")
+	MusicPlayer._lists = {}
+	SoundSettings.density = ""
+	_ok(SoundSettings.density_id() == "continue" and is_zero_approx(MusicPlayer.gap(rng)), "d'origine, la musique ne s'arrête jamais")
+	SoundSettings.cycle_density()
+	_ok(SoundSettings.density_id() == "normale" and MusicPlayer.gap(rng) >= 15.0, "densité normale : un silence entre deux morceaux")
+	SoundSettings.cycle_density()
+	SoundSettings.cycle_density()
+	_ok(SoundSettings.density_id() == "continue", "le réglage fait le tour")
+	var levels: Dictionary = Son.data()["levels"]
+	_ok(float(levels["musique"]) + float(c["vol"]) <= -16.0, "la musique elle-même reste à un niveau de fond")
+	var node := MusicPlayer.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(node)
+	node.set_process(false)
+	node._process(0.6)
+	_ok(String(node.now()["state"]) in ["", "menu", "paix"], "sans partie, la musique se place sur le menu ou son repli")
+	node.free()

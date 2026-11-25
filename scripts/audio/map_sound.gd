@@ -126,7 +126,7 @@ static func system_emitters(screen: SystemScreen) -> Array:
 
 ## Son d'une source : son fichier (assets/sounds/carte/<id>.ogg ou .wav, mis en boucle), sinon le
 ## fond de synthèse de son préfixe.
-static func stream_for(sound: String, dir := "") -> AudioStream:
+static func stream_for(sound: String, dir := "", loop := true) -> AudioStream:
 	var c := cfg()
 	var base := "%s%s/%s" % [String(Son.data().get("dir", "res://assets/sounds/")), dir if dir != "" else String(c.get("dir", "carte")), sound]
 	for ext in Son.data().get("ext", ["ogg", "wav"]):
@@ -137,13 +137,13 @@ static func stream_for(sound: String, dir := "") -> AudioStream:
 		elif FileAccess.file_exists(p):
 			s = AudioStreamOggVorbis.load_from_file(p) if String(ext) == "ogg" else AudioStreamWAV.load_from_file(p)
 		if s is AudioStreamOggVorbis:
-			(s as AudioStreamOggVorbis).loop = true
-		elif s is AudioStreamWAV:
+			(s as AudioStreamOggVorbis).loop = loop
+		elif s is AudioStreamWAV and loop:
 			(s as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD
 			(s as AudioStreamWAV).loop_end = int((s as AudioStreamWAV).get_length() * (s as AudioStreamWAV).mix_rate)
 		if s != null:
 			return s
-	var bed: Dictionary = c.get("beds", {}).get(sound.get_slice("_", 0), {})
+	var bed: Dictionary = c.get("beds", {}).get(sound.get_slice("_", 0), {}) if loop else {}
 	if bed.is_empty():
 		return null
 	return SoundSynth.bed(bed, float(posmod(sound.hash(), 9) - 4))

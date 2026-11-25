@@ -15,6 +15,8 @@ static var background := false
 static var hover := false
 ## Les peuples parlent leur langue quand on s'adresse à eux (Q3 : réglable).
 static var speech := true
+## Densité de la musique (E1) : "" vaut le réglage d'origine, « continue ».
+static var density := ""
 ## Les tests coupent l'écriture du fichier.
 static var persist := true
 
@@ -29,6 +31,7 @@ static func load_settings() -> void:
 	background = bool(cfg.get_value("sound", "background", false))
 	hover = bool(cfg.get_value("sound", "hover", false))
 	speech = bool(cfg.get_value("sound", "speech", true))
+	density = String(cfg.get_value("sound", "density", ""))
 
 
 static func save_settings() -> void:
@@ -41,6 +44,7 @@ static func save_settings() -> void:
 	cfg.set_value("sound", "background", background)
 	cfg.set_value("sound", "hover", hover)
 	cfg.set_value("sound", "speech", speech)
+	cfg.set_value("sound", "density", density)
 	cfg.save(PATH)
 
 
@@ -50,6 +54,7 @@ static func reset() -> void:
 	background = false
 	hover = false
 	speech = true
+	density = ""
 	save_settings()
 	Son.apply_settings()
 
@@ -107,3 +112,20 @@ static func cycle_profile() -> void:
 	profile = String(ids[(ids.find(profile_id()) + 1) % ids.size()])
 	save_settings()
 	Son.apply_settings()
+
+
+static func density_id() -> String:
+	var all: Dictionary = GameData.audio().get("music", {}).get("density", {})
+	return density if all.has(density) else String(GameData.audio().get("music", {}).get("default_density", "continue"))
+
+
+static func density_label() -> String:
+	return String(GameData.audio().get("music", {}).get("density", {}).get(density_id(), {}).get("label", density_id()))
+
+
+static func cycle_density(dir := 1) -> void:
+	var ids: Array = GameData.audio().get("music", {}).get("density", {}).keys()
+	if ids.is_empty():
+		return
+	density = String(ids[posmod(ids.find(density_id()) + dir, ids.size())])
+	save_settings()

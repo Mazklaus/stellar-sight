@@ -47,6 +47,7 @@ var _profile: Button
 var _background: Button
 var _hover: Button
 var _speech: Button
+var _density: Button
 ## Lignes des types d'annonce (tests) : type -> {"row", "look", "pause", "auto"}.
 var announce_rows := {}
 
@@ -303,6 +304,8 @@ func sync() -> void:
 		vb.add_theme_color_override("font_color", UiTheme.TEXT_DIM if SoundSettings.volume(String(bus)) <= 0.001 else UiTheme.TEXT)
 	_profile.text = SoundSettings.profile_label()
 	_profile.tooltip_text = String(GameData.audio().get("profiles", {}).get(SoundSettings.profile_id(), {}).get("tip", ""))
+	_density.text = SoundSettings.density_label()
+	_density.tooltip_text = String(GameData.audio().get("music", {}).get("density", {}).get(SoundSettings.density_id(), {}).get("tip", ""))
 	_set_toggle(_background, SoundSettings.background)
 	_set_toggle(_hover, SoundSettings.hover)
 	_set_toggle(_speech, SoundSettings.speech)
@@ -334,6 +337,12 @@ func _build_sound(page: VBoxContainer) -> void:
 		SoundSettings.cycle_profile()
 		sync())
 	prow.add_child(_profile)
+	var drow := _row(page, "Densité de la musique", "Continue : la musique ne s'arrête jamais. Les autres réglages laissent des silences entre les morceaux.")
+	_density = _value_box("", false) as Button
+	_density.pressed.connect(func() -> void:
+		SoundSettings.cycle_density()
+		sync())
+	drow.add_child(_density)
 	_background = _toggle_row(page, "Son hors de la fenêtre", "Le son continue quand le jeu n'est plus au premier plan.", func() -> void:
 		SoundSettings.background = not SoundSettings.background
 		SoundSettings.save_settings()

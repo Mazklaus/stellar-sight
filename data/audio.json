@@ -23,6 +23,8 @@
 		"cue_rms_db": -20.0,
 		"bed_rms_db": -24.0,
 		"lowcut_hz": 55.0,
+		"lowcut_by_dir": {"_doc": "Coupe propre à un dossier : la musique garde ses basses.", "musique": 28.0},
+		"sub_share_by_dir": {"musique": 0.8},
 		"sub_share": 0.5,
 		"crest_db": {"_doc": "Écart le plus grand admis entre la crête d'un fichier et le niveau de son dossier : un fond ne doit pas avoir de claquement qui ressort. tools/audio/son.py arrondit les crêtes au-delà.", "carte": 20.0, "ecran": 20.0, "peuples": 22.0}
 	},
@@ -147,6 +149,30 @@
 			"chronicles:bestiary": ["vivarium", ""],
 			"victory": ["observatoire", ""], "transcendence": ["seuil", ""], "contact": ["porteuse", "contact"], "kardashev": ["centrale", ""]
 		}
+	},
+	"music": {
+		"_doc": "Lot 5, bloc E de l'étude : la musique couvre le jeu en permanence (décision du 25/11/2026). Les morceaux d'un état sont les fichiers assets/sounds/musique/<état>_1.ogg à <état>_9.ogg ; ils s'enchaînent en fondu, jamais deux fois de suite le même. states : états dans l'ordre de priorité, avec l'état de repli tant que ses morceaux manquent. density : silence entre deux morceaux, en secondes [min, max] ; « continue » est le réglage d'origine. fade : fondu d'un morceau à l'autre ; switch : fondu quand l'état change. hold : secondes pendant lesquelles un état doit durer avant de remplacer la musique (une escarmouche ne change pas le morceau).",
+		"bus": "Musique",
+		"dir": "musique",
+		"vol": 0.0,
+		"fade": 4.0,
+		"switch": 2.5,
+		"hold": 6.0,
+		"states": [
+			{"id": "defaite", "label": "Défaite", "fallback": "tension"},
+			{"id": "victoire", "label": "Victoire", "fallback": "paix"},
+			{"id": "menu", "label": "Menu", "fallback": "paix"},
+			{"id": "crise", "label": "Crise", "fallback": "guerre"},
+			{"id": "guerre", "label": "Guerre", "fallback": "tension"},
+			{"id": "tension", "label": "Tension", "fallback": "paix"},
+			{"id": "paix", "label": "Paix", "fallback": ""}
+		],
+		"density": {
+			"continue": {"label": "Continue", "tip": "La musique ne s'arrête jamais.", "gap": [0, 0]},
+			"normale": {"label": "Normale", "tip": "Un court silence entre deux morceaux.", "gap": [15, 45]},
+			"rare": {"label": "Rare", "tip": "De longs silences entre les morceaux.", "gap": [90, 240]}
+		},
+		"default_density": "continue"
 	},
 	"peoples": {
 		"_doc": "Lot 4, bloc D de l'étude : la signature sonore des peuples. signatures : par peuple, sa matière (label), son indicatif (synth, mêmes champs que les repères), sa façon de parler (voice et voice_f, hauteur de la voix en Hz). mute : un peuple sans voix (les Silencieux). moods : l'humeur transforme l'indicatif selon le statut diplomatique (D4) : semis transposition, len durée des notes, lp filtre, octave doublure à l'octave, hit coup grave d'ouverture. registers : palette d'un peuple créé dans l'éditeur, d'après son registre (D3). Fichier assets/sounds/peuples/indicatif_<id>.ogg s'il existe. speech : la parole fabriquée d'après le texte affiché (D5), une syllabe tous les chars caractères, max secondes au plus.",
