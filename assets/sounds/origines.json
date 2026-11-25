@@ -731,6 +731,18 @@
 		"boucle": true,
 		"grave": 0.16
 	},
+	"ecran/lieu_ruche": {
+		"outil": "MOSS-SoundEffect 2.0",
+		"consigne": "vast alien hive interior, one unanimous deep insect-like hum of countless beings in unison, steady, continuous steady quiet room tone, subtle, no music, no melody, no speech, seamless background ambience",
+		"licence": "Apache-2.0",
+		"date": "2026-11-25",
+		"source": "lieu_ruche.wav",
+		"duree": 16.0,
+		"lufs": -30.0,
+		"crete": -20.2,
+		"grave": 0.0,
+		"boucle": true
+	},
 	"ecran/lieu_rue": {
 		"outil": "MOSS-SoundEffect 2.0",
 		"consigne": "city street at a distance, calm crowd and footsteps, continuous steady quiet room tone, subtle, no music, no melody, no speech, seamless background ambience",
@@ -862,5 +874,137 @@
 		"crete": -18.3,
 		"boucle": true,
 		"grave": 0.01
+	},
+	"musique/crise_1": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "ominous apocalyptic orchestral music, slow heavy low brass and dark choir-like pads without words, deep drums, 60 bpm, B minor, dread, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "crise_1.wav",
+		"duree": 116.0,
+		"lufs": -18.0,
+		"crete": -5.1,
+		"grave": 0.37,
+		"boucle": false
+	},
+	"musique/defaite_1": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "mournful slow elegy, solo cello and sparse piano over soft strings, 56 bpm, A minor, dignified sorrow, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "defaite_1.wav",
+		"duree": 111.4,
+		"lufs": -18.8,
+		"crete": -4.6,
+		"grave": 0.37,
+		"boucle": false
+	},
+	"musique/guerre_1": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "epic orchestral war music, driving string ostinato, heavy drums, bold brass theme, 120 bpm, D minor, heroic and grim, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "guerre_1.wav",
+		"duree": 117.9,
+		"lufs": -18.1,
+		"crete": -4.8,
+		"grave": 0.13,
+		"boucle": false
+	},
+	"musique/guerre_2": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "relentless hybrid orchestral battle music, pounding percussion, staccato low strings, synth bass pulse, 128 bpm, F minor, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "guerre_2.wav",
+		"duree": 112.6,
+		"lufs": -18.0,
+		"crete": -4.6,
+		"grave": 0.38,
+		"boucle": false
+	},
+	"musique/menu_1": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "majestic cinematic space main theme, slow noble melody on french horn and strings over warm analog synth pads, 72 bpm, D minor, wide reverb, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "menu_1.wav",
+		"duree": 118.35,
+		"lufs": -18.0,
+		"crete": -5.0,
+		"grave": 0.22,
+		"boucle": false
+	},
+	"musique/paix_1": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "calm ambient electronic space music, gentle repeating piano motif over warm synth pads and soft strings, steady slow pulse, 80 bpm, C major, contemplative, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "paix_1.wav",
+		"duree": 119.95,
+		"lufs": -18.0,
+		"crete": -5.4,
+		"grave": 0.38,
+		"boucle": false
+	},
+	"musique/paix_2": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "serene orchestral ambient, slow harp arpeggio and solo cello melody over airy synth pads, 70 bpm, G major, peaceful, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "paix_2.wav",
+		"duree": 111.8,
+		"lufs": -18.0,
+		"crete": -4.6,
+		"grave": 0.01,
+		"boucle": false
+	},
+	"musique/paix_3": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "dreamy downtempo space ambient, soft electric piano chords, glassy bells, deep warm bass, light brushed percussion, 84 bpm, A minor, hopeful, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "paix_3.wav",
+		"duree": 114.6,
+		"lufs": -18.2,
+		"crete": -4.6,
+		"grave": 0.29,
+		"boucle": false
+	},
+	"musique/tension_1": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "tense cinematic underscore, low pulsing synth ostinato, muted strings tremolo, distant taiko, slow build without climax, 90 bpm, E minor, suspense, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "tension_1.wav",
+		"duree": 117.6,
+		"lufs": -18.0,
+		"crete": -5.4,
+		"grave": 0.4,
+		"boucle": false
+	},
+	"musique/tension_2": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "dark ambient suspense, ticking percussion, low brass swells, uneasy high strings, steady 86 bpm, C minor, restrained, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "tension_2.wav",
+		"duree": 118.35,
+		"lufs": -18.2,
+		"crete": -4.5,
+		"grave": 0.43,
+		"boucle": false
+	},
+	"musique/victoire_1": {
+		"outil": "ACE-Step 1.5 turbo",
+		"consigne": "triumphant orchestral finale, soaring brass melody, full strings, timpani, bright and solemn, 96 bpm, D major, instrumental, no vocals",
+		"licence": "MIT",
+		"date": "2026-11-25",
+		"source": "victoire_1.wav",
+		"duree": 115.0,
+		"lufs": -18.0,
+		"crete": -5.3,
+		"grave": 0.24,
+		"boucle": false
 	}
 }
