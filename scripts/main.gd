@@ -188,6 +188,13 @@ func _ready() -> void:
 	_system_screen = SystemScreen.new()
 	add_child(_system_screen)
 	_system_screen.close_requested.connect(close_system_view)
+	var map_sound := MapSound.new()
+	map_sound.name = "MapSound"
+	map_sound.view = _view
+	map_sound.camera = _camera
+	map_sound.system_screen = _system_screen
+	map_sound.modal = is_modal_open
+	add_child(map_sound)
 	_system_screen.cycle_requested.connect(cycle_system)
 	_hud.system_mode_requested.connect(func(m: bool) -> void: _system_screen.set_manage_mode(m))
 	_system_screen.mode_changed.connect(_hud.set_manage_tab)

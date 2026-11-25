@@ -16,6 +16,7 @@ func run(check: Callable) -> void:
 	_test_announces()
 	_test_options()
 	_test_files()
+	_test_map()
 	SoundSettings.reset()
 
 
@@ -231,3 +232,115 @@ func _sound_files(root: String, sub: String) -> Array[String]:
 		if f.get_extension() in ["ogg", "wav"]:
 			out.append(sub + f.get_basename())
 	return out
+
+
+## Lot 2 : les sons localisés de la carte.
+func _test_map() -> void:
+	var c: Dictionary = MapSound.cfg()
+	var gate: Array = c["gate"]["star"]
+	_ok(float(gate[0]) >= GalaxyView.TIER_SYSTEM_ZOOM, "une étoile ne s'entend qu'au palier Système")
+	_ok(float(c["vol"]) <= -6.0, "une voix de la carte reste basse")
+	var star := {"sound": "etoile_yellow", "kind": "star", "pos": Vector2.ZERO, "weight": 1.0}
+	var o := {"center": Vector2.ZERO, "half": 540.0, "half_w": 960.0}
+	o["zoom"] = GalaxyView.TIER_REGION_ZOOM
+	_ok(MapSound.mix([star], o).is_empty(), "palier Région : la musique seule")
+	o["zoom"] = float(gate[0])
+	_ok(MapSound.mix([star], o).is_empty(), "au seuil de zoom, encore rien")
+	o["zoom"] = float(gate[1])
+	var m := MapSound.mix([star], o)
+	_ok(m.size() == 1 and is_equal_approx(float(m[0]["gain"]), 1.0) and is_zero_approx(float(m[0]["pan"])), "de très près et au centre : son plein, au milieu")
+	o["zoom"] = (float(gate[0]) + float(gate[1])) * 0.5
+	var half := MapSound.mix([star], o)
+	_ok(half.size() == 1 and float(half[0]["gain"]) > 0.2 and float(half[0]["gain"]) < 0.8, "entre les deux zooms, le son monte")
+	o["zoom"] = float(gate[1])
+	var right := star.duplicate()
+	right["pos"] = Vector2(100.0, 0.0)
+	m = MapSound.mix([right], o)
+	_ok(m.size() == 1 and float(m[0]["pan"]) > 0.1 and float(m[0]["gain"]) < 1.0, "source à droite : plus faible, vers la droite")
+	right["pos"] = Vector2(-100.0, 0.0)
+	_ok(float(MapSound.mix([right], o)[0]["pan"]) < -0.1, "source à gauche")
+	right["pos"] = Vector2(2000.0, 0.0)
+	_ok(MapSound.mix([right], o).is_empty(), "hors de portée : rien")
+	var two := MapSound.mix([star, right, star.duplicate()], o)
+	_ok(two.size() == 1, "deux étoiles du même type : une seule voix")
+	var many: Array = []
+	for i in 30:
+		many.append({"sound": "s%d" % i, "kind": "star", "pos": Vector2(float(i), 0.0), "weight": 1.0})
+	var cut := MapSound.mix(many, o)
+	_ok(cut.size() == int(c["voices"]) and String(cut[0]["sound"]) == "s0", "douze voix au plus, les plus proches d'abord")
+	o["factor"] = float(c["lens"])
+	_ok(is_equal_approx(float(MapSound.mix([star], o)[0]["gain"]), float(c["lens"])), "lentille : sources en retrait")
+	o["factor"] = 0.0
+	_ok(MapSound.mix([star], o).is_empty(), "écran ouvert : la carte se tait")
+	_ok(MapSound.mix([{"sound": "monde_ocean", "gain": 0.4, "pan": -0.3}], {}).size() == 1, "vue système : source déjà placée")
+	# Chaque étoile, monde, coque et état a son fond, fichier ou esquisse, et il boucle.
+	var ids: Array = ["etat_ville", "etat_industrie", "etat_siege"]
+	for t in ["yellow", "red", "white", "blue_giant", "neutron", "black_hole"]:
+		ids.append("etoile_" + t)
+	for t: String in GameData.planet_types():
+		if not t.begins_with("_"):
+			ids.append("monde_" + t)
+	for t in ["fuseau", "nef", "brique", "treillis", "bricole", "organique", "cristal", "roc"]:
+		ids.append("flotte_" + t)
+	var mute: Array = []
+	for id: String in ids:
+		var s := MapSound.stream_for(id)
+		var loops := s is AudioStreamWAV and (s as AudioStreamWAV).loop_mode == AudioStreamWAV.LOOP_FORWARD
+		loops = loops or (s is AudioStreamOggVorbis and (s as AudioStreamOggVorbis).loop)
+		if not loops:
+			mute.append(id)
+	_ok(mute.is_empty(), "chaque source de la carte a un son en boucle (%s)" % ", ".join(mute))
+	var bed := SoundSynth.bed_samples(c["beds"]["etoile"])
+	var peak := 0.0
+	var step := 0.0
+	for i in bed.size():
+		peak = maxf(peak, absf(bed[i]))
+		if i > 0:
+			step = maxf(step, absf(bed[i] - bed[i - 1]))
+	_ok(peak > 0.05 and peak <= 1.0, "esquisse de fond audible, sans saturer")
+	_ok(absf(bed[0] - bed[bed.size() - 1]) <= step * 1.5, "esquisse de fond : la reprise ne claque pas")
+	# Le nœud : une voix par son, relâchée quand la source s'éloigne.
+	MapSound.build_buses()
+	var n := AudioServer.bus_count
+	MapSound.build_buses()
+	_ok(AudioServer.bus_count == n and AudioServer.get_bus_send(AudioServer.get_bus_index("CarteV0")) == &"Carte", "voix de la carte versées dans le bus Carte")
+	var node := MapSound.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(node)
+	node.set_process(false)
+	node.retarget([{"sound": "etoile_red", "gain": 0.5, "pan": 0.2}, {"sound": "flotte_nef", "gain": 0.3, "pan": 0.0}])
+	_ok(node.playing().size() == 2 and is_equal_approx(float(node.playing()["etoile_red"]), 0.5), "deux sources, deux voix")
+	node.retarget([{"sound": "etoile_red", "gain": 0.8, "pan": 0.0}])
+	_ok(is_equal_approx(float(node.playing()["etoile_red"]), 0.8) and is_zero_approx(float(node.playing()["flotte_nef"])), "la voix suit sa source, l'autre s'éteint")
+	node._clock = 100.0
+	node._process(10.0)
+	_ok(node.playing().size() == 1, "une voix éteinte est rendue")
+	_ok(node.sources().is_empty(), "sans carte, aucune source")
+	node.free()
+	# Une vraie partie : étoiles explorées seulement, flottes, vue système.
+	var st := GameState.create(11)
+	var gv := GalaxyView.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(gv)
+	gv.set_state(st)
+	gv.fog = false
+	var all := MapSound.map_emitters(gv)
+	var stars := all.filter(func(e: Dictionary) -> bool: return e["kind"] == "star")
+	var fleets := all.filter(func(e: Dictionary) -> bool: return e["kind"] == "fleet")
+	_ok(stars.size() == st.galaxy.systems.size(), "sans brouillard, chaque étoile est une source")
+	_ok(not fleets.is_empty() and String(fleets[0]["sound"]).begins_with("flotte_"), "les flottes sont des sources")
+	gv.fog = true
+	gv._seen = Fleets.visible_systems(st, 0)
+	var known := MapSound.map_emitters(gv).filter(func(e: Dictionary) -> bool: return e["kind"] == "star")
+	_ok(known.size() > 0 and known.size() < stars.size(), "sous le brouillard, seules les étoiles explorées s'entendent")
+	var home := st.galaxy.get_system(st.galaxy.get_planet(st.get_empire(0).capital_planet).system_id)
+	var close := MapSound.mix(MapSound.map_emitters(gv), {"center": home.position, "zoom": float(gate[1]), "half": 540.0, "half_w": 960.0})
+	_ok(not close.is_empty() and String(close[0]["sound"]) == "etoile_" + home.star_type, "au-dessus de la capitale, son étoile domine")
+	gv.free()
+	var screen := SystemScreen.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(screen)
+	screen.open(st, home, 0)
+	screen.select_planet(st.get_empire(0).capital_planet)
+	var inside := MapSound.mix(MapSound.system_emitters(screen), {})
+	var cap := "monde_" + st.galaxy.get_planet(st.get_empire(0).capital_planet).type
+	_ok(not inside.is_empty() and String(inside[0]["sound"]) == cap, "vue système : la planète choisie passe devant")
+	_ok(inside.any(func(e: Dictionary) -> bool: return String(e["sound"]).begins_with("etoile_")), "vue système : l'étoile en fond")
+	screen.free()

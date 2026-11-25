@@ -74,6 +74,31 @@
 		"tour_fin": {"bus": "Interface", "label": "Fin de tour", "vol": -10, "gap": 300, "synth": {"w": "triangle", "f": 330, "notes": [0, 7, 12, 19], "step": 0.07, "len": 0.25, "a": 0.005, "gain": 0.4}},
 		"tour_pret": {"bus": "Interface", "label": "Tour suivant", "vol": -12, "gap": 300, "synth": {"w": "sine", "f": 660, "notes": [0, 5], "step": 0.1, "len": 0.3, "a": 0.01, "gain": 0.4}}
 	},
+	"map": {
+		"_doc": "Lot 2, bloc B de l'étude : les sons localisés de la carte. Étoiles, flottes et sièges sur la carte, planètes et colonies dans la vue système. Ils ne s'entendent que de très près (gate : zoom de la caméra où le son naît, puis zoom où il est plein ; la caméra va de 0,12 à 3) et près du centre de l'écran (reach : part de la demi-hauteur de l'écran). vol : niveau le plus fort d'une voix, en dB, toujours sous la musique (retour du 25/11/2026). Fichiers : assets/sounds/carte/<id>.ogg, sinon l'esquisse de fond du préfixe (beds).",
+		"bus": "Carte",
+		"dir": "carte",
+		"voices": 12,
+		"tick": 0.2,
+		"fade": 1.2,
+		"vol": -9.0,
+		"gate": {"star": [1.7, 2.6], "fleet": [1.7, 2.6], "siege": [1.5, 2.4]},
+		"reach": {"star": 0.9, "fleet": 0.7, "siege": 1.0},
+		"weight": {"star": 1.0, "fleet": 0.8, "fleet_idle": 0.4, "siege": 0.9, "planet": 0.4, "planet_selected": 1.0, "system_star": 0.5, "state": 0.5},
+		"lens": 0.5,
+		"modal": 0.0,
+		"pause_hz": 1400.0,
+		"hole_hz": 2600.0,
+		"open_hz": 20500.0,
+		"city_pop": 12,
+		"industry_buildings": 6,
+		"beds": {
+			"etoile": {"f": 55, "noise": 0.25, "lp": 0.05, "wobble": 0.15},
+			"monde": {"f": 110, "noise": 0.6, "lp": 0.08, "wobble": 0.3},
+			"etat": {"f": 165, "noise": 0.8, "lp": 0.15, "wobble": 0.5},
+			"flotte": {"f": 82, "noise": 0.35, "lp": 0.1, "wobble": 0.08}
+		}
+	},
 	"speed_semitones": [0, 3, 5, 8, 12],
 	"announce": {
 		"_doc": "F4 : la famille donne le timbre, la gravité donne l'ampleur. Esquisse jouée quand aucun fichier n'est déposé dans assets/sounds/announce/. counts : nombre de notes du motif par gravité (0 Chronique à 3 Fanfare).",

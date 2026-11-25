@@ -82,6 +82,58 @@ static func samples(recipe: Dictionary, semis := 0.0) -> PackedFloat32Array:
 	return buf
 
 
+## Fond bouclable (lot 2) : esquisse d'un son continu de la carte tant que son fichier manque. f note
+## tenue, noise part de souffle, lp passe-bas du souffle, wobble battement lent. La durée tombe sur un
+## nombre entier de périodes et le souffle se referme sur lui-même par un fondu : la boucle ne claque pas.
+static func bed(recipe: Dictionary, semis := 0.0, seconds := 4.0) -> AudioStreamWAV:
+	var key := "bed/%d/%.2f" % [recipe.hash(), semis]
+	if _cache.has(key):
+		return _cache[key]
+	var buf := bed_samples(recipe, semis, seconds)
+	var out := AudioStreamWAV.new()
+	out.format = AudioStreamWAV.FORMAT_16_BITS
+	out.mix_rate = rate()
+	out.stereo = false
+	out.data = _bytes(buf)
+	out.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	out.loop_begin = 0
+	out.loop_end = buf.size()
+	_cache[key] = out
+	return out
+
+
+static func bed_samples(recipe: Dictionary, semis := 0.0, seconds := 4.0) -> PackedFloat32Array:
+	var sr := float(rate())
+	var n := int(seconds * sr)
+	# Fréquences ramenées à un nombre entier de périodes sur la boucle.
+	var f := roundf(float(recipe.get("f", 80.0)) * pow(2.0, semis / 12.0) * seconds) / seconds
+	var beat := maxf(1.0, roundf(float(recipe.get("wobble", 0.2)) * seconds)) / seconds
+	var noise := float(recipe.get("noise", 0.4))
+	var a := clampf(float(recipe.get("lp", 0.1)), 0.002, 1.0)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(recipe.hash()) + int(semis * 100.0)
+	var fade := int(0.5 * sr)
+	var raw := PackedFloat32Array()
+	raw.resize(n + fade)
+	var y := 0.0
+	for i in n + fade:
+		y += a * (rng.randf_range(-1.0, 1.0) - y)
+		raw[i] = y
+	var buf := PackedFloat32Array()
+	buf.resize(n)
+	var norm := 1.0 / maxf(0.05, sqrt(a))
+	for i in n:
+		var t := float(i) / sr
+		var w := raw[i]
+		if i < fade:
+			var k := float(i) / float(fade)
+			w = raw[i] * sin(k * PI * 0.5) + raw[n + i] * cos(k * PI * 0.5)
+		var tone := sin(TAU * f * t) * 0.6 + sin(TAU * f * 2.0 * t) * 0.2
+		var swell := 0.75 + 0.25 * sin(TAU * beat * t)
+		buf[i] = (tone * (1.0 - noise) + w * norm * noise) * swell * 0.4
+	return buf
+
+
 static func _bytes(buf: PackedFloat32Array) -> PackedByteArray:
 	var out := PackedByteArray()
 	out.resize(buf.size() * 2)
