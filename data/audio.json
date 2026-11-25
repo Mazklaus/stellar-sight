@@ -49,7 +49,6 @@
 		{"bus": "Combat", "label": "Combats", "tip": "Vues de bataille dans l'espace et au sol.", "default": 0.8},
 		{"bus": "Voix", "label": "Voix", "tip": "Parole des peuples et rumeurs de foule.", "default": 0.8}
 	],
-	"volume_steps": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
 	"profiles": {
 		"enceintes": {"label": "Enceintes", "tip": "Le mélange tel quel."},
 		"casque": {"label": "Casque", "tip": "Stéréo resserrée : un son placé d'un côté ne s'entend pas dans une seule oreille.", "pan_pullout": 0.6},

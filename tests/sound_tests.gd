@@ -53,11 +53,10 @@ func _test_settings() -> void:
 	_ok(absf(AudioServer.get_bus_volume_db(music) - linear_to_db(0.7)) < 0.01, "volume d'origine posé sur le bus")
 	SoundSettings.set_volume("Musique", 0.0)
 	_ok(AudioServer.is_bus_mute(music) and SoundSettings.volume_label("Musique") == "Coupé", "volume à zéro : bus coupé")
-	SoundSettings.cycle_volume("Musique")
-	_ok(is_equal_approx(SoundSettings.volume("Musique"), 0.2) and not AudioServer.is_bus_mute(music), "cran suivant")
-	SoundSettings.cycle_volume("Musique", -1)
-	SoundSettings.cycle_volume("Musique", -1)
-	_ok(is_equal_approx(SoundSettings.volume("Musique"), 1.0), "cran précédent, en boucle")
+	SoundSettings.set_volume("Musique", 0.2)
+	_ok(is_equal_approx(SoundSettings.volume("Musique"), 0.2) and not AudioServer.is_bus_mute(music), "volume remonté : le bus se rouvre")
+	SoundSettings.set_volume("Musique", 3.0)
+	_ok(is_equal_approx(SoundSettings.volume("Musique"), 1.0), "un volume ne dépasse pas 100 %")
 	_ok(SoundSettings.profile_id() == "enceintes", "profil d'origine")
 	_ok(not AudioServer.is_bus_effect_enabled(0, 0) and not AudioServer.is_bus_effect_enabled(0, 1), "enceintes : aucun effet")
 	SoundSettings.cycle_profile()
@@ -177,19 +176,24 @@ func _test_options() -> void:
 	var tree := Engine.get_main_loop() as SceneTree
 	var panel := OptionsPanel.new()
 	tree.root.add_child(panel)
-	_ok(panel.volume_boxes.size() == Son.data()["volumes"].size(), "onglet Son : une ligne par volume")
+	_ok(panel.volume_sliders.size() == Son.data()["volumes"].size(), "onglet Son : un curseur par volume")
 	panel.show_tab("sound")
 	_ok(panel.tab == "sound", "onglet Son ouvert")
-	var box := panel.volume_boxes["Musique"] as Button
-	_ok(box.text == "70 %", "volume affiché (%s)" % box.text)
-	box.pressed.emit()
-	_ok(box.text == "80 %" and is_equal_approx(SoundSettings.volume("Musique"), 0.8), "un clic passe au cran suivant")
+	var sl := panel.volume_sliders["Musique"] as HSlider
+	var shown := panel.volume_labels["Musique"] as Label
+	_ok(is_equal_approx(sl.value, 70.0) and shown.text == "70 %", "curseur placé sur le volume d'origine (%s)" % shown.text)
+	_ok(is_zero_approx(sl.min_value) and is_equal_approx(sl.max_value, 100.0), "le curseur va de 0 à 100 %")
+	sl.value = 35.0
+	_ok(shown.text == "35 %" and is_equal_approx(SoundSettings.volume("Musique"), 0.35), "tirer le curseur règle le volume")
+	_ok(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Musique")) - linear_to_db(0.35)) < 0.01, "le bus suit le curseur pendant qu'on le tire")
+	sl.value = 0.0
+	_ok(shown.text == "Coupé" and AudioServer.is_bus_mute(AudioServer.get_bus_index("Musique")), "curseur à zéro : coupé")
 	panel._profile.pressed.emit()
 	_ok(panel._profile.text == "Casque", "profil d'écoute changé depuis les Options")
 	panel._hover.pressed.emit()
 	_ok(SoundSettings.hover, "sons de survol activés depuis les Options")
 	panel.reset_defaults()
-	_ok(box.text == "70 %" and not SoundSettings.hover and SoundSettings.profile_id() == "enceintes", "valeurs par défaut")
+	_ok(is_equal_approx(sl.value, 70.0) and shown.text == "70 %" and not SoundSettings.hover and SoundSettings.profile_id() == "enceintes", "valeurs par défaut")
 	panel.free()
 
 

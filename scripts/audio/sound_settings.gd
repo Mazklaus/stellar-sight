@@ -72,21 +72,12 @@ static func volume(bus: String) -> float:
 	return float(volume_def(bus).get("default", 1.0))
 
 
-static func set_volume(bus: String, value: float) -> void:
+## `save` à faux pendant qu'on tire un curseur : le réglage s'écrit une fois, au lâcher.
+static func set_volume(bus: String, value: float, save := true) -> void:
 	volumes[bus] = clampf(value, 0.0, 1.0)
-	save_settings()
+	if save:
+		save_settings()
 	Son.apply_settings()
-
-
-## Cran suivant (ou précédent) de la liste volume_steps ; après le dernier, on revient au premier.
-static func cycle_volume(bus: String, dir := 1) -> void:
-	var steps: Array = GameData.audio().get("volume_steps", [0.0, 0.5, 1.0])
-	var cur := volume(bus)
-	var at := 0
-	for i in steps.size():
-		if absf(float(steps[i]) - cur) < absf(float(steps[at]) - cur):
-			at = i
-	set_volume(bus, float(steps[posmod(at + dir, steps.size())]))
 
 
 static func volume_label(bus: String) -> String:
