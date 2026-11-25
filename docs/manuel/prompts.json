@@ -241,6 +241,9 @@
      "prompt": "an immense forest of pale bioluminescent white fungi and mycelium filaments overgrowing an abandoned alien city, a slow comet trailing glowing spores crossing the sky toward another planet, eerie beautiful cosmic weird mood, Annihilation-like shimmer"},
     {"id": "MJ-81", "titre": "Portrait · Hallier de Vergemonde", "format": "3:4", "forme": "portrait", "emplacement": "Fiche du Hallier de Vergemonde (chapitre « Les peuples insolites »)",
      "sujet": "Un être-arbre ancien, enraciné au sommet d'une colline fleurie, veille sur de jeunes pousses qui marchent ; à l'horizon, une planète entière est devenue jardin",
-     "prompt": "portrait of an ancient wise tree-being rooted on top of a flowering hill, young walking sapling people around its roots, warm sunlight, in the sky a whole planet turned into a lush garden world, gentle heroic space opera mood, luminous greens and golds"}
+     "prompt": "portrait of an ancient wise tree-being rooted on top of a flowering hill, young walking sapling people around its roots, warm sunlight, in the sky a whole planet turned into a lush garden world, gentle heroic space opera mood, luminous greens and golds"},
+    {"id": "MJ-82", "titre": "Ce qu'on entend", "format": "2:1", "forme": "grande", "emplacement": "Bandeau du chapitre « Ce qu'on entend »",
+     "sujet": "Sur la passerelle d'un petit vaisseau d'écoute, une preneuse de son casquée tend une grande perche vers une étoile toute proche ; autour d'elle des cadrans, des bobines et des pavillons de cuivre ; par la verrière on voit l'étoile, une flotte qui passe au loin et une planète habitée",
+     "prompt": "on the bridge of a small listening vessel a sound recordist wearing large headphones holds a long boom pole toward a nearby star, around her brass horns, dials and tape reels, through the canopy a blazing star, a distant fleet passing and an inhabited planet, quiet concentration, sense of vast silence made audible"}
   ]
 }

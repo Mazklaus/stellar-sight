@@ -5721,6 +5721,69 @@
    "chapters": [
     "02-premiere-partie"
    ]
+  },
+  {
+   "id": "indicatif",
+   "name": "Indicatif",
+   "forms": [
+    "indicatif"
+   ],
+   "family": "meca",
+   "summary": "Les quelques notes propres à un peuple. On l'entend en le choisissant sur l'anneau diplomatique, lu selon vos rapports : doublé pour un allié, assombri en guerre froide, grave en guerre",
+   "chapters": [
+    "15zc-son"
+   ]
+  },
+  {
+   "id": "profil_ecoute",
+   "name": "Profil d'écoute",
+   "forms": [
+    "Profil d'écoute",
+    "profil d'écoute"
+   ],
+   "family": "meca",
+   "summary": "Réglage du son : Enceintes laisse le mélange tel quel, Casque resserre la stéréo, Nuit réduit les écarts entre les sons forts et les sons faibles",
+   "chapters": [
+    "15zc-son"
+   ]
+  },
+  {
+   "id": "densite_musique",
+   "name": "Densité de la musique",
+   "forms": [
+    "Densité de la musique",
+    "densité de la musique"
+   ],
+   "family": "meca",
+   "summary": "Réglage du son : Continue (d'origine) fait jouer la musique sans arrêt, Normale et Rare laissent des silences entre les morceaux",
+   "chapters": [
+    "15zc-son"
+   ]
+  },
+  {
+   "id": "parole_peuples",
+   "name": "Parole des peuples",
+   "forms": [
+    "Parole des peuples",
+    "parole des peuples"
+   ],
+   "family": "meca",
+   "summary": "Réglage du son : chaque peuple dit quelques mots dans sa langue après son indicatif, fabriqués d'après le texte affiché. Coupé, il ne reste que l'indicatif",
+   "chapters": [
+    "15zc-son"
+   ]
+  },
+  {
+   "id": "rumeur_bataille",
+   "name": "Rumeur de bataille",
+   "forms": [
+    "rumeur de bataille"
+   ],
+   "family": "meca",
+   "summary": "Dans un replay, au-delà de huit tirs par seconde, un fond de combat remplace les tirs un à un et grossit avec la cadence. Les explosions et les changements de phase restent distincts",
+   "chapters": [
+    "15zc-son"
+   ]
   }
  ]
 }
