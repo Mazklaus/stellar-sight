@@ -7,8 +7,9 @@
 		"source": "etat_industrie.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -21.6,
-		"boucle": true
+		"crete": -21.8,
+		"boucle": true,
+		"grave": 0.01
 	},
 	"carte/etat_siege": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -18,8 +19,9 @@
 		"source": "etat_siege.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -18.7,
-		"boucle": true
+		"crete": -18.6,
+		"boucle": true,
+		"grave": 0.21
 	},
 	"carte/etat_ville": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -29,8 +31,9 @@
 		"source": "etat_ville.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -20.7,
-		"boucle": true
+		"crete": -20.2,
+		"boucle": true,
+		"grave": 0.29
 	},
 	"carte/etoile_black_hole": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -40,8 +43,9 @@
 		"source": "etoile_black_hole.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -20.6,
-		"boucle": true
+		"crete": -21.2,
+		"boucle": true,
+		"grave": 0.16
 	},
 	"carte/etoile_blue_giant": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -50,9 +54,10 @@
 		"date": "2026-11-25",
 		"source": "etoile_blue_giant.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -18.5,
-		"boucle": true
+		"lufs": -31.6,
+		"crete": -20.7,
+		"boucle": true,
+		"grave": 0.22
 	},
 	"carte/etoile_neutron": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -62,8 +67,9 @@
 		"source": "etoile_neutron.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -22.6,
-		"boucle": true
+		"crete": -22.3,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/etoile_red": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -73,8 +79,9 @@
 		"source": "etoile_red.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -18.3,
-		"boucle": true
+		"crete": -19.7,
+		"boucle": true,
+		"grave": 0.22
 	},
 	"carte/etoile_white": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -84,8 +91,9 @@
 		"source": "etoile_white.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -18.1,
-		"boucle": true
+		"crete": -18.0,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/etoile_yellow": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -95,8 +103,9 @@
 		"source": "etoile_yellow.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -19.4,
-		"boucle": true
+		"crete": -20.1,
+		"boucle": true,
+		"grave": 0.25
 	},
 	"carte/flotte_bricole": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -106,8 +115,9 @@
 		"source": "flotte_bricole.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -22.9,
-		"boucle": true
+		"crete": -22.6,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/flotte_brique": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -118,7 +128,8 @@
 		"duree": 16.0,
 		"lufs": -32.0,
 		"crete": -24.4,
-		"boucle": true
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/flotte_cristal": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -127,9 +138,10 @@
 		"date": "2026-11-25",
 		"source": "flotte_cristal.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -27.0,
-		"boucle": true
+		"lufs": -31.9,
+		"crete": -26.9,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/flotte_fuseau": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -139,8 +151,9 @@
 		"source": "flotte_fuseau.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -22.0,
-		"boucle": true
+		"crete": -22.4,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/flotte_nef": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -150,8 +163,9 @@
 		"source": "flotte_nef.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -24.6,
-		"boucle": true
+		"crete": -24.4,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/flotte_organique": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -162,7 +176,8 @@
 		"duree": 16.0,
 		"lufs": -32.0,
 		"crete": -21.3,
-		"boucle": true
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/flotte_roc": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -171,9 +186,10 @@
 		"date": "2026-11-25",
 		"source": "flotte_roc.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
+		"lufs": -32.1,
 		"crete": -23.4,
-		"boucle": true
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/flotte_treillis": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -183,8 +199,9 @@
 		"source": "flotte_treillis.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -18.2,
-		"boucle": true
+		"crete": -18.5,
+		"boucle": true,
+		"grave": 0.06
 	},
 	"carte/monde_abri": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -193,9 +210,10 @@
 		"date": "2026-11-25",
 		"source": "monde_abri.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -12.6,
-		"boucle": true
+		"lufs": -31.9,
+		"crete": -19.2,
+		"boucle": true,
+		"grave": 0.2
 	},
 	"carte/monde_anneau": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -205,8 +223,9 @@
 		"source": "monde_anneau.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -18.6,
-		"boucle": true
+		"crete": -20.8,
+		"boucle": true,
+		"grave": 0.19
 	},
 	"carte/monde_arctic": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -215,9 +234,10 @@
 		"date": "2026-11-25",
 		"source": "monde_arctic.wav",
 		"duree": 16.0,
-		"lufs": -32.3,
-		"crete": -12.0,
-		"boucle": true
+		"lufs": -32.1,
+		"crete": -18.3,
+		"boucle": true,
+		"grave": 0.3
 	},
 	"carte/monde_asteroids": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -227,8 +247,9 @@
 		"source": "monde_asteroids.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -18.7,
-		"boucle": true
+		"crete": -21.5,
+		"boucle": true,
+		"grave": 0.08
 	},
 	"carte/monde_barren": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -237,9 +258,10 @@
 		"date": "2026-11-25",
 		"source": "monde_barren.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -17.3,
-		"boucle": true
+		"lufs": -31.9,
+		"crete": -18.0,
+		"boucle": true,
+		"grave": 0.2
 	},
 	"carte/monde_continental": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -249,8 +271,9 @@
 		"source": "monde_continental.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -16.5,
-		"boucle": true
+		"crete": -19.0,
+		"boucle": true,
+		"grave": 0.38
 	},
 	"carte/monde_coquille": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -259,9 +282,10 @@
 		"date": "2026-11-25",
 		"source": "monde_coquille.wav",
 		"duree": 16.0,
-		"lufs": -32.1,
-		"crete": -12.5,
-		"boucle": true
+		"lufs": -32.0,
+		"crete": -20.7,
+		"boucle": true,
+		"grave": 0.13
 	},
 	"carte/monde_creux": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -271,8 +295,9 @@
 		"source": "monde_creux.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -14.9,
-		"boucle": true
+		"crete": -19.3,
+		"boucle": true,
+		"grave": 0.21
 	},
 	"carte/monde_desert": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -282,8 +307,9 @@
 		"source": "monde_desert.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -13.7,
-		"boucle": true
+		"crete": -19.1,
+		"boucle": true,
+		"grave": 0.24
 	},
 	"carte/monde_ecumenopole": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -293,8 +319,9 @@
 		"source": "monde_ecumenopole.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -19.9,
-		"boucle": true
+		"crete": -20.1,
+		"boucle": true,
+		"grave": 0.31
 	},
 	"carte/monde_gaia": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -303,9 +330,10 @@
 		"date": "2026-11-25",
 		"source": "monde_gaia.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -15.7,
-		"boucle": true
+		"lufs": -31.8,
+		"crete": -14.9,
+		"boucle": true,
+		"grave": 0.12
 	},
 	"carte/monde_gas_giant": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -315,8 +343,9 @@
 		"source": "monde_gas_giant.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -21.6,
-		"boucle": true
+		"crete": -20.6,
+		"boucle": true,
+		"grave": 0.04
 	},
 	"carte/monde_habitat": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -326,8 +355,9 @@
 		"source": "monde_habitat.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -20.5,
-		"boucle": true
+		"crete": -20.8,
+		"boucle": true,
+		"grave": 0.1
 	},
 	"carte/monde_noyau": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -337,8 +367,9 @@
 		"source": "monde_noyau.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -25.3,
-		"boucle": true
+		"crete": -25.4,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"carte/monde_ocean": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -347,9 +378,10 @@
 		"date": "2026-11-25",
 		"source": "monde_ocean.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -19.3,
-		"boucle": true
+		"lufs": -31.9,
+		"crete": -19.8,
+		"boucle": true,
+		"grave": 0.03
 	},
 	"carte/monde_reliquaire": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -359,8 +391,9 @@
 		"source": "monde_reliquaire.wav",
 		"duree": 16.0,
 		"lufs": -32.0,
-		"crete": -19.8,
-		"boucle": true
+		"crete": -20.6,
+		"boucle": true,
+		"grave": 0.07
 	},
 	"carte/monde_toxic": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -369,9 +402,10 @@
 		"date": "2026-11-25",
 		"source": "monde_toxic.wav",
 		"duree": 16.0,
-		"lufs": -32.0,
-		"crete": -13.1,
-		"boucle": true
+		"lufs": -31.9,
+		"crete": -12.7,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"ecran/lieu_antichambre": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -380,9 +414,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_antichambre.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -15.9,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -16.6,
+		"boucle": true,
+		"grave": 0.25
 	},
 	"ecran/lieu_archives": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -391,9 +426,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_archives.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -13.2,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -17.2,
+		"boucle": true,
+		"grave": 0.3
 	},
 	"ecran/lieu_bureaux": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -402,9 +438,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_bureaux.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -14.9,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -16.7,
+		"boucle": true,
+		"grave": 0.07
 	},
 	"ecran/lieu_cabinet": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -414,8 +451,9 @@
 		"source": "lieu_cabinet.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -16.4,
-		"boucle": true
+		"crete": -18.1,
+		"boucle": true,
+		"grave": 0.25
 	},
 	"ecran/lieu_cale": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -424,9 +462,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_cale.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -10.2,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -11.0,
+		"boucle": true,
+		"grave": 0.06
 	},
 	"ecran/lieu_cartes": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -435,9 +474,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_cartes.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -18.4,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -18.8,
+		"boucle": true,
+		"grave": 0.18
 	},
 	"ecran/lieu_caserne": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -447,8 +487,9 @@
 		"source": "lieu_caserne.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -14.8,
-		"boucle": true
+		"crete": -16.2,
+		"boucle": true,
+		"grave": 0.39
 	},
 	"ecran/lieu_centrale": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -458,8 +499,9 @@
 		"source": "lieu_centrale.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -19.0,
-		"boucle": true
+		"crete": -19.6,
+		"boucle": true,
+		"grave": 0.07
 	},
 	"ecran/lieu_chantier": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -469,8 +511,9 @@
 		"source": "lieu_chantier.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -18.8,
-		"boucle": true
+		"crete": -18.7,
+		"boucle": true,
+		"grave": 0.29
 	},
 	"ecran/lieu_chroniqueur": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -479,9 +522,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_chroniqueur.wav",
 		"duree": 16.0,
-		"lufs": -30.1,
-		"crete": -10.2,
-		"boucle": true
+		"lufs": -29.8,
+		"crete": -10.9,
+		"boucle": true,
+		"grave": 0.22
 	},
 	"ecran/lieu_comptes": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -490,9 +534,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_comptes.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -15.7,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -18.7,
+		"boucle": true,
+		"grave": 0.18
 	},
 	"ecran/lieu_comptoirs": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -502,8 +547,9 @@
 		"source": "lieu_comptoirs.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -16.9,
-		"boucle": true
+		"crete": -16.3,
+		"boucle": true,
+		"grave": 0.31
 	},
 	"ecran/lieu_corbeille": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -514,7 +560,8 @@
 		"duree": 16.0,
 		"lufs": -30.0,
 		"crete": -18.1,
-		"boucle": true
+		"boucle": true,
+		"grave": 0.0
 	},
 	"ecran/lieu_cour": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -523,9 +570,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_cour.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -14.3,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -17.8,
+		"boucle": true,
+		"grave": 0.04
 	},
 	"ecran/lieu_cuves": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -534,9 +582,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_cuves.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -16.8,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -16.6,
+		"boucle": true,
+		"grave": 0.01
 	},
 	"ecran/lieu_ecoute": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -545,9 +594,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_ecoute.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -18.3,
-		"boucle": true
+		"lufs": -29.5,
+		"crete": -19.6,
+		"boucle": true,
+		"grave": 0.05
 	},
 	"ecran/lieu_fouilles": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -556,9 +606,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_fouilles.wav",
 		"duree": 16.0,
-		"lufs": -30.7,
-		"crete": -10.0,
-		"boucle": true
+		"lufs": -30.0,
+		"crete": -10.8,
+		"boucle": true,
+		"grave": 0.41
 	},
 	"ecran/lieu_galerie": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -568,8 +619,9 @@
 		"source": "lieu_galerie.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -11.2,
-		"boucle": true
+		"crete": -16.0,
+		"boucle": true,
+		"grave": 0.18
 	},
 	"ecran/lieu_hemicycle": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -579,8 +631,9 @@
 		"source": "lieu_hemicycle.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -18.4,
-		"boucle": true
+		"crete": -18.5,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"ecran/lieu_labo": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -589,9 +642,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_labo.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -18.3,
-		"boucle": true
+		"lufs": -30.1,
+		"crete": -18.8,
+		"boucle": true,
+		"grave": 0.01
 	},
 	"ecran/lieu_ligue": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -601,8 +655,9 @@
 		"source": "lieu_ligue.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -17.7,
-		"boucle": true
+		"crete": -17.9,
+		"boucle": true,
+		"grave": 0.01
 	},
 	"ecran/lieu_mondes": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -612,8 +667,9 @@
 		"source": "lieu_mondes.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -16.8,
-		"boucle": true
+		"crete": -17.8,
+		"boucle": true,
+		"grave": 0.32
 	},
 	"ecran/lieu_observatoire": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -624,7 +680,8 @@
 		"duree": 16.0,
 		"lufs": -30.0,
 		"crete": -19.0,
-		"boucle": true
+		"boucle": true,
+		"grave": 0.01
 	},
 	"ecran/lieu_peuples": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -634,8 +691,9 @@
 		"source": "lieu_peuples.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -18.8,
-		"boucle": true
+		"crete": -19.0,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"ecran/lieu_pont": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -645,8 +703,9 @@
 		"source": "lieu_pont.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -19.3,
-		"boucle": true
+		"crete": -18.6,
+		"boucle": true,
+		"grave": 0.07
 	},
 	"ecran/lieu_porteuse": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -655,9 +714,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_porteuse.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -24.7,
-		"boucle": true
+		"lufs": -30.1,
+		"crete": -24.8,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"ecran/lieu_quai": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -667,8 +727,9 @@
 		"source": "lieu_quai.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -18.7,
-		"boucle": true
+		"crete": -18.4,
+		"boucle": true,
+		"grave": 0.16
 	},
 	"ecran/lieu_rue": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -678,8 +739,9 @@
 		"source": "lieu_rue.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -17.6,
-		"boucle": true
+		"crete": -18.5,
+		"boucle": true,
+		"grave": 0.3
 	},
 	"ecran/lieu_salon": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -689,8 +751,9 @@
 		"source": "lieu_salon.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -15.9,
-		"boucle": true
+		"crete": -17.6,
+		"boucle": true,
+		"grave": 0.1
 	},
 	"ecran/lieu_senat": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -699,9 +762,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_senat.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -11.3,
-		"boucle": true
+		"lufs": -30.1,
+		"crete": -17.2,
+		"boucle": true,
+		"grave": 0.09
 	},
 	"ecran/lieu_seuil": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -711,8 +775,9 @@
 		"source": "lieu_seuil.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -19.4,
-		"boucle": true
+		"crete": -19.5,
+		"boucle": true,
+		"grave": 0.0
 	},
 	"ecran/lieu_spatioport": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -721,9 +786,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_spatioport.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -18.4,
-		"boucle": true
+		"lufs": -30.1,
+		"crete": -18.2,
+		"boucle": true,
+		"grave": 0.23
 	},
 	"ecran/lieu_temple": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -733,8 +799,9 @@
 		"source": "lieu_temple.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -17.0,
-		"boucle": true
+		"crete": -17.3,
+		"boucle": true,
+		"grave": 0.08
 	},
 	"ecran/lieu_theatre": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -743,9 +810,10 @@
 		"date": "2026-11-25",
 		"source": "lieu_theatre.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -17.5,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -17.3,
+		"boucle": true,
+		"grave": 0.03
 	},
 	"ecran/lieu_tresor": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -755,8 +823,9 @@
 		"source": "lieu_tresor.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -15.5,
-		"boucle": true
+		"crete": -15.7,
+		"boucle": true,
+		"grave": 0.18
 	},
 	"ecran/lieu_trone": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -766,8 +835,9 @@
 		"source": "lieu_trone.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -16.9,
-		"boucle": true
+		"crete": -18.0,
+		"boucle": true,
+		"grave": 0.34
 	},
 	"ecran/lieu_vivarium": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -777,8 +847,9 @@
 		"source": "lieu_vivarium.wav",
 		"duree": 16.0,
 		"lufs": -30.0,
-		"crete": -13.3,
-		"boucle": true
+		"crete": -14.1,
+		"boucle": true,
+		"grave": 0.02
 	},
 	"ecran/lieu_voile": {
 		"outil": "MOSS-SoundEffect 2.0",
@@ -787,8 +858,9 @@
 		"date": "2026-11-25",
 		"source": "lieu_voile.wav",
 		"duree": 16.0,
-		"lufs": -30.0,
-		"crete": -18.1,
-		"boucle": true
+		"lufs": -29.9,
+		"crete": -18.3,
+		"boucle": true,
+		"grave": 0.01
 	}
 }

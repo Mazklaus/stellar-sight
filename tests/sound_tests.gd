@@ -203,6 +203,7 @@ func _test_files() -> void:
 	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "CC0", "lufs": -25.0}, levels) != "", "un son de carte trop fort est refusé")
 	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "CC0", "lufs": -32.0, "crete": -8.0}, levels) != "", "un fond dont un claquement ressort est refusé")
 	_ok(_file_fault("ui/x", {"outil": "essai", "licence": "CC0", "lufs": -20.0, "crete": -1.0}, levels) != "", "une crête au ras du plafond est refusée")
+	_ok(_file_fault("carte/x", {"outil": "essai", "licence": "CC0", "lufs": -32.0, "crete": -20.0, "grave": 0.9}, levels) != "", "un fond fait surtout de grondement est refusé")
 	_ok(_file_fault("dossier_neuf/x", {"outil": "essai", "licence": "CC0", "lufs": -20.0}, levels) == "", "dossier inconnu : niveau par défaut")
 	var root := String(Son.data()["dir"])
 	var origins := {}
@@ -227,6 +228,8 @@ func _file_fault(id: String, card: Dictionary, levels: Dictionary) -> String:
 	var crest: Dictionary = cap["crest_db"]
 	if crest.has(id.get_slice("/", 0)):
 		peak = minf(peak, top + float(crest[id.get_slice("/", 0)]))
+	if float(card.get("grave", 0.0)) > float(cap["sub_share"]):
+		return "trop de grondement sous 60 Hz"
 	if float(card.get("crete", -100.0)) > peak + 0.5:
 		return "crête trop haute (%.1f dB pour %.1f)" % [float(card.get("crete", 0.0)), peak]
 	return ""

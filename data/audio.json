@@ -16,12 +16,14 @@
 		"carte": -32.0
 	},
 	"ceiling": {
-		"_doc": "Garde-fous de niveau (demande du 25/11/2026 : jamais trop fort en jeu). master_db : plafond du limiteur posé en bout de chaîne sur la sortie générale, rien ne le dépasse. peak_db : crête la plus haute admise pour un fichier déposé. cue_peak_db et cue_rms_db : crête et niveau moyen les plus hauts admis pour un repère une fois son volume appliqué (esquisses comprises). bed_rms_db : niveau moyen le plus haut d'un fond de la carte ou d'un écran, volume de voix appliqué. Un test refuse tout ce qui dépasse.",
+		"_doc": "Garde-fous de niveau (demande du 25/11/2026 : jamais trop fort en jeu). master_db : plafond du limiteur posé en bout de chaîne sur la sortie générale, rien ne le dépasse. peak_db : crête la plus haute admise pour un fichier déposé. cue_peak_db et cue_rms_db : crête et niveau moyen les plus hauts admis pour un repère une fois son volume appliqué (esquisses comprises). bed_rms_db : niveau moyen le plus haut d'un fond de la carte ou d'un écran, volume de voix appliqué. lowcut_hz : tools/audio/son.py coupe tout fichier sous cette fréquence (les grondements que le niveau perçu ne compte pas mais qu'un caisson de basses fait ressortir) ; sub_share : part la plus grande de l'énergie d'un fichier admise sous 60 Hz. Un test refuse tout ce qui dépasse.",
 		"master_db": -3.0,
 		"peak_db": -3.0,
 		"cue_peak_db": -9.0,
 		"cue_rms_db": -20.0,
 		"bed_rms_db": -24.0,
+		"lowcut_hz": 55.0,
+		"sub_share": 0.5,
 		"crest_db": {"_doc": "Écart le plus grand admis entre la crête d'un fichier et le niveau de son dossier : un fond ne doit pas avoir de claquement qui ressort. tools/audio/son.py arrondit les crêtes au-delà.", "carte": 20.0, "ecran": 20.0, "peuples": 22.0}
 	},
 	"voices": 12,

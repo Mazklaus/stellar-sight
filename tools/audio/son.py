@@ -80,8 +80,41 @@ def arrondir(x, plafond_db):
     return y
 
 
+def coupe_bas(x):
+    """Retire les grondements sous lowcut_hz (pente douce d'une demi-octave). Passe par le spectre
+    entier : une boucle reste une boucle."""
+    f0 = float(config().get("ceiling", {}).get("lowcut_hz", 45.0))
+    if f0 <= 0 or len(x) < 2048:
+        return x
+    spectre = np.fft.rfft(x, axis=0)
+    freqs = np.fft.rfftfreq(len(x), 1.0 / TAUX)
+    gain = np.clip((freqs - f0 * 0.7) / (f0 * 0.3), 0.0, 1.0)
+    return np.fft.irfft(spectre * (0.5 - 0.5 * np.cos(np.pi * gain))[:, None], n=len(x), axis=0)
+
+
+def part_grave(x):
+    """Part de l'énergie sous 60 Hz."""
+    if len(x) < 2048:
+        return 0.0
+    e = np.abs(np.fft.rfft(x.mean(axis=1))) ** 2
+    freqs = np.fft.rfftfreq(len(x), 1.0 / TAUX)
+    return float(e[freqs < 60.0].sum() / (e.sum() + 1e-18))
+
+
+def recoudre(x):
+    """Si la reprise d'une boucle claque, une rampe sur les derniers millièmes de seconde la referme."""
+    if raccord(x) <= 1.2:
+        return x
+    n = min(2048, len(x) // 4)
+    y = x.copy()
+    y[-n:] += (x[0] - x[-1]) * np.linspace(0.0, 1.0, n)[:, None]
+    return y
+
+
 def niveler(x, cible, plafond_db=-3.0):
-    """Ramène au niveau cible ; les crêtes au-delà du plafond sont arrondies, puis le niveau repris."""
+    """Ramène au niveau cible ; les crêtes au-delà du plafond sont arrondies, puis le niveau repris.
+    Un décibel de marge sous le plafond : l'encodage en OGG remonte un peu les crêtes."""
+    plafond_db -= 1.5
     y = x * 10 ** ((cible - lufs(x)) / 20.0)
     for _ in range(3):
         if crete(y) <= plafond_db:
@@ -138,11 +171,11 @@ def inscrire(ident, fiche):
 
 def poser(x, ident, args, en_boucle):
     dossier = ident.split("/")[0]
-    y = niveler(x, niveau_cible(dossier), plafond_crete(dossier))
+    y = niveler(coupe_bas(x), niveau_cible(dossier), plafond_crete(dossier))
     ecrire_ogg(y, SONS / (ident + ".ogg"))
     fiche = {"outil": args.outil, "consigne": args.consigne, "licence": args.licence, "date": datetime.date.today().isoformat(),
              "source": pathlib.Path(args.source).name, "duree": round(len(y) / TAUX, 3), "lufs": round(lufs(y), 1),
-             "crete": round(crete(y), 1), "boucle": en_boucle}
+             "crete": round(crete(y), 1), "grave": round(part_grave(y), 2), "boucle": en_boucle}
     inscrire(ident, fiche)
     print("%s.ogg : %.2f s, %.1f LUFS (cible %.1f), crête %.1f dB%s" % (ident, fiche["duree"], fiche["lufs"], niveau_cible(dossier), fiche["crete"],
                                                                       ", raccord %.2f" % raccord(y) if en_boucle else ""))
@@ -166,6 +199,8 @@ def verifier():
             notes.append("trop fort de %.1f dB" % (mesure - cible))
         if crete(x) > plafond_crete(ident.split("/")[0]) + 0.5:
             notes.append("crête trop haute (%.1f dB pour %.1f)" % (crete(x), plafond_crete(ident.split("/")[0])))
+        if part_grave(x) > float(config().get("ceiling", {}).get("sub_share", 0.5)):
+            notes.append("trop de grondement sous 60 Hz (%d %%)" % round(part_grave(x) * 100))
         if fiche and fiche.get("boucle") and raccord(x) > 1.5:
             notes.append("la boucle claque au raccord")
         fautes += bool(notes)
@@ -187,13 +222,17 @@ def renormer():
         dossier = ident.split("/")[0]
         x = lire(p)
         cible, haut = niveau_cible(dossier), plafond_crete(dossier)
-        if lufs(x) <= cible + 1.5 and crete(x) <= haut + 0.5:
+        trop_grave = part_grave(x) > float(config().get("ceiling", {}).get("sub_share", 0.5))
+        fiche = tout.get(ident, {})
+        claque = bool(fiche.get("boucle")) and raccord(x) > 1.5
+        if lufs(x) <= cible + 1.5 and crete(x) <= haut + 0.5 and not trop_grave and "grave" in fiche and not claque:
             continue
-        y = niveler(x, cible, haut)
+        y = niveler(coupe_bas(x) if trop_grave or "grave" not in fiche else x, cible, haut)
+        if fiche.get("boucle"):
+            y = recoudre(y)
         ecrire_ogg(y, p)
         y = lire(p)
-        fiche = tout.get(ident, {})
-        fiche.update({"lufs": round(lufs(y), 1), "crete": round(crete(y), 1)})
+        fiche.update({"lufs": round(lufs(y), 1), "crete": round(crete(y), 1), "grave": round(part_grave(y), 2)})
         inscrire(ident, fiche)
         tout[ident] = fiche
         repris += 1
