@@ -21,6 +21,7 @@ func run(check: Callable) -> void:
 	_test_ceiling()
 	_test_peoples()
 	_test_music()
+	_test_orders()
 	SoundSettings.reset()
 
 
@@ -566,3 +567,31 @@ func _test_music() -> void:
 	node._process(0.6)
 	_ok(String(node.now()["state"]) in ["", "menu", "paix"], "sans partie, la musique se place sur le menu ou son repli")
 	node.free()
+
+
+## Lot 6 : ordres, alertes, chaînes d'événements.
+func _test_orders() -> void:
+	var orders: Dictionary = Son.data()["orders"]
+	for type: String in orders:
+		if type.begins_with("_"):
+			continue
+		_ok(not Son.cue_def(String(orders[type])).is_empty(), "l'ordre %s joue un repère connu" % type)
+	_ok(Son.order_cue(SimCommands.declare_war(0, 1)) == "guerre_declaree", "déclarer la guerre a son son")
+	_ok(Son.order_cue(SimCommands.propose_treaty(0, 1, "peace")) == "accord_propose", "une proposition se pose sur la table")
+	_ok(Son.order_cue({"type": "rename_fleet"}) == "" and Son.order_cue({}) == "", "un ordre sans nature propre garde le son de son bouton")
+	Son._told = {}
+	Son._last_told = -100000.0
+	_ok(Son.announce_allowed("war_declared", 10.0), "une alerte sonne")
+	_ok(not Son.announce_allowed("peace", 10.2), "deux annonces du même instant n'en font qu'une")
+	_ok(not Son.announce_allowed("war_declared", 40.0), "la même alerte ne sonne pas deux fois en une minute")
+	_ok(Son.announce_allowed("peace", 40.0), "une autre alerte passe")
+	_ok(Son.announce_allowed("war_declared", 80.0), "passé la minute, elle sonne de nouveau")
+	Son._told = {}
+	Son._last_told = -100000.0
+	var a := Son.chain_recipe("puits_neuf")
+	_ok(str(a) == str(Son.chain_recipe("puits_neuf")) and (a["notes"] as Array).size() == 4, "une chaîne garde son motif de quatre notes")
+	_ok(str(a["notes"]) + str(a["f"]) != str(Son.chain_recipe("autre_chaine")["notes"]) + str(Son.chain_recipe("autre_chaine")["f"]), "deux chaînes, deux motifs")
+	var cap: Dictionary = Son.data()["ceiling"]
+	var m := Son.measure(SoundSynth.samples(a))
+	_ok(float(m["peak_db"]) + float(Son.data()["chains"]["vol"]) <= float(cap["cue_peak_db"]), "le motif d'une chaîne reste sous le plafond")
+	_ok(not PeopleSound.jingle("vael", "contact").is_empty() and float(PeopleSound.jingle("vael", "contact")["len"]) > float(PeopleSound.jingle("vael")["len"]), "premier contact : l'indicatif en entier, lentement")

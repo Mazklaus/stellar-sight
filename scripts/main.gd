@@ -1068,7 +1068,9 @@ func _start(state: GameState) -> void:
 	Intel.lens = -1 if spectator else view_empire
 	simulation = Simulation.new(state)
 	simulation.command_applied.connect(_on_command_applied)
-	simulation.command_rejected.connect(func(_cmd: Dictionary, reason: String) -> void:
+	simulation.command_rejected.connect(func(cmd: Dictionary, reason: String) -> void:
+		if int(cmd.get("player", view_empire)) == view_empire:
+			Son.cue("ui_refus")
 		_hud.notify("Ordre refusé : %s" % reason, "bad"))
 	simulation.chronicle_added.connect(_hud.show_chronicle)
 	simulation.combat_event.connect(_on_combat_event)
@@ -1175,7 +1177,10 @@ func _submit(cmd: Dictionary) -> bool:
 		if why != "":
 			_hud.notify("Ordre refusé : %s" % why, "bad")
 		return why == ""
-	return simulation.submit(cmd)
+	var ok := simulation.submit(cmd)
+	if ok:
+		Son.cue(Son.order_cue(cmd))
+	return ok
 
 
 # --- Multijoueur en réseau ------------------------------------------------------------------------
