@@ -1,0 +1,64 @@
+# Publie une version Windows de Stellar Sight en Release GitHub.
+# Lancement : onglet Actions > « Release Windows » > Run workflow (en donnant le tag, ex. v0.1),
+# ou en poussant un tag v*.
+name: Release Windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag de la version (ex. v0.1)"
+        required: true
+        default: "v0.1"
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Godot et modèles d'export
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          curl -sSLf -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
+          curl -sSLf -o tpl.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          dest="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$dest"
+          unzip -q -j tpl.tpz "templates/windows_release_x86_64.exe" "templates/windows_release_x86_64_console.exe" "templates/version.txt" -d "$dest"
+          rm -f godot.zip tpl.tpz
+
+      - name: Import (deux passes, la première sort des erreurs de police sans gravité)
+        run: |
+          timeout 900 godot --headless --path . --import || true
+          timeout 900 godot --headless --path . --import
+
+      - name: Export Windows
+        run: |
+          mkdir -p build/windows
+          timeout 900 godot --headless --path . --export-release "Windows" build/windows/StellarSight.exe
+          test -s build/windows/StellarSight.exe
+
+      - name: Archive
+        run: |
+          tag="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "TAG=$tag" >> "$GITHUB_ENV"
+          cd build/windows && zip -q -9 "../../StellarSight-$tag-windows.zip" StellarSight.exe
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$TAG" "StellarSight-$TAG-windows.zip" \
+            --target "${{ github.sha }}" \
+            --title "Stellar Sight $TAG" \
+            --notes-file .github/release/notes.md \
+            --prerelease
