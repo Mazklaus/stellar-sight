@@ -32,7 +32,7 @@
 		"Space opera héroïque": "Fin du briefing. Que la chance vous accompagne.",
 		"Grimdark": "Ainsi parlent les Archives scellées. Nul n'a le droit de douter.",
 		"Classique / hard SF": "Rapport de mission, transmis sans commentaire.",
-		"Picaresque / pulp": "C'est en tout cas ce qu'on raconte au fond du bar, après la troisième tournée.",
+		"Picaresque / pulp": "Rapporté par un capitaine de passage, qui jure que tout est vrai.",
 		"Horreur biologique": "La Couvée a senti la chose. Elle a faim d'en savoir plus.",
 		"Cosmique / étrange": "Le murmure l'a dit, et le murmure ne ment jamais tout à fait."
 	},
@@ -59,22 +59,22 @@
 		"credo_honneur": {"kind": "credo", "credo": "honneur", "title": "Le Serment des Mille Lames",
 			"subjects": {"system": "far"},
 			"chapters": [
-				{"title": "Le défi", "text": "Un code vieux de mille générations exige que tout empire digne de ce nom prouve sa valeur avant d'oser parler d'honneur. Personne ne se souvient de qui l'a écrit, mais tout le monde sait qu'on ne le discute pas.",
+				{"title": "Le défi", "text": "Le Code des Mille Lames est le plus ancien texte d'honneur que les peuples de l'empire se transmettent. Personne ne sait qui l'a rédigé ; ses plus vieilles copies portent déjà les notes de commentateurs dont on a perdu les noms. Il pose une règle préalable à toutes les autres : un empire qui veut parler d'honneur doit d'abord avoir prouvé sa valeur, par les armes ou par la parole tenue.",
 					"branches": [
 						{"label": "Par l'épée", "goal": {"k": "stat", "stat": "battles_won", "n": 1}, "fx": [{"k": "renown", "v": 20}, {"k": "res", "res": {"influence": 30}}]},
 						{"label": "Par le serment", "goal": {"k": "hero", "where": "council", "days": 60}, "fx": [{"k": "renown", "v": 20}, {"k": "stab", "v": 5, "days": 360, "scope": "empire"}]}
 					]},
-				{"title": "La lame brisée", "text": "L'épée du Premier Serment fut brisée en trois au cours d'un duel que les deux camps disent avoir gagné. Un fragment repose à {system}, gardé par une légende et beaucoup de poussière.",
+				{"title": "La lame brisée", "text": "Le Code rapporte que l'épée du Premier Serment fut brisée en trois au cours d'un duel dont chacun des deux camps revendique encore la victoire. Les fragments furent dispersés. D'après les archives, l'un d'eux est conservé à {system}, dans un sanctuaire que plus personne n'entretient.",
 					"branches": [
 						{"label": "Aller la chercher", "goal": {"k": "visit"}, "fx": [{"k": "fragments", "v": 20}, {"k": "renown", "v": 15}]},
 						{"label": "Racheter le fragment", "goal": {"k": "pay", "cost": {"influence": 80}}, "fx": [{"k": "fragments", "v": 20}]}
 					]},
-				{"title": "Le champion", "text": "Un serment a besoin d'un bras. Les meilleurs combattants de l'empire se pressent pour l'honneur de porter la lame, et les moins bons pour celui de la nettoyer.",
+				{"title": "Le champion", "text": "Le fragment est arrivé à la capitale, et la garde de la lame doit revenir au combattant le plus digne de l'empire. Les candidatures affluent des régiments et des escadres. Le Code exige que le porteur soit choisi sur ses actes, et non sur sa naissance.",
 					"branches": [
 						{"label": "Le champion des batailles", "goal": {"k": "stat", "stat": "battles_won", "n": 4}, "fx": [{"k": "hero", "name": "Dame Iselde aux Mille Cicatrices", "cls": "stratege"}]},
 						{"label": "Le champion des marches", "goal": {"k": "stat", "stat": "systems", "n": 2}, "fx": [{"k": "hero", "name": "Sire Aldric le Patient", "cls": "intendant"}]}
 					]},
-				{"title": "Le Serment renouvelé", "text": "Les trois fragments sont réunis. Il ne manque qu'une victoire digne d'être chantée pour reforger la lame devant tout l'empire.",
+				{"title": "Le Serment renouvelé", "text": "Les trois fragments sont réunis dans la forge du palais. Selon le Code, la lame ne peut être reforgée qu'au lendemain d'une victoire digne d'être chantée. Les forgerons attendent la nouvelle, et le feu est entretenu nuit et jour.",
 					"branches": [
 						{"label": "Une victoire écrasante", "goal": {"k": "stat", "stat": "kills", "n": 25}, "fx": [{"k": "relic", "relic": "epee_serment"}, {"k": "renown", "v": 40}]},
 						{"label": "Une conquête", "goal": {"k": "stat", "stat": "conquests", "n": 1}, "fx": [{"k": "relic", "relic": "epee_serment"}, {"k": "renown", "v": 40}]}
@@ -83,22 +83,22 @@
 		"credo_foi": {"kind": "credo", "credo": "foi", "title": "Le Pèlerinage de la Sainte Aube",
 			"subjects": {"system": "far"},
 			"chapters": [
-				{"title": "La vision", "text": "Une prêtresse s'est réveillée en criant un nom : {system}. Elle affirme qu'une aube s'y lève à minuit. Les astronomes affirment que c'est impossible. Les fidèles affirment que c'est justement le principe.",
+				{"title": "La vision", "text": "Une prêtresse du temple de la capitale s'est réveillée en prononçant un nom : {system}. Elle affirme qu'une aube s'y lève à minuit. Les astronomes de l'Académie ont vérifié les éphémérides du système et tiennent la chose pour impossible. Elle maintient ce qu'elle a vu, et les fidèles ont commencé à préparer le voyage.",
 					"branches": [
 						{"label": "Envoyer des pèlerins", "goal": {"k": "visit"}, "fx": [{"k": "fervor", "v": 10}, {"k": "res", "res": {"influence": 30}}]},
 						{"label": "Financer une grande procession", "goal": {"k": "pay", "cost": {"influence": 60}}, "fx": [{"k": "fervor", "v": 10}, {"k": "stab", "v": 5, "days": 360, "scope": "empire"}]}
 					]},
-				{"title": "Le lieu saint", "text": "Les pèlerins sont revenus transfigurés et un peu bronzés. Il faut maintenant sanctifier le lieu, ou au moins y bâtir quelque chose de solide.",
+				{"title": "Le lieu saint", "text": "Les premiers pèlerins sont revenus. Ils décrivent tous la même lumière, à la même heure, et plusieurs ont demandé à repartir aussitôt. Le clergé souhaite que le lieu soit consacré et qu'on y élève des sanctuaires à la mesure de ce qui s'y montre.",
 					"branches": [
 						{"label": "Faire du système une terre sainte", "goal": {"k": "own"}, "fx": [{"k": "fervor", "v": 15}, {"k": "renown", "v": 20}]},
 						{"label": "Bâtir des sanctuaires", "goal": {"k": "stat", "stat": "built", "n": 2}, "fx": [{"k": "res", "res": {"influence": 50}}]}
 					]},
-				{"title": "La Voix", "text": "Une voix s'élève dans les sanctuaires, claire et têtue. Elle prétend parler pour l'Aube. Elle prétend aussi avoir faim, ce qui rassure les sceptiques.",
+				{"title": "La Voix", "text": "Pendant les offices, une voix s'est fait entendre dans les sanctuaires, claire et sans écho. Elle dit parler au nom de l'Aube. Elle demande des offrandes, et les prêtres ont remarqué qu'elle se tait quand on ne lui en apporte pas.",
 					"branches": [
 						{"label": "Écouter les mondes", "goal": {"k": "stat", "stat": "curios", "n": 2}, "fx": [{"k": "hero", "name": "Mère Aubérine, la Voix", "cls": "orateur"}]},
 						{"label": "Offrir un temple à la Voix", "goal": {"k": "pay", "cost": {"energy": 150}}, "fx": [{"k": "hero", "name": "Mère Aubérine, la Voix", "cls": "orateur"}]}
 					]},
-				{"title": "L'Aube", "text": "La Voix annonce que l'Aube se lèvera pour de bon quand l'empire aura prouvé sa ferveur. Les marchands de cierges ont déjà triplé leurs commandes.",
+				{"title": "L'Aube", "text": "La Voix annonce que l'Aube se lèvera pour tous quand l'empire aura prouvé sa ferveur. Les sanctuaires ne désemplissent plus. Le clergé demande que la foi soit portée sur de nouveaux mondes, et qu'un concile siège en permanence pour interpréter la Voix.",
 					"branches": [
 						{"label": "Étendre la vraie foi", "goal": {"k": "stat", "stat": "systems", "n": 5}, "fx": [{"k": "relic", "relic": "voile_aube"}, {"k": "fervor", "v": 20}]},
 						{"label": "Un concile permanent", "goal": {"k": "hero", "where": "council", "days": 360}, "fx": [{"k": "relic", "relic": "voile_aube"}, {"k": "fervor", "v": 20}]}
@@ -107,22 +107,22 @@
 		"credo_raison": {"kind": "credo", "credo": "raison", "title": "Le Théorème Ultime",
 			"subjects": {"system": "far"},
 			"chapters": [
-				{"title": "L'hypothèse", "text": "Un chercheur a écrit sur un tableau une équation qui, si elle est juste, explique tout. Si elle est fausse, elle explique seulement pourquoi il n'a plus de tableau.",
+				{"title": "L'hypothèse", "text": "Un chercheur de l'Académie a présenté à ses pairs une équation qui, si elle est exacte, réunit en une seule les grandes théories physiques connues. Personne n'a pu la réfuter en séance, ni la démontrer. L'Académie demande des preuves, par l'expérience ou par l'observation.",
 					"branches": [
 						{"label": "Accumuler les preuves", "goal": {"k": "stat", "stat": "techs", "n": 3}, "fx": [{"k": "research", "pct": 40}]},
 						{"label": "Observer le monde", "goal": {"k": "stat", "stat": "curios", "n": 2}, "fx": [{"k": "research", "pct": 40}]}
 					]},
-				{"title": "L'expérience", "text": "La théorie prédit une anomalie gravitationnelle à {system}. Il faut y aller voir, ou payer très cher quelqu'un qui y est déjà.",
+				{"title": "L'expérience", "text": "L'équation prédit à {system} une anomalie gravitationnelle précise, que nos relevés n'ont jamais signalée. Si l'anomalie existe, la théorie tient. Il faut envoyer une expédition, ou acheter les relevés d'un explorateur déjà passé sur place.",
 					"branches": [
 						{"label": "Envoyer une expédition", "goal": {"k": "visit"}, "fx": [{"k": "fragments", "v": 15}, {"k": "research", "pct": 25}]},
 						{"label": "Acheter les relevés", "goal": {"k": "pay", "cost": {"energy": 120}}, "fx": [{"k": "research", "pct": 25}]}
 					]},
-				{"title": "Le collègue", "text": "Une seule personne dans la galaxie comprend vraiment le théorème, et elle refuse de travailler avec quiconque. Il va falloir la convaincre par l'exemple.",
+				{"title": "Le collègue", "text": "Une seule mathématicienne, Ilse Moranne, maîtrise les outils nécessaires pour poursuivre la démonstration. Elle a quitté l'Académie il y a vingt ans et refuse de travailler en équipe. Elle fait savoir qu'elle ne reviendra que dans un empire où la recherche avance pour de bon.",
 					"branches": [
-						{"label": "Publier, publier, publier", "goal": {"k": "stat", "stat": "techs", "n": 5}, "fx": [{"k": "hero", "name": "Docteure Quill Ombrelune", "cls": "intendant"}]},
+						{"label": "Multiplier les publications", "goal": {"k": "stat", "stat": "techs", "n": 5}, "fx": [{"k": "hero", "name": "Docteure Quill Ombrelune", "cls": "intendant"}]},
 						{"label": "Lui offrir des laboratoires", "goal": {"k": "stat", "stat": "built", "n": 3}, "fx": [{"k": "hero", "name": "Docteure Quill Ombrelune", "cls": "intendant"}]}
 					]},
-				{"title": "La démonstration", "text": "Il ne reste qu'à démontrer le théorème devant toute la galaxie. Si tout se passe bien, l'univers deviendra enfin logique. Si tout se passe mal, il le deviendra aussi, mais pour quelqu'un d'autre.",
+				{"title": "La démonstration", "text": "La démonstration est presque complète. Il reste à la présenter devant les savants de toute la galaxie, preuves à l'appui, avant qu'une autre académie ne publie la sienne. Si elle est reçue, les manuels seront à réécrire.",
 					"branches": [
 						{"label": "La démonstration par l'exemple", "goal": {"k": "stat", "stat": "techs", "n": 10}, "fx": [{"k": "relic", "relic": "theoreme_ultime"}, {"k": "renown", "v": 30}]},
 						{"label": "Un observatoire sur place", "goal": {"k": "own"}, "fx": [{"k": "relic", "relic": "theoreme_ultime"}, {"k": "renown", "v": 30}]}
@@ -131,22 +131,22 @@
 		"credo_profit": {"kind": "credo", "credo": "profit", "title": "Le Grand Livre",
 			"subjects": {"system": "far"},
 			"chapters": [
-				{"title": "L'occasion", "text": "Un vieux comptable mourant confie l'existence du Grand Livre, où sont notées toutes les dettes de la galaxie depuis l'invention de la monnaie. Celui qui le possède n'a plus jamais besoin de demander poliment.",
+				{"title": "L'occasion", "text": "Sur son lit de mort, un vieux comptable de la Banque centrale a demandé à parler au trésorier. Il lui a révélé l'existence du Grand Livre, un registre tenu depuis l'invention de la monnaie, où seraient inscrites les dettes de tous les États de la galaxie. Qui le détient sait ce que vaut la signature de chacun. Le comptable est mort avant d'avoir dit où le trouver.",
 					"branches": [
 						{"label": "Investir dans la recherche du Livre", "goal": {"k": "pay", "cost": {"energy": 100}}, "fx": [{"k": "res", "res": {"energy": 180}}]},
 						{"label": "Montrer sa solvabilité", "goal": {"k": "stat", "stat": "energy", "n": 400, "abs": true}, "fx": [{"k": "res", "res": {"influence": 40}}]}
 					]},
-				{"title": "La route", "text": "La dernière trace du Livre mène à {system}, dans les comptes d'une compagnie qui n'existe plus mais qui envoie toujours des factures.",
+				{"title": "La route", "text": "La dernière trace du Grand Livre mène à {system}, dans les archives d'une compagnie de change dissoute depuis un siècle. Ses bureaux automatiques continuent d'adresser des relevés de compte à des clients disparus. Il faut aller sur place, ou négocier l'accès aux archives.",
 					"branches": [
 						{"label": "Envoyer un huissier", "goal": {"k": "visit"}, "fx": [{"k": "res", "res": {"influence": 40}}, {"k": "fragments", "v": 10}]},
 						{"label": "Négocier depuis le conseil", "goal": {"k": "hero", "where": "council", "days": 60}, "fx": [{"k": "res", "res": {"influence": 40}}]}
 					]},
-				{"title": "L'associé", "text": "Pour lire le Livre, il faut un expert en écritures doubles, triples et franchement douteuses. Il en existe un, et il est très cher.",
+				{"title": "L'associé", "text": "Le Grand Livre est tenu dans une écriture comptable que plus personne n'emploie. Un seul expert sait encore la lire, un ancien fondé de pouvoir retiré dans une station de transit. Il demande des honoraires élevés et veut savoir à qui il aura affaire.",
 					"branches": [
 						{"label": "Lui bâtir des comptoirs", "goal": {"k": "stat", "stat": "built", "n": 3}, "fx": [{"k": "hero", "name": "Vex Doublemise", "cls": "ombre"}]},
-						{"label": "Lui prouver qu'on sait tricher", "goal": {"k": "stat", "stat": "operations", "n": 2}, "fx": [{"k": "hero", "name": "Vex Doublemise", "cls": "ombre"}]}
+						{"label": "Lui prouver notre habileté", "goal": {"k": "stat", "stat": "operations", "n": 2}, "fx": [{"k": "hero", "name": "Vex Doublemise", "cls": "ombre"}]}
 					]},
-				{"title": "Le monopole", "text": "Le Livre est presque à vous. Il ne reste qu'à montrer à la galaxie que vous êtes le créancier le plus terrifiant qu'elle ait connu.",
+				{"title": "Le monopole", "text": "Le Grand Livre est presque déchiffré. Les créances qu'il recense valent plus que plusieurs empires. Pour les faire valoir, il faut une fortune et un réseau de comptoirs assez solides pour que nul n'ose les contester.",
 					"branches": [
 						{"label": "Une fortune insolente", "goal": {"k": "stat", "stat": "energy", "n": 3000, "abs": true}, "fx": [{"k": "relic", "relic": "grand_livre"}, {"k": "renown", "v": 30}]},
 						{"label": "Un réseau de comptoirs", "goal": {"k": "stat", "stat": "systems", "n": 5}, "fx": [{"k": "relic", "relic": "grand_livre"}, {"k": "renown", "v": 30}]}
@@ -155,22 +155,22 @@
 		"credo_survie": {"kind": "credo", "credo": "survie", "title": "La Mère-Couvée",
 			"subjects": {"system": "far"},
 			"chapters": [
-				{"title": "La faim", "text": "Les anciens parlent d'une Mère-Couvée, la première de toutes, qui dort quelque part entre les étoiles. Pour la réveiller, il faut d'abord grandir. Beaucoup grandir.",
+				{"title": "La faim", "text": "Les plus anciens chants de la Couvée parlent d'une Mère-Couvée, la première pondeuse, qui dormirait quelque part entre les étoiles. Ils disent qu'elle ne s'éveillera que pour une couvée assez nombreuse pour la nourrir. Les anciens demandent que l'empire grandisse.",
 					"branches": [
 						{"label": "S'étendre", "goal": {"k": "stat", "stat": "systems", "n": 2}, "fx": [{"k": "res", "res": {"food": 150}}, {"k": "pop", "v": 1}]},
 						{"label": "Se multiplier", "goal": {"k": "stat", "stat": "pop", "n": 6}, "fx": [{"k": "res", "res": {"food": 150}}, {"k": "pop", "v": 1}]}
 					]},
-				{"title": "Le nid", "text": "Une odeur ancienne flotte dans les courants de {system}. Le nid de la Mère est là, ou ce qu'il en reste après quelques millions d'années de locataires.",
+				{"title": "Le nid", "text": "Une odeur ancienne, que les traqueurs de la Couvée reconnaissent sans l'avoir jamais sentie, monte des courants de {system}. Le nid de la Mère est là. D'autres créatures l'occupent depuis des millions d'années, et il faudra le reprendre.",
 					"branches": [
 						{"label": "Prendre le nid", "goal": {"k": "own"}, "fx": [{"k": "res", "res": {"materials": 150}}, {"k": "renown", "v": 20}]},
 						{"label": "Nourrir la Couvée d'ennemis", "goal": {"k": "stat", "stat": "kills", "n": 6}, "fx": [{"k": "res", "res": {"materials": 150}}]}
 					]},
-				{"title": "Les rejetons", "text": "Le nid frémit. Des rejetons naissent, plus grands et plus affamés que les autres. L'un d'eux semble avoir déjà un plan.",
+				{"title": "Les rejetons", "text": "Le nid s'est réchauffé. Des rejetons y naissent, plus grands et plus affamés que les autres. Ils réclament de la nourriture en quantité, chair ou mondes.",
 					"branches": [
 						{"label": "Les nourrir de batailles", "goal": {"k": "stat", "stat": "battles_won", "n": 2}, "fx": [{"k": "hero", "name": "Ssk'ar l'Affamée", "cls": "stratege"}]},
 						{"label": "Les nourrir de mondes", "goal": {"k": "stat", "stat": "pop", "n": 15}, "fx": [{"k": "hero", "name": "Ssk'ar l'Affamée", "cls": "stratege"}]}
 					]},
-				{"title": "La Couvée éternelle", "text": "La Mère ouvre un œil. Elle attend une offrande digne d'elle : des mondes entiers, ou ceux de quelqu'un d'autre.",
+				{"title": "La Couvée éternelle", "text": "La Mère-Couvée a ouvert un œil. Les anciens disent qu'elle attend une offrande à sa mesure : des mondes entiers, peuplés par sa descendance ou pris à d'autres.",
 					"branches": [
 						{"label": "Lui offrir des mondes", "goal": {"k": "stat", "stat": "systems", "n": 6}, "fx": [{"k": "relic", "relic": "coeur_couvee"}, {"k": "renown", "v": 30}]},
 						{"label": "Lui offrir ceux des autres", "goal": {"k": "stat", "stat": "conquests", "n": 1}, "fx": [{"k": "relic", "relic": "coeur_couvee"}, {"k": "renown", "v": 30}]}
@@ -180,12 +180,12 @@
 		"q_signal": {"kind": "side", "title": "Le signal qui répond", "origin": "curio",
 			"subjects": {"system": "far"}, "days": 1440,
 			"chapters": [
-				{"title": "Le signal", "text": "Depuis la sonde, nos savants captent un signal qui vient de {system}. Quand on lui répond, il répond aussi. Quand on se tait, il demande si tout va bien.",
+				{"title": "Le signal", "text": "Les instruments de la sonde ont capté un signal en provenance de {system}. Il répond à chacun de nos messages dans la minute. Quand nous cessons d'émettre, il renvoie un même message de contrôle jusqu'à ce que nous reprenions.",
 					"branches": [
 						{"label": "Aller voir", "goal": {"k": "visit"}, "fx": [{"k": "research", "pct": 20}]},
 						{"label": "Acheter les relevés d'un explorateur", "goal": {"k": "pay", "cost": {"energy": 80}}, "fx": [{"k": "research", "pct": 10}]}
 					]},
-				{"title": "L'émetteur", "text": "À {system}, l'émetteur est une balise ancienne, polie et un peu seule. Elle propose de tout raconter à qui restera assez longtemps pour l'écouter.",
+				{"title": "L'émetteur", "text": "À {system}, l'émetteur est une balise très ancienne, encore en état de marche, qui n'appartient à aucun peuple connu. Elle s'adresse à nous dans une langue apprise sur nos propres émissions. Elle propose de transmettre ses archives à qui restera assez longtemps pour les recevoir.",
 					"branches": [
 						{"label": "S'installer pour de bon", "goal": {"k": "own"}, "fx": [{"k": "research", "pct": 50}, {"k": "fragments", "v": 15}]},
 						{"label": "Lui envoyer un héros", "goal": {"k": "hero", "where": "system", "days": 30}, "fx": [{"k": "research", "pct": 35}, {"k": "hero_xp", "v": 20}]}
@@ -194,12 +194,12 @@
 		"q_epave": {"kind": "side", "title": "La boîte noire", "origin": "curio",
 			"subjects": {"system": "far"}, "days": 1440,
 			"chapters": [
-				{"title": "L'enregistrement", "text": "Dans l'épave, une boîte noire intacte. Le dernier message parle d'un convoi perdu à {system}, et d'une cargaison « à ne surtout pas ouvrir ». Évidemment.",
+				{"title": "L'enregistrement", "text": "Les équipes ont récupéré dans l'épave une boîte noire intacte. Son dernier enregistrement signale un convoi perdu à {system} et mentionne une cargaison que l'équipage avait ordre de ne pas ouvrir. L'enregistrement s'arrête au milieu d'une phrase.",
 					"branches": [
 						{"label": "Retrouver le convoi", "goal": {"k": "visit"}, "fx": [{"k": "res", "res": {"materials": 80}}]},
 						{"label": "Revendre l'enregistrement", "goal": {"k": "pay", "cost": {"influence": 30}}, "fx": [{"k": "res", "res": {"energy": 120}}]}
 					]},
-				{"title": "La cargaison", "text": "Le convoi est là, et la cargaison aussi : des coques de guerre en kit. Le mode d'emploi est en vingt langues, dont aucune n'est parlée.",
+				{"title": "La cargaison", "text": "Le convoi est là, et sa cargaison est intacte : des coques de guerre en pièces détachées, prêtes à l'assemblage. La notice de montage est rédigée en vingt langues, dont aucune n'est plus parlée.",
 					"branches": [
 						{"label": "Défendre la trouvaille", "goal": {"k": "stat", "stat": "battles_won", "n": 1}, "fx": [{"k": "ship", "ship": "croiseur"}]},
 						{"label": "Faire venir des ingénieurs", "goal": {"k": "stat", "stat": "techs", "n": 2}, "fx": [{"k": "ship", "ship": "fregate"}, {"k": "research", "pct": 15}]}
@@ -208,7 +208,7 @@
 		"q_troupeau": {"kind": "side", "title": "Le troupeau migrateur", "origin": "curio",
 			"subjects": {"system": "far"}, "days": 1080,
 			"chapters": [
-				{"title": "La migration", "text": "Les créatures sondées appartiennent à un troupeau qui migre vers {system} une fois par siècle. Ce siècle, c'est maintenant.",
+				{"title": "La migration", "text": "Les créatures sondées appartiennent à un troupeau qui migre vers {system} une fois par siècle pour s'y reproduire. D'après les relevés de dérive, la migration a commencé. Le troupeau atteindra le système dans les prochains mois.",
 					"branches": [
 						{"label": "Les y attendre", "goal": {"k": "visit"}, "fx": [{"k": "res", "res": {"food": 150}}, {"k": "pop", "v": 1}]},
 						{"label": "Leur préparer des pâturages", "goal": {"k": "pay", "cost": {"food": 120}}, "fx": [{"k": "pop", "v": 2}]}
@@ -217,7 +217,7 @@
 		"q_primes": {"kind": "side", "title": "Prime sur la tête", "origin": "monthly",
 			"if": {"lairs_known": true}, "subjects": {"lair": "near"}, "days": 1080,
 			"chapters": [
-				{"title": "L'avis de recherche", "text": "Les marchands de l'empire se cotisent : une prime est offerte pour qui fera taire {system}. Les pirates, eux, ont affiché la même prime sur votre amiral.",
+				{"title": "L'avis de recherche", "text": "Les compagnies marchandes de l'empire ont réuni une prime pour quiconque démantèlera le repaire pirate de {system}, qui rançonne leurs convois depuis deux ans. Les pirates ont répondu en affichant dans les ports une prime du même montant sur la tête de votre amiral.",
 					"branches": [
 						{"label": "Démanteler le repaire", "goal": {"k": "lair"}, "fx": [{"k": "res", "res": {"energy": 150, "influence": 30}}, {"k": "renown", "v": 25}]},
 						{"label": "Racheter la paix des routes", "goal": {"k": "pay", "cost": {"influence": 50}}, "fx": [{"k": "stab", "v": 4, "days": 360, "scope": "empire"}]}
@@ -226,7 +226,7 @@
 		"q_prophete": {"kind": "side", "title": "La prophétie de {system}", "origin": "monthly",
 			"if": {"stability": true, "stab_below": 45}, "subjects": {"system": "low_stab"}, "days": 720,
 			"chapters": [
-				{"title": "Les jours comptés", "text": "À {system}, une prophétie annonce la chute du gouvernement avant la prochaine récolte. Elle a déjà convaincu la moitié de la population, et un tiers des récoltes.",
+				{"title": "Les jours comptés", "text": "À {system}, une prophétie annonce la chute du gouvernement avant la prochaine récolte. Elle circule depuis un mois, et la moitié de la population y croit. Une partie des paysans a cessé de semer, puisque la récolte ne doit pas venir.",
 					"branches": [
 						{"label": "Démentir par les faits", "goal": {"k": "stab", "v": 60}, "fx": [{"k": "res", "res": {"influence": 40}}, {"k": "renown", "v": 15}]},
 						{"label": "Acheter le prophète", "goal": {"k": "pay", "cost": {"influence": 60}}, "fx": [{"k": "stab", "v": 10, "days": 720, "scope": "system"}]}
@@ -235,16 +235,16 @@
 		"q_duel": {"kind": "side", "title": "Le défi lancé à {hero}", "origin": "monthly",
 			"subjects": {"hero": "any", "rival": "any"}, "days": 720,
 			"chapters": [
-				{"title": "Le gant", "text": "Un champion de {rival} a jeté son gant aux pieds de {hero}, en pleine réception. Le gant était sale ; l'affront, lui, était impeccable.",
+				{"title": "Le gant", "text": "Un champion de {rival} a jeté son gant aux pieds de {hero}, en pleine réception à l'ambassade, devant une centaine de témoins. Le code des deux cours exige une réponse, par les armes ou par un présent qui vaille réparation.",
 					"branches": [
 						{"label": "Relever le défi sur le champ de bataille", "goal": {"k": "stat", "stat": "battles_won", "n": 1}, "fx": [{"k": "hero_xp", "v": 30}, {"k": "renown", "v": 20}, {"k": "rep", "v": 6}]},
-						{"label": "Répondre avec dédain (et un don)", "goal": {"k": "pay", "cost": {"influence": 40}}, "fx": [{"k": "opinion", "kind": "ev_gift"}]}
+						{"label": "Décliner, avec un présent", "goal": {"k": "pay", "cost": {"influence": 40}}, "fx": [{"k": "opinion", "kind": "ev_gift"}]}
 					]}
 			]},
 		"q_vocation": {"kind": "side", "title": "La vocation de {hero}", "origin": "monthly",
 			"subjects": {"hero": "any"}, "days": 900,
 			"chapters": [
-				{"title": "Le doute", "text": "{hero} s'interroge : est-ce vraiment sa place ? Ses proches suggèrent un poste qui ait du sens. Ses ennemis suggèrent la retraite.",
+				{"title": "Le doute", "text": "{hero} a demandé à être relevé de ses fonctions et cherche un poste où servir utilement. Ses proches parlent du conseil ou d'un gouvernement. Ses adversaires à la cour font courir le bruit d'une retraite prochaine.",
 					"branches": [
 						{"label": "Siéger au conseil", "goal": {"k": "hero", "where": "council", "days": 90}, "fx": [{"k": "hero_xp", "v": 40}, {"k": "res", "res": {"influence": 30}}]},
 						{"label": "Gouverner un monde", "goal": {"k": "hero", "where": "governor", "days": 90}, "fx": [{"k": "hero_xp", "v": 40}, {"k": "res", "res": {"materials": 100}}]}
@@ -253,7 +253,7 @@
 		"q_colons": {"kind": "side", "title": "Le grand départ", "origin": "monthly",
 			"if": {"min_colonies": 2, "max_year": 25}, "days": 1080,
 			"chapters": [
-				{"title": "Les volontaires", "text": "Des milliers de volontaires se pressent aux spatioports, valises bouclées. Ils veulent un monde neuf. Ils veulent aussi qu'on leur dise lequel.",
+				{"title": "Les volontaires", "text": "Des milliers de volontaires se sont inscrits aux bureaux de colonisation des spatioports et attendent leur départ, bagages faits. Les registres débordent. Ils demandent des mondes où s'installer, ou à défaut des logements là où ils sont.",
 					"branches": [
 						{"label": "Leur offrir de nouveaux mondes", "goal": {"k": "stat", "stat": "systems", "n": 2}, "fx": [{"k": "res", "res": {"food": 100, "materials": 100}}, {"k": "renown", "v": 20}]},
 						{"label": "Les garder et les loger", "goal": {"k": "stat", "stat": "pop", "n": 8}, "fx": [{"k": "stab", "v": 5, "days": 720, "scope": "empire"}]}
@@ -262,7 +262,7 @@
 		"q_contrebande": {"kind": "side", "title": "Reliques de contrebande", "origin": "event",
 			"days": 1080,
 			"chapters": [
-				{"title": "Le marché noir", "text": "Le marché noir des reliques est ouvert. Les acheteurs veulent des fragments authentiques ; les vendeurs jurent que tous les leurs le sont.",
+				{"title": "Le marché noir", "text": "Un marché noir de reliques s'est ouvert dans les ports de l'empire. Les acheteurs paient comptant pour des fragments authentiques. Tous les vendeurs garantissent leur marchandise, et les experts en trouvent un sur dix qui l'est vraiment.",
 					"branches": [
 						{"label": "Amasser des fragments", "goal": {"k": "stat", "stat": "fragments", "n": 30, "abs": true}, "fx": [{"k": "res", "res": {"energy": 160}}, {"k": "rep", "v": 8}, {"k": "exploit", "id": "quete_contrebande"}]},
 						{"label": "Posséder une vraie relique", "goal": {"k": "stat", "stat": "relics", "n": 1, "abs": true}, "fx": [{"k": "res", "res": {"influence": 50}}, {"k": "rep", "v": 5}]}
@@ -283,7 +283,7 @@
 			"win": [{"k": "relic", "relic": "coeur_passage"}, {"k": "renown", "v": 40}],
 			"part": [{"k": "research", "pct": 30}]},
 		"fleau": {"title": "La Rouille grise", "kind": "coop",
-			"text": "Une poussière de nanomachines se répand de monde en monde et mange tout ce qui est métallique, y compris les mauvaises excuses. Production −8 % partout tant que le remède n'est pas financé. Chaque empire peut y contribuer ; le plus généreux sera honoré.",
+			"text": "Une poussière de nanomachines se répand de monde en monde et ronge tout ce qui est métallique. Production −8 % partout tant que le remède n'est pas financé. Chaque empire peut y contribuer ; le plus généreux sera honoré.",
 			"fx": {"production_pct": {"all": -8}}, "per_empire": 6, "lot": {"materials": 60, "energy": 40}, "days": 1440,
 			"win": [{"k": "boon", "label": "Panacée de la Rouille", "fx": {"stability": 2, "production_pct": {"all": 5}}, "days": 0}, {"k": "renown", "v": 40}],
 			"part": [{"k": "res", "res": {"influence": 30}}]},

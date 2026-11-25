@@ -6,13 +6,13 @@
 	"modes": [
 		{"id": "complet", "label": "Complet", "text": "Éveil, Résonance, sensitifs, pouvoirs, le Songe (plongées, visions, Puissances et pactes) et la crise du Solde."},
 		{"id": "discret", "label": "Discret", "text": "Éveil, Résonance, sensitifs et pouvoirs seulement : ni Songe, ni pactes, ni crise."},
-		{"id": "desactive", "label": "Désactivé", "text": "Personne n'entend rien. C'est peut-être mieux ainsi."}
+		{"id": "desactive", "label": "Désactivé", "text": "Aucun peuple n'entend le Songe : ni sensitifs, ni pouvoirs, ni plongées."}
 	],
 	"forms": {
 		"_doc": "Formes de psionisme (catalogue ouvert, consigne du 2026-11-17 : d'autres peuples apporteront d'autres formes, peut-être très différentes). Une forme dit d'où vient le pouvoir, son nom et ses pouvoirs propres (champ form des pouvoirs). Un empire suit la forme de son talent (talents.*.form), sinon la forme par défaut.",
 		"default": "songe",
 		"list": [
-			{"id": "songe", "label": "Le Songe", "resource": "Résonance", "text": "Un plan psychique sous la réalité, que les esprits sensibles entendent comme un rêve partagé. On y puise, on y plonge, et parfois quelque chose y répond."},
+			{"id": "songe", "label": "Le Songe", "resource": "Résonance", "text": "Un plan psychique situé sous la réalité, que les esprits sensibles perçoivent comme un rêve partagé. Les sensitifs y puisent leurs pouvoirs, les plongeurs y descendent, et il arrive que quelque chose y réponde."},
 			{"id": "chronopathie", "label": "La Chronopathie", "resource": "Résonance", "text": "Le pouvoir des Gardiens du Sablier (peuples insolites, prop. 87) : sentir le temps comme une matière, se souvenir de l'avenir, y reprendre un peu de sable. Pas de Songe, pas de plongée : seulement l'écho de ce qui a été et de ce qui sera."}
 		]
 	},
@@ -97,7 +97,7 @@
 			{"id": "elu", "kind": "boon", "weight": 4, "tier": 2, "label": "L'Élu", "do": "elu", "text": "Un de vos héros revient de la plongée avec des yeux nouveaux. Il est l'Élu."},
 			{"id": "brume", "kind": "none", "weight": 30, "label": "Brume", "text": "Rien que du gris, et une odeur de pain chaud qui ne mène nulle part."},
 			{"id": "echo", "kind": "none", "weight": 20, "label": "Écho", "text": "Les plongeurs entendent leurs propres voix, une semaine plus tard. Ils ne disent rien d'utile."},
-			{"id": "foire", "kind": "none", "weight": 10, "label": "Foire des rêves", "text": "Une foire immense, des marchands sans visage. On revient avec un ballon rouge et aucun souvenir du prix."},
+			{"id": "foire", "kind": "none", "weight": 10, "label": "Foire des rêves", "text": "Les plongeurs décrivent une foire immense, tenue par des marchands sans visage. Ils en reviennent les mains vides et ne se rappellent pas ce qu'ils y ont échangé."},
 			{"id": "cauchemars", "kind": "curse", "weight": 25, "tier": 0, "label": "Cauchemars", "empire_stability": -8, "text": "Les plongeurs ont ramené des cauchemars, et les cauchemars ont des jambes. Stabilité -8 dans tout l'empire pendant cinq ans."},
 			{"id": "langueur", "kind": "curse", "weight": 20, "tier": 0, "label": "Langueur", "fx": {"production_pct": {"all": -10}}, "text": "Une grande fatigue gagne l'empire : on rêve plus qu'on ne travaille. Production -10 % pendant cinq ans."},
 			{"id": "entite", "kind": "curse", "weight": 15, "tier": 0, "label": "Entité hostile", "do": "beast", "text": "Quelque chose a suivi les plongeurs. Une bête du Songe rôde près de votre capitale."},
@@ -112,28 +112,28 @@
 		"price_years": 15, "favor_month": 1, "like_favor": 1, "max_favor": 150, "break_stability": -10, "break_days": 1080, "reform_refused_stability": -10, "reform_refused_days": 720, "reform_gov": "theocratie",
 		"list": [
 			{"id": "tisserand", "label": "Le Tisserand", "domain": "lignées et chair", "likes": {"credo": ["raison", "survie"], "gouvernement": ["conscience"]}, "acts": {"genome": 2},
-				"text": "Il tisse les lignées comme d'autres tricotent : patiemment, et en comptant les mailles.",
+				"text": "Le Tisserand est une Puissance du Songe qui travaille les lignées. Il prend des fils dans la descendance des peuples et les renoue autrement, avec une patience que les sensitifs disent sans limite.",
 				"tiers": [{"favor": 0, "fx": {"growth_pct": 10}}, {"favor": 50, "fx": {"growth_pct": 20, "production_pct": {"food": 10}}}, {"favor": 100, "fx": {"growth_pct": 30, "production_pct": {"food": 15}}, "elu": true}],
 				"price": [{"id": "pop", "weight": 40, "n": 3, "label": "Le Tisserand reprend des fils"}, {"id": "mutation", "weight": 40, "fx": {"growth_pct": -10}, "label": "Une maille a filé"}, {"id": "hero", "weight": 20, "label": "Le Tisserand veut un modèle"}]},
 			{"id": "gueule", "label": "La Gueule", "domain": "guerre", "likes": {"credo": ["honneur"], "gouvernement": ["horde", "feodalite"]}, "acts": {"war": 3},
-				"text": "Elle a faim, toujours, et elle aime ceux qui la nourrissent de batailles.",
+				"text": "La Gueule est une Puissance du Songe qui se nourrit de batailles. Elle favorise les peuples qui en livrent beaucoup, et réclame des champions quand la guerre s'arrête.",
 				"tiers": [{"favor": 0, "fx": {"damage_pct": 5}}, {"favor": 50, "fx": {"damage_pct": 12}}, {"favor": 100, "fx": {"damage_pct": 20, "repair_pct": 10}, "elu": true}],
 				"price": [{"id": "hero", "weight": 40, "label": "La Gueule réclame un champion"}, {"id": "pop", "weight": 40, "n": 4, "label": "La Gueule mange"}, {"id": "stability", "weight": 20, "v": -15, "days": 720, "label": "La Gueule rugit dans les rêves"}]},
 			{"id": "miroir", "label": "Le Miroir tendre", "domain": "paix et plaisir", "likes": {"credo": ["plaisir"], "gouvernement": ["republique"]}, "acts": {"peace": 3},
-				"text": "Il montre à chacun ce qu'il veut voir, et c'est si doux qu'on oublie de regarder ailleurs.",
+				"text": "Le Miroir est une Puissance du Songe qui montre à chacun ce qu'il désire voir. Les rêveurs qui le contemplent trop longtemps cessent de regarder ailleurs, et certains ne se réveillent plus.",
 				"tiers": [{"favor": 0, "fx": {"stability": 3}}, {"favor": 50, "fx": {"stability": 6, "trade_income_pct": 10}}, {"favor": 100, "fx": {"stability": 10, "trade_income_pct": 20}, "elu": true}],
 				"price": [{"id": "stability", "weight": 40, "v": -12, "days": 720, "label": "Le Miroir se trouble"}, {"id": "resonance", "weight": 40, "label": "Le Miroir boit la Résonance"}, {"id": "pop", "weight": 20, "n": 2, "label": "Des rêveurs ne se réveillent plus"}]},
 			{"id": "chuchoteur", "label": "Le Chuchoteur", "domain": "secrets", "likes": {"credo": ["profit"], "gouvernement": ["syndicat"]}, "acts": {"lecture": 3, "powers": 1},
-				"text": "Il connaît le secret de chacun, et il en fait cadeau à qui sait écouter.",
+				"text": "Le Chuchoteur est une Puissance du Songe qui garde les secrets de tous les esprits qu'il a frôlés. Il les cède à qui l'écoute, et se fait payer en confidences.",
 				"tiers": [{"favor": 0, "fx": {"production_pct": {"knowledge": 5}}}, {"favor": 50, "fx": {"production_pct": {"knowledge": 10}, "trade_income_pct": 5}}, {"favor": 100, "fx": {"production_pct": {"knowledge": 15}, "trade_income_pct": 10}, "elu": true}],
 				"price": [{"id": "resonance", "weight": 40, "label": "Le Chuchoteur se paie en murmures"}, {"id": "hero", "weight": 30, "label": "Le Chuchoteur garde un confident"}, {"id": "stability", "weight": 30, "v": -10, "days": 720, "label": "Des secrets courent les rues"}]},
 			{"id": "horloger", "label": "L'Horloger d'ébène", "domain": "temps et échos", "likes": {"credo": ["foi"], "gouvernement": ["theocratie"]}, "acts": {"prescience": 3},
-				"text": "Il remonte les heures comme des pendules, et il entend tout ce qui sonnera.",
+				"text": "L'Horloger est une Puissance du Songe qui perçoit le temps comme un mécanisme. Il entend d'avance ce qui va arriver, et se fait payer en années de vie.",
 				"tiers": [{"favor": 0, "fx": {"production_pct": {"materials": 5}}}, {"favor": 50, "fx": {"production_pct": {"all": 5}}}, {"favor": 100, "fx": {"production_pct": {"all": 10}}, "elu": true}],
 				"price": [{"id": "mutation", "weight": 40, "fx": {"growth_pct": -10}, "label": "L'Horloger prend des années"}, {"id": "hero", "weight": 30, "label": "Un héros vieillit d'un coup"}, {"id": "pop", "weight": 30, "n": 3, "label": "Des heures perdues"}]}
 		],
 		"last": {"id": "derniere", "label": "La Dernière Puissance", "domain": "fin du cycle", "last_years": 50,
-			"text": "Elle n'a pas de forme. Elle offre tout, tout de suite, pour cinquante ans. Après, il faudra solder le compte.",
+			"text": "La dernière Puissance n'a pas de forme connue. Elle accorde tout ce qu'on lui demande, tout de suite, pour cinquante ans. Au terme, le compte est soldé, et aucun sensitif ne sait dire en quelle monnaie.",
 			"fx": {"production_pct": {"all": 30}, "damage_pct": 25, "growth_pct": 20, "stability": 5},
 			"solde": {"pop_pct": 50, "stability": -30, "days": 1800, "crisis": "solde"}}
 	},

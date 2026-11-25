@@ -45,7 +45,7 @@
 		{"id": "g_charismatiques", "voie": "genetique", "label": "Charismatiques", "cost": 2, "text": "+15 % d'influence.", "opposes": ["maladroits"], "fields": {"production_pct": {"influence": 115}}},
 		{"id": "g_adaptables", "voie": "genetique", "label": "Adaptables", "cost": 1, "text": "+10 d'habitabilité sur tous les mondes habitables.", "fields": {"hab_plus": 10}},
 		{"id": "g_dociles", "voie": "genetique", "label": "Dociles", "cost": 1, "text": "+5 de stabilité là où ils sont la majorité, mais -10 % de Savoir.", "fields": {"stability": 5, "production_pct": {"knowledge": 90}}},
-		{"id": "g_savoureux", "voie": "genetique", "label": "Savoureux", "cost": 0, "text": "Rien d'utile pour eux : qui les digère en tire 50 % de biomasse en plus. On ne choisit pas toujours ses qualités.", "fields": {"savoury": 150}},
+		{"id": "g_savoureux", "voie": "genetique", "label": "Savoureux", "cost": 0, "text": "Rien d'utile pour eux : qui les digère en tire 50 % de biomasse en plus.", "fields": {"savoury": 150}},
 		{"id": "g_cerveaux", "voie": "pousses", "label": "Cerveaux surchargés", "cost": 1, "life": -10, "text": "+20 % de Savoir ; héros et souverains vivent 10 ans de moins.", "fields": {"production_pct": {"knowledge": 120}, "life_years": -10}},
 		{"id": "g_bras", "voie": "pousses", "label": "Bras greffés", "cost": 1, "life": -10, "text": "+20 % de matériaux ; héros et souverains vivent 10 ans de moins.", "fields": {"production_pct": {"materials": 120}, "life_years": -10}},
 		{"id": "g_sourires", "voie": "pousses", "label": "Sourires sculptés", "cost": 1, "life": -10, "text": "+20 % d'influence ; héros et souverains vivent 10 ans de moins.", "fields": {"production_pct": {"influence": 120}, "life_years": -10}},

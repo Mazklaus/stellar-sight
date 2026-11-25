@@ -2,13 +2,13 @@
 	"_doc": "Politique intérieure (étude « Politique des peuples », 2026-11-12, propositions 1 à 5, 9, 14 et 19 pour le lot 1). Six courants sur une roue, une opinion par système en pour mille, que les actes de l'empire déplacent et qui revient lentement vers le penchant naturel du peuple. Tous les 1080 jours, chaque système élit des représentants ; les courants battus donnent leurs voix au voisin le plus proche sur la roue, jamais à l'opposé. Les règles du vote dépendent de la couche gouvernement (la couche ne change pas en cours de partie). Sources : Endless Space 2 (Sénat, partis, régimes), Stellaris (pas de factions pour les consciences collectives).",
 	"_sources": ["https://endless-space-2.fandom.com/wiki/Senate", "https://endless-space-2.fandom.com/wiki/Political_Parties", "https://stellaris.fandom.com/wiki/Factions", "Étude : https://claude.ai/artifact/6VtLYAJxuDdoeXi5BZCoDf"],
 	"currents": [
-		{"id": "forge", "label": "la Forge", "short": "Forge", "color": "#e0884a", "text": "Production, chantiers, matériaux. On mesure un empire à ce qu'il bâtit.", "acts": "Bâtiments achevés, larcins industriels."},
+		{"id": "forge", "label": "la Forge", "short": "Forge", "color": "#e0884a", "text": "Production, chantiers, matériaux. Ingénieurs, contremaîtres et maîtres de forge y jugent un empire à ce qu'il bâtit.", "acts": "Bâtiments achevés, larcins industriels."},
 		{
 			"id": "academie",
 			"label": "l'Académie",
 			"short": "Académie",
 			"color": "#4fc3f7",
-			"text": "Savoir, découvertes, méthode. Tout se discute, de préférence avec des schémas.",
+			"text": "Savoir, découvertes, méthode. Le courant des universités, qui veut que toute décision passe d'abord par l'étude.",
 			"acts": "Technologies, curiosités sondées, fouilles."
 		},
 		{
@@ -16,7 +16,7 @@
 			"label": "la Concorde",
 			"short": "Concorde",
 			"color": "#a98be0",
-			"text": "Paix, traités, commerce. Les canons coûtent cher et les morts ne votent pas.",
+			"text": "Paix, traités, commerce. Négociants et diplomates y tiennent la guerre pour une dépense, et chaque mort pour une perte sèche.",
 			"acts": "Traités signés, années de paix, vaisseaux perdus (la lassitude)."
 		},
 		{
@@ -24,7 +24,7 @@
 			"label": "la Sève",
 			"short": "Sève",
 			"color": "#7cc46a",
-			"text": "Le vivant, la croissance, les mondes à faire fleurir. Plus de berceaux, moins de forges.",
+			"text": "Le vivant, la croissance, les mondes à faire fleurir. On y préfère les berceaux aux forges.",
 			"acts": "Colonies fondées, population qui grandit."
 		},
 		{
@@ -32,7 +32,7 @@
 			"label": "l'Autel",
 			"short": "Autel",
 			"color": "#e6c45a",
-			"text": "Foi, reliques, destin. Les étoiles sont un texte sacré, et il faut quelqu'un pour le lire.",
+			"text": "Foi, reliques, destin. Pour le clergé et les pèlerins qui le composent, les étoiles forment un texte sacré, et il faut quelqu'un pour le lire.",
 			"acts": "Reliques, quêtes, Triomphes, offrandes, cathédrales."
 		},
 		{
@@ -40,7 +40,7 @@
 			"label": "le Glaive",
 			"short": "Glaive",
 			"color": "#d9534f",
-			"text": "Guerre, conquête, gloire. La paix n'est qu'un entracte un peu long.",
+			"text": "Guerre, conquête, gloire. Officiers et vétérans n'y voient dans la paix qu'un intervalle entre deux campagnes.",
 			"acts": "Guerres déclarées, batailles gagnées, conquêtes, systèmes attaqués."
 		}
 	],
@@ -173,56 +173,56 @@
 	"laws_doc": "Lot 2 (lois, propositions 6 à 8, 10 et 11). Chaque courant a une loi de pouvoir (gratuite, imposée tant qu'il est en tête du gouvernement) et 4 lois de niveau 1 à 4, adoptables tant qu'il est au pouvoir et que son niveau (expérience : 1 par mandat, 4 au plus, gardé dans l'opposition) le permet. Les lois tombent quand leur courant perd le pouvoir. Effets au format des technologies (Research.effects), plus : stability (toutes vos planètes, ligne « Lois » de l'Ordre intérieur), building_days_pct (durée des chantiers de bâtiments), no_war_weariness (pas de lassitude de guerre), per_treaty (revenu par traité en vigueur), triumph_cooldown_pct (délai entre deux Triomphes), stability_pop_div (stabilité -1 par tranche de N habitants du système). Adopter coûte adopt_cost × niveau en influence ; entretien mensuel = niveau × (1 + population de l'empire / upkeep_pop_div). Les lois indépendantes sont gratuites mais ont toujours un défaut ; la ruche n'a qu'elles (Instincts).",
 	"laws": {
 		"forge": {
-			"power": {"id": "plein_emploi", "label": "Plein emploi", "level": 0, "fx": {"production_pct": {"materials": 15}}, "text": "Chaque bras a son marteau. Matériaux +15 %."},
+			"power": {"id": "plein_emploi", "label": "Plein emploi", "level": 0, "fx": {"production_pct": {"materials": 15}}, "text": "L'État garantit un emploi à chaque ouvrier des forges. Matériaux +15 %."},
 			"laws": [
-				{"id": "cadences", "label": "Cadences", "level": 1, "fx": {"building_days_pct": -25, "stability": -10}, "text": "Les chantiers vont un quart plus vite. Les ouvriers, eux, ralentissent sur les sourires."},
+				{"id": "cadences", "label": "Cadences", "level": 1, "fx": {"building_days_pct": -25, "stability": -10}, "text": "Des cadences fixées par décret dans tous les chantiers, qui vont un quart plus vite. Les syndicats ouvriers ont protesté."},
 				{"id": "normes_serie", "label": "Normes de série", "level": 2, "fx": {"ship_cost_pct": -15}, "text": "Un seul calibre de boulon pour toute la flotte. Les vaisseaux coûtent 15 % de moins."},
-				{"id": "grands_chantiers", "label": "Grands chantiers", "level": 3, "fx": {"building_cost_pct": -20}, "text": "L'État avance l'argent, les entrepreneurs avancent les délais. Bâtiments -20 %."},
-				{"id": "concessions", "label": "Concessions minières", "level": 4, "fx": {"production_pct": {"materials": 25, "energy": 15}}, "text": "Chaque astéroïde a son propriétaire, et chaque propriétaire ses quotas."}
+				{"id": "grands_chantiers", "label": "Grands chantiers", "level": 3, "fx": {"building_cost_pct": -20}, "text": "L'État finance d'avance les grands travaux et en choisit les entrepreneurs. Bâtiments -20 %."},
+				{"id": "concessions", "label": "Concessions minières", "level": 4, "fx": {"production_pct": {"materials": 25, "energy": 15}}, "text": "Les ceintures d'astéroïdes sont découpées en concessions, attribuées contre des quotas de production."}
 			]
 		},
 		"academie": {
 			"power": {"id": "recherche_ouverte", "label": "Recherche ouverte", "level": 0, "fx": {"production_pct": {"knowledge": 20}}, "text": "Les publications sont libres, les brevets aussi. Savoir +20 %."},
 			"laws": [
-				{"id": "bourses", "label": "Bourses d'études", "level": 1, "fx": {"production_pct": {"knowledge": 15}}, "text": "Un étudiant nourri est un étudiant qui pense. Savoir +15 %."},
-				{"id": "societes_savantes", "label": "Sociétés savantes", "level": 2, "fx": {"curio_detect": 2, "curio_power": 3}, "text": "Des amateurs éclairés qui partent sonder l'inconnu à leurs frais, ou presque."},
+				{"id": "bourses", "label": "Bourses d'études", "level": 1, "fx": {"production_pct": {"knowledge": 15}}, "text": "L'État paie le logement et la pension des étudiants. Savoir +15 %."},
+				{"id": "societes_savantes", "label": "Sociétés savantes", "level": 2, "fx": {"curio_detect": 2, "curio_power": 3}, "text": "Des sociétés d'amateurs éclairés, subventionnées pour monter leurs propres expéditions d'exploration."},
 				{"id": "universites", "label": "Universités", "level": 3, "fx": {"building_slots": 1}, "text": "Un campus dans chaque monde : un emplacement de bâtiment en plus par colonie."},
 				{"id": "age_or", "label": "Âge d'or", "level": 4, "fx": {"production_pct": {"knowledge": 30, "influence": 10}}, "text": "On vient de loin pour écouter vos savants. Savoir +30 %, influence +10 %."}
 			]
 		},
 		"concorde": {
-			"power": {"id": "dividende_paix", "label": "Dividende de la paix", "level": 0, "fx": {"per_treaty": {"energy": 3}}, "text": "Chaque traité en vigueur rapporte 3 énergie par mois : la paix, ça se compte."},
+			"power": {"id": "dividende_paix", "label": "Dividende de la paix", "level": 0, "fx": {"per_treaty": {"energy": 3}}, "text": "Chaque traité en vigueur rapporte 3 énergie par mois, versée par les compagnies qui en profitent."},
 			"laws": [
-				{"id": "diplomatie_couloir", "label": "Diplomatie de couloir", "level": 1, "fx": {"opinion_all": 10}, "text": "Les petits fours font plus que les canons. Opinion de tous les empires +10."},
-				{"id": "ports_francs", "label": "Ports francs", "level": 2, "fx": {"trade_income_pct": 50}, "text": "Pas de douane, pas de questions. Routes commerciales +50 %."},
+				{"id": "diplomatie_couloir", "label": "Diplomatie de couloir", "level": 1, "fx": {"opinion_all": 10}, "text": "Réceptions, salons et attachés d'ambassade qui y passent leurs soirées. Opinion de tous les empires +10."},
+				{"id": "ports_francs", "label": "Ports francs", "level": 2, "fx": {"trade_income_pct": 50}, "text": "Les ports sont déclarés francs, sans douane ni inspection. Routes commerciales +50 %."},
 				{"id": "desarmement", "label": "Désarmement", "level": 3, "fx": {"upkeep_pct": -25}, "text": "On garde les vaisseaux, on renvoie les équipages chez eux. Entretien des flottes -25 %."},
-				{"id": "pax", "label": "Pax stellaris", "level": 4, "fx": {"stability": 6, "growth_pct": 20}, "text": "Les mères ne craignent plus pour leurs fils. Stabilité +6, croissance +20 %."}
+				{"id": "pax", "label": "Pax stellaris", "level": 4, "fx": {"stability": 6, "growth_pct": 20}, "text": "La paix est inscrite dans la loi fondamentale, et la conscription abolie. Stabilité +6, croissance +20 %."}
 			]
 		},
 		"seve": {
-			"power": {"id": "colons_adaptes", "label": "Colons adaptés", "level": 0, "fx": {"hab_bonus": {"all": 10}}, "text": "On s'habitue à tout, surtout aux mondes hostiles. Habitabilité +10."},
+			"power": {"id": "colons_adaptes", "label": "Colons adaptés", "level": 0, "fx": {"hab_bonus": {"all": 10}}, "text": "Les colons partent formés et équipés pour les mondes hostiles. Habitabilité +10."},
 			"laws": [
 				{"id": "natalite", "label": "Politique nataliste", "level": 1, "fx": {"growth_pct": 25}, "text": "Une prime au berceau. Croissance +25 %."},
 				{"id": "pionniers", "label": "Pionniers", "level": 2, "fx": {"colony_start_pop": 1}, "text": "Les nouvelles colonies partent avec une famille de plus."},
 				{"id": "agronomie", "label": "Agronomie", "level": 3, "fx": {"production_pct": {"food": 25}}, "text": "Des serres sur chaque toit. Nourriture +25 %."},
-				{"id": "mondes_jardins", "label": "Mondes-jardins", "level": 4, "fx": {"stability": 5, "growth_pct": 25}, "text": "Les villes respirent, les gens aussi. Stabilité +5, croissance +25 %."}
+				{"id": "mondes_jardins", "label": "Mondes-jardins", "level": 4, "fx": {"stability": 5, "growth_pct": 25}, "text": "Les villes sont replantées, quartier par quartier. Stabilité +5, croissance +25 %."}
 			]
 		},
 		"autel": {
 			"power": {"id": "processions", "label": "Processions", "level": 0, "fx": {"triumph_cooldown_pct": -50}, "text": "Les reliques sortent deux fois plus souvent : un Triomphe tous les 5 ans au lieu de 10."},
 			"laws": [
 				{"id": "dime", "label": "Dîme", "level": 1, "fx": {"production_pct": {"influence": 15}}, "text": "Le dixième de tout, pour le ciel et pour ses intendants. Influence +15 %."},
-				{"id": "pelerinages", "label": "Pèlerinages", "level": 2, "fx": {"stability": 5}, "text": "Les routes sont pleines de fidèles, et les auberges de bonne humeur. Stabilité +5."},
+				{"id": "pelerinages", "label": "Pèlerinages", "level": 2, "fx": {"stability": 5}, "text": "Les routes de pèlerinage sont entretenues et gardées aux frais de l'État. Stabilité +5."},
 				{"id": "ordres_missionnaires", "label": "Ordres missionnaires", "level": 3, "fx": {"opinion_all": 5, "curio_power": 3, "faith_pressure_pct": 25}, "text": "Des moines partent porter la parole, et ramènent des cartes. Avec les religions : la foi d'État prêche 25 % plus fort."},
-				{"id": "sanctuaires", "label": "Mondes sanctuaires", "level": 4, "fx": {"stability": 8, "faith_resist_pct": 25}, "text": "Chaque monde a son temple, chaque temple son miracle mensuel. Stabilité +8. Avec les religions : les fidèles de la foi d'État résistent 25 % mieux aux autres prêches."}
+				{"id": "sanctuaires", "label": "Mondes sanctuaires", "level": 4, "fx": {"stability": 8, "faith_resist_pct": 25}, "text": "Chaque monde a son temple et son clergé résident. Stabilité +8. Avec les religions : les fidèles de la foi d'État résistent 25 % mieux aux autres prêches."}
 			]
 		},
 		"glaive": {
 			"power": {"id": "mobilisation", "label": "Mobilisation", "level": 0, "fx": {"no_war_weariness": 1}, "text": "La guerre ne lasse plus personne : pas de lassitude de guerre."},
 			"laws": [
-				{"id": "conscription", "label": "Conscription", "level": 1, "fx": {"troops_pct": 25, "recruits_pct": 25}, "text": "Tout citoyen est un soldat qui s'ignore. Troupes +25 % (combat au sol complet : +25 % de recrues)."},
+				{"id": "conscription", "label": "Conscription", "level": 1, "fx": {"troops_pct": 25, "recruits_pct": 25}, "text": "Chaque citoyen doit deux ans de service. Troupes +25 % (combat au sol complet : +25 % de recrues)."},
 				{"id": "arsenaux", "label": "Arsenaux d'État", "level": 2, "fx": {"ship_days_pct": -20}, "text": "Les chantiers navals tournent jour et nuit. Vaisseaux construits 20 % plus vite."},
-				{"id": "doctrine_offensive", "label": "Doctrine offensive", "level": 3, "fx": {"damage_pct": 10}, "text": "La meilleure défense, etc. Dégâts +10 %."},
+				{"id": "doctrine_offensive", "label": "Doctrine offensive", "level": 3, "fx": {"damage_pct": 10}, "text": "L'état-major enseigne l'attaque comme seule doctrine. Dégâts +10 %."},
 				{
 					"id": "guerre_totale",
 					"label": "Guerre totale",
@@ -239,7 +239,7 @@
 			"label": "Impôt exceptionnel",
 			"level": 0,
 			"fx": {"production_pct": {"energy": 25}, "stability": -15},
-			"text": "Énergie +25 %. Les contribuables, eux, perdent 15 de stabilité et leur sens de l'humour."
+			"text": "Énergie +25 %. Les contribuables, eux, perdent 15 de stabilité."
 		},
 		{"id": "examens_forces", "label": "Examens forcés", "level": 0, "fx": {"production_pct": {"knowledge": 20}, "stability_pop_div": 5}, "text": "Savoir +20 %, mais -1 stabilité par tranche de 5 habitants du système."},
 		{"id": "pain_jeux", "label": "Pain et jeux", "level": 0, "fx": {"stability": 15, "production_pct": {"all": -10}}, "text": "Stabilité +15. Pendant les jeux, personne ne travaille : production -10 %."},
@@ -255,12 +255,12 @@
 			"label": "Couvre-feu",
 			"level": 0,
 			"fx": {"stability": 10, "production_pct": {"influence": -25, "knowledge": -15}},
-			"text": "Stabilité +10. On dort mieux, on pense moins : influence -25 %, Savoir -15 %."
+			"text": "Stabilité +10. Les rues se vident à la nuit tombée, les cercles et les salles de cours aussi : influence -25 %, Savoir -15 %."
 		},
 		{"id": "libre_echange", "label": "Libre-échange", "level": 0, "fx": {"trade_income_pct": 100, "production_pct": {"materials": -15}}, "text": "Routes commerciales +100 %. Les forges locales ferment : matériaux -15 %.", "excludes": ["protectionnisme"]}, {"id": "protectionnisme", "label": "Protectionnisme", "level": 0, "fx": {"tariff_double": 1, "production_pct": {"materials": 10}}, "excludes": ["libre_echange"], "text": "Tarifs et douanes doublés sur toutes vos routes. Les forges locales, elles, respirent : matériaux +10 %."}, {"id": "compagnies_charte", "label": "Compagnies à charte", "level": 0, "fx": {"trade_routes": 1, "stability": -3}, "text": "Une route commerciale de plus. Dans les ports, les compagnies font la loi : stabilité -3."},
 		{"id": "exception_culturelle", "label": "Exception culturelle", "level": 0, "culture": true, "fx": {"culture_heritage_pct": 25, "culture_foreign_pct": -25, "trade_income_pct": -10}, "excludes": ["ouverture_culturelle"], "text": "Rayonnement culturel : Patrimoine +25 %, cultures étrangères -25 % chez vous. Quotas, doublages obligatoires et douanes tatillonnes : routes commerciales -10 %."},
 		{"id": "ouverture_culturelle", "label": "Ouverture culturelle", "level": 0, "culture": true, "fx": {"culture_heritage_pct": -15, "culture_foreign_pct": 25, "trade_income_pct": 10}, "excludes": ["exception_culturelle"], "text": "Rayonnement culturel : les cultures étrangères entrent librement (+25 %), Patrimoine -15 %. Les marchands, eux, adorent : routes commerciales +10 %."},
-		{"id": "hospitalite", "label": "Hospitalité", "level": 0, "peoples": true, "fx": {"integration_pct": 50, "lean": {"concorde": 4}, "stability_native": -2}, "excludes": ["preference_native"], "text": "Les nouveaux venus s'intègrent 50 % plus vite et la Concorde applaudit. Les vôtres, eux, trouvent qu'on en fait beaucoup : -2 de stabilité là où votre peuple est majoritaire."},
+		{"id": "hospitalite", "label": "Hospitalité", "level": 0, "peoples": true, "fx": {"integration_pct": 50, "lean": {"concorde": 4}, "stability_native": -2}, "excludes": ["preference_native"], "text": "Les nouveaux venus s'intègrent 50 % plus vite et la Concorde applaudit. Votre propre peuple s'en irrite : -2 de stabilité là où il est majoritaire."},
 		{"id": "tolerance", "label": "Tolérance", "level": 0, "faiths": true, "fx": {"faith_tolerance": 1, "lean": {"concorde": 3}}, "excludes": ["inquisition"], "text": "Religions : les mondes d'une autre foi ne coûtent plus de stabilité, et la Concorde gagne du terrain. Répond à la doléance « Liberté de culte »."},
 		{"id": "inquisition", "label": "Inquisition", "level": 0, "faiths": true, "fx": {"faith_inquisition": 1, "stability": -3, "lean": {"autel": 3, "glaive": 1}}, "excludes": ["tolerance"], "text": "Religions : tous les trois mois, chaque colonie perd un fidèle d'une autre foi au profit de la foi d'État. Stabilité -3, et les empires dont la foi est persécutée vous en veulent (-10)."},
 		{"id": "preference_native", "label": "Préférence native", "level": 0, "peoples": true, "fx": {"native_pref": 5, "lean": {"glaive": 2, "autel": 2}}, "excludes": ["hospitalite"], "text": "+5 de stabilité là où votre peuple est majoritaire, -5 partout ailleurs. Le Glaive et l'Autel y voient l'ordre naturel des choses."},
@@ -268,8 +268,8 @@
 		{"id": "hegemonie", "label": "Hégémonie", "level": 0, "koinon": true, "fx": {"lean": {"glaive": 2}}, "text": "Koinon : vos propositions de centralisation exigent un rang de moins, et la centralisation ne coûte pas de cohésion dans une ligue que vous présidez. Le Glaive approuve, la Concorde grince."},
 		{"id": "doctrine_close", "label": "Doctrine des frontières closes", "level": 0, "borders": true, "fx": {"lean": {"glaive": 2}}, "excludes": ["doctrine_ouverte"], "text": "Frontières : votre politique par défaut envers chaque empire devient Close (même les éclaireurs restent dehors). Ceux qui n'ont pas reçu d'autre politique s'en offusquent. Le Glaive approuve."},
 		{"id": "fonctionnaires_elus", "label": "Fonctionnaires élus", "level": 0, "admin": true, "fx": {"admin_cor_pct": -20, "admin_cap_pct": -10, "lean": {"concorde": 2}}, "text": "Administration : les préfets passent devant les électeurs. Corruption -20 %, mais capacité administrative -10 % (les campagnes prennent du temps). La Concorde applaudit."},
-		{"id": "inspection_imperiale", "label": "Inspection impériale", "level": 0, "admin": true, "fx": {"admin_cor": -5, "stability": -2, "lean": {"glaive": 2}}, "text": "Administration : des inspecteurs à cheval (enfin, à réaction) visitent chaque bureau. Corruption -5 dans tous les systèmes, stabilité -2 (personne n'aime être inspecté). Le Glaive approuve."},
-		{"id": "laissez_faire", "label": "Laissez-faire", "level": 0, "private": true, "fx": {"lean": {"concorde": 1}}, "excludes": ["dirigisme", "economie_planifiee"], "text": "Économie privée : impôt sur les bénéfices -10 points, confiance des investisseurs +15, une compagnie de plus ; nationaliser devient interdit. Les guichets ferment à midi, les affaires jamais."},
+		{"id": "inspection_imperiale", "label": "Inspection impériale", "level": 0, "admin": true, "fx": {"admin_cor": -5, "stability": -2, "lean": {"glaive": 2}}, "text": "Administration : des inspecteurs itinérants visitent chaque bureau. Corruption -5 dans tous les systèmes, stabilité -2 (personne n'aime être inspecté). Le Glaive approuve."},
+		{"id": "laissez_faire", "label": "Laissez-faire", "level": 0, "private": true, "fx": {"lean": {"concorde": 1}}, "excludes": ["dirigisme", "economie_planifiee"], "text": "Économie privée : impôt sur les bénéfices -10 points, confiance des investisseurs +15, une compagnie de plus ; nationaliser devient interdit."},
 		{"id": "dirigisme", "label": "Dirigisme", "level": 0, "private": true, "fx": {"stability": 1, "lean": {"glaive": 1}}, "excludes": ["laissez_faire", "economie_planifiee"], "text": "Économie privée : l'État oriente sans posséder. Vos commandes d'État et subventions sont prioritaires, les compagnies se tiennent tranquilles : stabilité +1."},
 		{"id": "economie_planifiee", "label": "Économie planifiée", "level": 0, "private": true, "fx": {"production_pct": {"energy": -5}, "lean": {"glaive": 2}}, "excludes": ["laissez_faire", "dirigisme"], "text": "Économie privée : le Plan remplace le marché. 70 % de l'activité privée va directement au Trésor ; plus d'investissement, plus de compagnie nouvelle, plus de chantier privé. Les quotas rentrent, l'énergie un peu moins (-5 %)."},
 		{"id": "doctrine_ouverte", "label": "Doctrine des frontières ouvertes", "level": 0, "borders": true, "fx": {"lean": {"concorde": 2}}, "excludes": ["doctrine_close"], "text": "Frontières : votre politique par défaut envers chaque empire devient Ouverte (libre-passage accordé à tous). La Concorde applaudit ; vos amiraux grincent."},
