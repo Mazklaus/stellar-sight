@@ -73,6 +73,7 @@ func open(state: GameState, player: int, item: Dictionary) -> void:
 	_text.text = txt
 	_flavor.text = String(d.get("lore", ""))
 	_art.set_art("deed_%s" % id, Deeds.family_color(fam), "star")
+	_art.set_icon("haut_fait", id, 64.0)
 	for ch in _choices.get_children():
 		ch.queue_free()
 	choice_buttons.clear()

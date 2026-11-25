@@ -219,7 +219,11 @@ static func _my_faith_block(es: EmpireScreens) -> Control:
 		t.text = String(c["label"])
 		t.add_theme_font_size_override("font_size", 15)
 		t.add_theme_color_override("font_color", UiTheme.GOLD)
-		box.add_child(t)
+		var head := HBoxContainer.new()
+		head.add_theme_constant_override("separation", 8)
+		head.add_child(GameIcon.Medal.new("precepte", String(c["id"]), 34.0))
+		head.add_child(t)
+		box.add_child(head)
 		box.add_child(UiTheme.paragraph(String(c["text"]), PRECEPT_CARD - 20.0, 12))
 		flow.add_child(card)
 	return b
@@ -320,6 +324,7 @@ static func _choice_block(es: EmpireScreens, fid: String) -> Control:
 	for i in nats.size():
 		var nd := FaithWars.nature_def(String(nats[i]))
 		nat_opt.add_item(String(nd.get("label", nats[i])))
+		nat_opt.set_item_icon(i, GameIcon.texture("nature", String(nats[i])))
 		nat_opt.set_item_tooltip(i, String(nd.get("text", "")))
 	grid.add_child(UiTheme.dim("Nature", 13))
 	grid.add_child(nat_opt)
@@ -327,6 +332,9 @@ static func _choice_block(es: EmpireScreens, fid: String) -> Control:
 	var axis_opts := {}
 	var prec_ids: Array = []
 	var prec_opt := OptionButton.new()
+	for o: OptionButton in [nat_opt, prec_opt]:
+		o.add_theme_constant_override("icon_max_width", 22)
+		o.get_popup().add_theme_constant_override("icon_max_width", 22)
 	if fresh:
 		for a in Faiths.AXES:
 			var o := OptionButton.new()
@@ -347,6 +355,7 @@ static func _choice_block(es: EmpireScreens, fid: String) -> Control:
 			if Faiths._precept_free(state, fid, String(pid)) != "":
 				continue
 			prec_opt.add_item(String(Faiths.precept_def(pid)["label"]))
+			prec_opt.set_item_icon(prec_ids.size(), GameIcon.texture("precepte", String(pid)))
 			prec_opt.set_item_tooltip(prec_ids.size(), String(Faiths.precept_def(pid)["text"]))
 			prec_ids.append(String(pid))
 		grid.add_child(UiTheme.dim("Premier précepte", 13))

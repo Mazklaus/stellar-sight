@@ -52,6 +52,7 @@ static func _inbox(es: EmpireScreens, col: VBoxContainer) -> void:
 		b.pressed.connect(func() -> void: es.deed_requested.emit(iid))
 		es.chronicle_buttons["deed:%d" % iid] = b
 		row.add_child(b)
+		row.add_child(GameIcon.Medal.new("haut_fait", String(item["deed"]), 34.0))
 		var t := UiTheme.title(Deeds.label(String(item["deed"])), 18)
 		t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(t)
@@ -119,6 +120,8 @@ static func _deed_row(es: EmpireScreens, id: String) -> Control:
 	head.add_theme_constant_override("separation", 10)
 	row.add_child(head)
 	var shown := Deeds.revealed(state, player, id)
+	if shown:
+		head.add_child(GameIcon.Medal.new("haut_fait", id, 30.0))
 	var t := UiTheme.title(Deeds.label(id) if shown else "???", 16, Deeds.family_color(Deeds.family(id)))
 	t.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(t)

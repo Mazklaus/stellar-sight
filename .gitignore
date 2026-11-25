@@ -4,3 +4,6 @@ export_presets.cfg
 
 # Sources lourdes des vaisseaux 3D (voir docs/vaisseaux-3d.md)
 /sources/
+
+# Caches Python des outils
+__pycache__/

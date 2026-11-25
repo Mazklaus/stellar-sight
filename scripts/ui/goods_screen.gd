@@ -82,6 +82,7 @@ static func build_resources(es: EmpireScreens, col: VBoxContainer) -> void:
 		var nl := _label(Goods.label(g), 210.0, 16, Color(0.95, 0.82, 0.5))
 		nl.tooltip_text = String(d.get("text", ""))
 		nl.mouse_filter = Control.MOUSE_FILTER_STOP
+		row.add_child(GameIcon.Medal.new("ressource", String(g), 30.0))
 		row.add_child(nl)
 		row.add_child(_label(String(Goods.tier_def(int(d["tier"]))["label"]), 100.0, 13, UiTheme.TEXT_DIM))
 		row.add_child(_label(Relics.fx_text(d.get("fx", {})), 220.0, 13))
@@ -140,6 +141,7 @@ static func build_resources(es: EmpireScreens, col: VBoxContainer) -> void:
 		var nl := _label(Goods.label(s), 210.0, 16, Color(0.6, 0.85, 1.0))
 		nl.tooltip_text = String(d.get("text", ""))
 		nl.mouse_filter = Control.MOUSE_FILTER_STOP
+		row.add_child(GameIcon.Medal.new("ressource", String(s), 30.0))
 		row.add_child(nl)
 		row.add_child(_label("ère %d" % int(d["era"]), 100.0, 13, UiTheme.TEXT_DIM))
 		row.add_child(_label("stock %d" % (int(me.resources.get(s, 0)) if me else 0), 140.0, 14))

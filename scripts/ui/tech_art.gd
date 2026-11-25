@@ -2,7 +2,7 @@ class_name TechArt
 extends RefCounted
 ## Image de chaque technologie (props 112 et 113 de l'étude de l'arbre). Tant que l'illustration finale
 ## n'existe pas, elle est dessinée à partir des données : fond selon le domaine et l'ère, pictogramme
-## selon ce qu'elle débloque, étoiles semées d'après une graine tirée de l'identifiant (deux technologies
+## de la technologie (GameIcon, sinon celui de ce qu'elle débloque), étoiles semées d'après une graine tirée de l'identifiant (deux technologies
 ## ne se ressemblent pas), liseré du peuple pour les siennes. Un fichier res://assets/tech/<id>.png la
 ## remplace dès qu'il existe, sans toucher au code (comme les silhouettes de coques).
 ## Les dessins passent par un CanvasItem (draw_*), à n'importe quelle taille : médaillon de l'arbre,
@@ -94,7 +94,10 @@ static func _draw_art(ci: CanvasItem, c: Vector2, r: float, tid: String, faction
 		var d := sqrt(rng.randf()) * r * 0.9
 		ci.draw_circle(c + Vector2(cos(ang), sin(ang)) * d, maxf(0.6, r * rng.randf_range(0.015, 0.035)), Color(1, 1, 1, rng.randf_range(0.25, 0.7) * a))
 	var rot := rng.randf_range(-0.3, 0.3)
-	_draw_picto(ci, c, r * 0.5, picto_kind(faction, tid), col.lightened(0.45), rot, a)
+	# Pictogramme propre à la technologie (planche GameIcon) ; à défaut, celui de sa sorte de déblocage.
+	var g := r * 1.24
+	if not GameIcon.draw_glyph(ci, Rect2(c - Vector2(g, g) * 0.5, Vector2(g, g)), "tech", tid, Color(1, 1, 1, 0.96 * a)):
+		_draw_picto(ci, c, r * 0.5, picto_kind(faction, tid), col.lightened(0.45), rot, a)
 
 
 static func _draw_picto(ci: CanvasItem, c: Vector2, s: float, kind: String, col: Color, rot: float, a: float) -> void:

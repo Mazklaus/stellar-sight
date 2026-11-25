@@ -318,6 +318,8 @@ class ArtSlot:
 	var tech_id := ""
 	var _tex: TextureRect
 	var _caption: Label
+	## Icône encadrée de l'entrée (GameIcon), posée dans le coin bas gauche ; voir set_icon.
+	var _medal: GameIcon.Medal
 	## Portrait dessiné animé (essai « portraits animés ») : horloge propre et cadence de redessin.
 	var _anim_t := 0.0
 	var _anim_acc := 0.0
@@ -357,6 +359,21 @@ class ArtSlot:
 
 	func has_art() -> bool:
 		return _tex.texture != null
+
+	## Pose dans le coin bas gauche l'icône encadrée d'une entrée du jeu (haut fait, relique…) ;
+	## id vide l'enlève. side : côté de l'icône, par défaut la moitié de la hauteur de l'emplacement.
+	func set_icon(family: String, id: String, side := 0.0) -> void:
+		if _medal == null:
+			_medal = GameIcon.Medal.new()
+			add_child(_medal)
+		var s := side if side > 0.0 else clampf(custom_minimum_size.y * 0.5, 22.0, 72.0)
+		_medal.custom_minimum_size = Vector2(s, s)
+		_medal.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+		_medal.offset_left = 4.0
+		_medal.offset_right = 4.0 + s
+		_medal.offset_top = -4.0 - s
+		_medal.offset_bottom = -4.0
+		_medal.set_entry(family, id)
 
 	## Personnalise un portrait de la galerie des héros : info = {"seed", "cls", "lvl", "age", "wound",
 	## "prisoner", "heir", "faction": Color}. Le portrait de galerie donne la silhouette ; le héros y met
