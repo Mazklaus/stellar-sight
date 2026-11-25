@@ -105,7 +105,7 @@
 		{
 			"id": "wonder_done",
 			"title": "{wonder}",
-			"text": "{wonder_text}\n\n« {wonder_quote} »\n\n{wonder_effect}",
+			"text": "{wonder_text}\n\n{wonder_lore}\n\n{wonder_effect}",
 			"trigger": "wonder",
 			"art": "wonder",
 			"choices": [
@@ -119,7 +119,7 @@
 		{
 			"id": "wonder_lost",
 			"title": "{wonder} : la course est perdue",
-			"text": "{rival} a achevé {wonder} avant nous. Nos ouvriers rangent les échafaudages en maugréant ; une partie des fonds est récupérée.\n\n{wonder_refund}",
+			"text": "{rival} a achevé {wonder} avant nous. Le chantier est abandonné et une partie des fonds est récupérée.\n\n{wonder_refund}",
 			"trigger": "wonder",
 			"art": "wonder",
 			"choices": [
@@ -154,7 +154,7 @@
 			"site": {
 				"building": "comptoir"
 			},
-			"quote": "Tout se vend, même la confiance. Surtout la confiance."
+			"lore": "Une salle des marchés bâtie au-dessus d'un comptoir, où les courtiers de tous les empires traitent à la même corbeille. Les cours s'affichent sur une paroi haute de six étages. Une halle voisine revend les coques réformées des flottes."
 		},
 		"bourse_mille_soleils": {
 			"requires_tech": [
@@ -179,7 +179,7 @@
 			"site": {
 				"capital": true
 			},
-			"quote": "Ici, on cote les étoiles à la seconde."
+			"lore": "Un palais de change installé dans la capitale et relié à chaque place marchande de l'empire. Ses commis cotent heure par heure le rendement des étoiles exploitées. Les grandes maisons y tiennent un bureau à l'année."
 		},
 		"assemblee": {
 			"requires_tech": [
@@ -206,13 +206,13 @@
 			"site": {
 				"capital": true
 			},
-			"quote": "Mille voix, une salle, et pas une seule horloge à l'heure."
+			"lore": "Un hémicycle de neuf cents sièges, où chaque empire connu envoie une délégation. Les séances se tiennent dans la langue de l'hôte et sont traduites dans les loges. Les ambassadeurs logent dans un quartier fermé autour de la salle."
 		},
 		"bibliotheque_mondes": {
 			"requires_tech": [
 				"arts_holographiques"
 			],
-			"label": "Bibliothèque des Mille Mondes",
+			"label": "Bibliothèque des Mille Mondes", "lore": "Des galeries creusées sous une ville et tenues à température constante, où l'on dépose un exemplaire de tout ce qui s'imprime dans l'empire. Les copistes y reproduisent aussi les ouvrages étrangers achetés aux marchands. Le catalogue occupe un étage à lui seul.",
 			"culture": true,
 			"culture_wonder": 4,
 			"era": 2,
@@ -239,7 +239,7 @@
 			"requires_tech": [
 				"chancelleries"
 			],
-			"label": "Grand Opéra orbital",
+			"label": "Grand Opéra orbital", "lore": "Une salle de quatre mille places en orbite basse, dont le fond de scène est une verrière ouverte sur la planète. Les troupes y montent pour une saison entière. Les soirs de première sont retransmis dans toutes les colonies.",
 			"culture": true,
 			"culture_wonder": 4,
 			"era": 2,
@@ -266,7 +266,7 @@
 			"requires_tech": [
 				"habitats"
 			],
-			"label": "Jardins suspendus d'Hélion",
+			"label": "Jardins suspendus d'Hélion", "lore": "Des terrasses plantées, étagées sur le flanc d'un massif et arrosées par un réseau de canaux. Les jardiniers y acclimatent des espèces rapportées de chaque monde colonisé. Les vergers du bas nourrissent la ville.",
 			"culture": true,
 			"culture_wonder": 5,
 			"era": 3,
@@ -299,7 +299,7 @@
 			"requires_tech": [
 				"propagande"
 			],
-			"label": "Colisée des Étoiles",
+			"label": "Colisée des Étoiles", "lore": "Une arène à ciel ouvert de deux cent mille places, où se tiennent tous les quatre ans les jeux de l'empire. Chaque colonie y envoie ses équipes. Le reste du temps, elle accueille les courses et les foires.",
 			"culture": true,
 			"culture_wonder": 5,
 			"era": 3,
@@ -324,7 +324,7 @@
 			"requires_tech": [
 				"propagande"
 			],
-			"label": "Holothéâtre éternel",
+			"label": "Holothéâtre éternel", "lore": "Un théâtre sans troupe, bâti à un carrefour de routes, qui rejoue en volume les pièces enregistrées depuis sa fondation. Le répertoire tourne jour et nuit dans douze salles. Les équipages en escale forment l'essentiel du public.",
 			"culture": true,
 			"culture_wonder": 5,
 			"era": 3,
@@ -351,7 +351,7 @@
 			"requires_tech": [
 				"ambassades"
 			],
-			"label": "Archive du Premier Chant",
+			"label": "Archive du Premier Chant", "lore": "Une chambre forte sous la capitale, qui conserve les plus anciens enregistrements de la voix du peuple fondateur. Le premier est antérieur à l'écriture. Les conservateurs en tirent une copie neuve tous les cinquante ans.",
 			"culture": true,
 			"culture_wonder": 6,
 			"era": 4,
@@ -378,7 +378,7 @@
 			"requires_tech": [
 				"reseau_mondes"
 			],
-			"label": "Phare des Civilisations",
+			"label": "Phare des Civilisations", "lore": "Un émetteur dressé à la frontière, qui diffuse vers l'extérieur les sciences et les lettres de l'empire. Son signal porte à plusieurs dizaines de sauts. Des savants étrangers viennent étudier à son pied, logés par l'État.",
 			"culture": true,
 			"culture_wonder": 6,
 			"era": 4,
@@ -428,7 +428,7 @@
 			"site": {
 				"capital": true
 			},
-			"quote": "Tous les dieux ont leur autel ; certains se plaignent de la vue."
+			"lore": "Un temple circulaire où chaque culte connu dispose d'une chapelle de même taille, attribuée par tirage au sort. Les desservants sont payés par l'empire hôte. Les délégations étrangères s'y rendent avant toute audience."
 		},
 		"arche_semenciere": {
 			"label": "Arche-Semencière",
@@ -456,7 +456,7 @@
 				"colony_start_pop": 1
 			},
 			"text": "Les vaisseaux colons coûtent 30 % de moins et les nouvelles colonies naissent avec un habitant de plus.",
-			"quote": "Dans ses soutes, mille mondes attendent qu'on leur dise où pousser."
+			"lore": "Un vaisseau-entrepôt amarré au-dessus de la capitale, qui garde en chambre froide les semences et les embryons de bétail de l'empire. Chaque convoi de colons y prend son chargement avant le départ. Une équipe part en avant et ensemence les premiers champs."
 		},
 		"cartotheque_vents": {
 			"label": "Cartothèque des Vents stellaires",
@@ -486,7 +486,7 @@
 			},
 			"special": "reveal",
 			"text": "À l'achèvement, révèle tous les systèmes à 6 sauts ou moins ; ensuite, les curiosités se repèrent mieux (+2 détection).",
-			"quote": "Les cartographes jurent que les vents stellaires soufflent. Personne n'ose les contredire."
+			"lore": "Une station posée près d'une géante bleue, dont le vent stellaire sert de sonde aux cartographes. Ils lisent dans ses remous la position des masses voisines, jusqu'à six sauts. Les cartes dressées là font foi dans toutes les capitaineries."
 		},
 		"phare_premiere_route": {
 			"label": "Phare de la Première Route",
@@ -514,7 +514,7 @@
 				"route_pct": 15
 			},
 			"text": "+1 route commerciale ; vos routes rapportent 15 % de plus.",
-			"quote": "On l'allume pour les marchands ; les pirates en profitent aussi."
+			"lore": "Une balise allumée au-dessus du premier comptoir de l'empire, à l'entrée de sa plus ancienne voie marchande. Les pilotes s'y recalent avant de s'engager. Un bureau des douanes y tient le registre de tous les convois depuis l'ouverture."
 		},
 		"grand_caravanserail": {
 			"label": "Grand Caravansérail",
@@ -539,7 +539,7 @@
 			},
 			"special": "toll",
 			"text": "Chaque route commerciale étrangère qui traverse le système vous paie un péage : +1 influence par mois et par route.",
-			"quote": "Tout le monde s'arrête ici. Personne ne repart avec ce qu'il avait en arrivant."
+			"lore": "Une escale fortifiée à la croisée de quatre voies, avec ses quais, ses entrepôts sous scellés et ses auberges. Les convois étrangers y paient un droit de relâche. La garde y fait la police pour le compte de tous les pavillons."
 		},
 		"observatoire_horizon": {
 			"label": "Observatoire de l'Horizon",
@@ -569,7 +569,7 @@
 			},
 			"special": "eureka",
 			"text": "À chaque ère franchie, une technologie de cette ère reçoit son eurêka (coût réduit) ; votre vision s'étend d'un saut.",
-			"quote": "On y regarde le bord du monde. Le bord du monde regarde en retour."
+			"lore": "Un anneau d'instruments placé au plus près d'un trou noir, là où la lumière des étoiles lointaines arrive courbée et grossie. Les astronomes y voient un saut plus loin que partout ailleurs. Leurs relevés épargnent aux laboratoires des années d'essais."
 		},
 		"toile_silence": {
 			"label": "Toile du Silence",
@@ -601,7 +601,7 @@
 			},
 			"special": "sees_all",
 			"text": "+1 réseau d'espionnage ; vous voyez tous les chantiers de merveille de la galaxie et leur avancement.",
-			"quote": "Dans la nébuleuse, même les secrets ont de l'écho."
+			"lore": "Des milliers de capteurs semés dans une nébuleuse, qui relèvent les signaux que le gaz renvoie de très loin. Les services de l'empire y suivent les grands chantiers étrangers. Le personnel de la station centrale n'a pas le droit de correspondre."
 		},
 		"champ_mars": {
 			"label": "Champ de Mars orbital",
@@ -629,7 +629,7 @@
 				"ground_damage_pct": 10
 			},
 			"text": "Les régiments se recrutent 30 % plus vite et frappent 10 % plus fort.",
-			"quote": "On y défile en apesanteur. Le pas cadencé y est un art de haute précision."
+			"lore": "Un terrain de manœuvre en orbite, long de trente kilomètres, où les régiments s'exercent au débarquement en vraie grandeur. Les recrues y passent trois mois avant leur affectation. La revue annuelle s'y tient devant le souverain."
 		},
 		"forge_etoile": {
 			"label": "Forge-Étoile",
@@ -659,7 +659,7 @@
 				"ship_days_pct": -15
 			},
 			"text": "Les vaisseaux coûtent 10 % de moins et sortent 15 % plus vite des chantiers.",
-			"quote": "Elle boit la lumière d'une géante et recrache des coques."
+			"lore": "Une fonderie en orbite serrée autour d'une géante bleue, qui tire sa chaleur de l'étoile par des miroirs. Elle coule les membrures de coque d'une seule pièce. Les chantiers de l'empire reçoivent leurs sections prêtes à assembler."
 		},
 		"entrepot_confins": {
 			"label": "Entrepôt des Confins",
@@ -686,7 +686,7 @@
 				"supply_range": 2
 			},
 			"text": "Portée de ravitaillement +2 sauts dans tout l'empire.",
-			"quote": "Aux confins, un entrepôt vaut une flotte. Deux entrepôts valent une guerre."
+			"lore": "Un dépôt général bâti à la frontière, assez grand pour ravitailler plusieurs flottes pendant une campagne. Ses convois desservent les postes avancés deux sauts plus loin que les autres. L'intendance y forme ses officiers."
 		},
 		"brise_tempetes": {
 			"label": "Brise-Tempêtes",
@@ -714,7 +714,7 @@
 			},
 			"special": "calm",
 			"text": "Plus aucune tempête à 5 sauts ou moins ; vos flottes traversent les terrains difficiles moitié plus vite.",
-			"quote": "Les tempêtes contournent la tour. On ne sait pas si c'est la physique ou la politesse."
+			"lore": "Une tour de générateurs qui dissipe la charge des tempêtes avant qu'elles ne se forment. Son effet porte à cinq sauts. Les pilotes de l'empire viennent y apprendre à lire les courants des zones difficiles."
 		},
 		"arche_exiles": {
 			"label": "Arche des Exilés",
@@ -747,7 +747,7 @@
 			},
 			"special": "refuge",
 			"text": "Les réfugiés et migrants choisissent vos mondes en premier ; +1 stabilité dans tout l'empire.",
-			"quote": "Ici, personne n'est étranger plus de trois jours."
+			"lore": "Une cité d'accueil ouverte à tous les réfugiés, avec ses dortoirs, ses écoles de langue et son bureau de placement. Un arrivant y reçoit des papiers en trois jours. Les convois de migrants s'y dirigent d'abord."
 		},
 		"rade_franche": {
 			"label": "Rade franche",
@@ -774,7 +774,7 @@
 			},
 			"special": "pirate_peace",
 			"text": "Les pirates épargnent vos flottes et vos routes, et vous versent un tribut de 10 énergie par repaire chaque mois.",
-			"quote": "Entre deux abordages, même un pirate a besoin d'un bon mouillage.",
+			"lore": "Un mouillage abrité dans une ceinture d'astéroïdes, où tout équipage peut relâcher sans montrer ses papiers. Les capitaines pirates y vendent leurs prises et y paient une taxe par repaire. Ils laissent en échange passer les convois de l'empire.",
 			"fx": {
 				"pirate_peace": 1
 			}
@@ -803,7 +803,7 @@
 			},
 			"special": "tribunal",
 			"text": "+2 voix à l'Amphictyonie ; une fois par décennie, vous pouvez retarder d'un an la prochaine séance.",
-			"quote": "La justice est aveugle. Ici, elle est aussi très patiente.",
+			"lore": "Une cour de quinze juges, installée dans la capitale, à laquelle l'Amphictyonie renvoie ses litiges. Ses arrêts sont publiés dans toutes les langues des membres. Elle peut suspendre une séance le temps d'instruire une affaire.",
 			"fx": {
 				"amph_voix_pct": 20,
 				"tribunal": 1
@@ -836,7 +836,7 @@
 			},
 			"special": "tamer",
 			"text": "Les créatures spatiales n'attaquent plus vos flottes ni vos colonies ; vos amiraux connaissent leurs points faibles (+10 % de dégâts).",
-			"quote": "Les gardiens appellent ça une prison. Les créatures appellent ça le buffet."
+			"lore": "Un parc clos par des champs, à côté d'un nid, où les naturalistes gardent un spécimen de chaque espèce du vide. Ils y ont appris les signaux qui écartent les troupeaux. Les amiraux viennent y étudier les bêtes avant une campagne."
 		},
 		"academie_amiraute": {
 			"label": "Académie de l'Amirauté",
@@ -865,7 +865,7 @@
 			},
 			"special": "veterans",
 			"text": "+1 place de héros ; les héros recrutés commencent avec un niveau de plus.",
-			"quote": "On y apprend à perdre des batailles. Pour gagner les guerres."
+			"lore": "Une école de guerre attachée à un arsenal, où les officiers passent quatre ans entre les salles de cours et les bâtiments à l'essai. Ils y rejouent sur table les défaites de l'empire. Les mieux classés en sortent avec un commandement."
 		},
 		"palais_doleances": {
 			"label": "Palais des Doléances",
@@ -894,7 +894,7 @@
 			},
 			"special": "grievances",
 			"text": "Les systèmes non représentés au pouvoir perdent moitié moins de stabilité ; +1 stabilité.",
-			"quote": "Chaque plainte y est entendue, classée et archivée. Parfois même lue."
+			"lore": "Un palais de la capitale où chaque système envoie un délégué chargé de porter ses plaintes. Toute requête reçoit une réponse écrite dans l'année. Les provinces sans siège au gouvernement y trouvent leur seul recours."
 		},
 		"moteur_babel": {
 			"label": "Moteur de Babel",
@@ -922,7 +922,7 @@
 				"opinion_all": 10
 			},
 			"text": "Les peuples mineurs s'intègrent deux fois plus vite ; +10 d'opinion chez tous les empires rencontrés.",
-			"quote": "Il traduit tout. Les insultes aussi, hélas."
+			"lore": "Une machine à traduire, grande comme un quartier, qui apprend une langue nouvelle en quelques semaines d'écoute. Elle sert d'interprète dans les écoles, les tribunaux et les ambassades. Les peuples récemment rattachés y envoient leurs maîtres d'école."
 		},
 		"rempart_aube": {
 			"label": "Rempart de l'Aube",
@@ -947,7 +947,7 @@
 			},
 			"special": "bulwark",
 			"text": "Pendant une crise de fin de partie : une flotte de défense se lève à l'achèvement ou au début de la crise, et la crise vous vise en dernier. Peut être bâti à plusieurs par le Front commun.",
-			"quote": "On l'a bâti pour un ennemi qu'on espérait ne jamais voir.",
+			"lore": "Une ligne de forts et de cales couvertes autour de la capitale, tenue en réserve pour le jour d'une invasion venue du dehors. Une flotte y dort sous cocon, avec ses équipages désignés d'avance. Plusieurs empires peuvent en partager la dépense.",
 			"fx": {
 				"crisis_last": 1
 			},
@@ -976,7 +976,7 @@
 			},
 			"special": "ancient_friend",
 			"text": "Les puissances anciennes ne s'irritent plus contre vous ; à leur Éveil, elles vous comptent parmi leurs amis.",
-			"quote": "Ils s'y regardent et, pour une fois, s'y trouvent jeunes.",
+			"lore": "Un pavillon bâti près du domaine d'une puissance ancienne, où l'on a reconstitué ses salles et ses usages d'après les fouilles. Ses envoyés y sont reçus selon leur propre cérémonial. Ils en gardent le souvenir quand leur peuple s'éveille.",
 			"fx": {
 				"ancient_friend": 1
 			}
@@ -1006,7 +1006,7 @@
 			},
 			"special": "all_seeing",
 			"text": "Vous voyez toute la galaxie.",
-			"quote": "Il voit tout. On lui a demandé de fermer les yeux ; il n'en a pas.",
+			"lore": "Un télescope dont le miroir est l'horizon d'un trou noir. Il rassemble la lumière de toute la galaxie en une seule image, que des calculateurs mettent des semaines à redresser. L'état-major y lit la position de chaque flotte.",
 			"fx": {
 				"all_seeing": 1
 			}
@@ -1044,7 +1044,7 @@
 			],
 			"yields": {},
 			"text": "Mégastructure qu'un empire peut bâtir plusieurs fois (une par système) : vos flottes sautent d'une porte à l'autre en un jour, et passent aussi par celles des empires qui vous accordent le droit de passage.",
-			"quote": "Le voyage dure un battement de cils. La paperasse aux deux bouts, beaucoup plus."
+			"lore": "Un anneau de quatre kilomètres, posé à l'écart des planètes, qui ouvre un passage vers tout autre anneau du même modèle. La traversée dure un jour. Les portes d'un empire s'ouvrent aussi aux flottes des voisins qui ont obtenu le droit de passage."
 		},
 		"citadelle_bannieres": {
 			"label": "Citadelle des Mille Bannières",
@@ -1073,7 +1073,7 @@
 			},
 			"registre": "Médiéval spatial",
 			"text": "+1 place de héros ; chaque fief rapporte +2 influence.",
-			"quote": "Mille bannières, mille serments, une seule clé."
+			"lore": "Une forteresse de la capitale où chaque maison vassale entretient une salle et une garde. Les seigneurs y renouvellent leur hommage une fois l'an. Leurs bannières restent pendues dans la nef tant que la lignée dure."
 		},
 		"bastion_fer": {
 			"label": "Bastion de Fer éternel",
@@ -1104,7 +1104,7 @@
 			},
 			"registre": "Grimdark",
 			"text": "Garnisons +50 %, fortifications +25 %, régiments +10 % de dégâts.",
-			"quote": "Il n'a jamais été pris. Il a été assiégé quarante fois, par principe."
+			"lore": "Une place forte agrandie pendant des siècles, dont les galeries descendent à douze kilomètres sous la surface. Sa garnison compte moitié plus d'hommes qu'une autre. Les ingénieurs militaires de l'empire y font leurs classes."
 		},
 		"senat_etoiles": {
 			"label": "Sénat des Étoiles libres",
@@ -1134,7 +1134,7 @@
 			"special": "amph_voice",
 			"registre": "Space opera héroïque",
 			"text": "+1 voix à l'Amphictyonie (pondération) et +10 d'opinion chez tous les empires rencontrés.",
-			"quote": "Libres de parler. Libres, surtout, de parler longtemps."
+			"lore": "Un sénat où siègent les élus de chaque monde, dans une salle ouverte au public. Les débats y sont libres et imprimés le lendemain. Les républiques voisines y envoient des observateurs."
 		},
 		"bassin_couvee": {
 			"label": "Bassin de la Mère-Couvée",
@@ -1166,7 +1166,7 @@
 			},
 			"registre": "Horreur biologique",
 			"text": "Croissance +25 % dans tout l'empire ; les régiments se recrutent 30 % plus vite.",
-			"quote": "Elle couve. Personne ne veut savoir quoi."
+			"lore": "Un lac tiède de plusieurs centaines de kilomètres, ensemencé de pontes et tenu à température par des sources. Les larves y grandissent sous la garde des nourrices. La ruche y lève une génération entière en une saison."
 		},
 		"calculateur_raison": {
 			"label": "Calculateur d'Ultime Raison",
@@ -1195,7 +1195,7 @@
 			"special": "free_tech",
 			"registre": "Classique / hard SF",
 			"text": "À l'achèvement puis à chaque ère franchie : la technologie disponible la moins chère est apprise d'office.",
-			"quote": "Il a calculé la réponse. Il attend qu'on lui pose la question."
+			"lore": "Un calculateur enterré sous la glace d'un monde froid, qui se refroidit par le sol. Les savants lui soumettent leurs problèmes et attendent leur tour pendant des mois. À chaque ère, il rend de lui-même la solution d'une question qu'on ne lui avait pas posée."
 		},
 		"tripot_lunes": {
 			"label": "Tripot des Sept Lunes",
@@ -1226,7 +1226,7 @@
 			"special": "pirate_peace",
 			"registre": "Picaresque / pulp",
 			"text": "Opérations d'espionnage 25 % moins chères, routes +10 % ; les pirates vous laissent tranquille.",
-			"quote": "La maison gagne toujours. Sauf quand la maison est assiégée."
+			"lore": "Une maison de jeu répartie sur sept lunes, le long d'une route marchande. On y croise des capitaines, des receleurs et les agents de tous les services. La direction renseigne l'empire qui l'abrite et paie les pirates pour sa tranquillité."
 		},
 		"resonateur_vide": {
 			"label": "Résonateur du Vide",
@@ -1261,7 +1261,7 @@
 			},
 			"registre": "Cosmique / étrange",
 			"text": "Vous voyez à travers les voiles des nébuleuses ; les agents étrangers chez vous sont 25 % plus souvent démasqués.",
-			"quote": "Il chante une note que seul le vide entend. Le vide répond parfois."
+			"lore": "Un émetteur qui fait vibrer le gaz d'une nébuleuse sur une fréquence basse, puis écoute ce qui revient. Les coques cachées dans le nuage y laissent une ombre. Les contre-espions s'en servent aussi pour repérer les émissions clandestines."
 		},
 		"arene_serments": {
 			"label": "Arène des Serments",
@@ -1289,7 +1289,7 @@
 				"damage_pct": 5,
 				"no_war_weariness": 1
 			},
-			"quote": "On y prête serment devant mille témoins. On y meurt devant dix mille."
+			"lore": "Un amphithéâtre de la capitale où les capitaines jurent fidélité avant de partir en campagne. Les duels d'honneur s'y règlent devant témoins. Les familles viennent y lire les noms des morts, gravés sur le pourtour."
 		},
 		"reliquaire_celeste": {
 			"label": "Reliquaire céleste",
@@ -1317,7 +1317,7 @@
 				"faith_stab": 1
 			},
 			"text": "Votre foi d'État prêche 25 % plus fort ; +1 stabilité là où elle domine. Compte comme un second monde saint.",
-			"quote": "Chaque relique y a sa chapelle, et chaque chapelle ses pèlerins."
+			"lore": "Une basilique bâtie sur un lieu saint, avec une chapelle pour chaque relique que possède l'empire. Les pèlerins y viennent de toutes les colonies. Le clergé y forme ses prédicateurs."
 		},
 		"college_universel": {
 			"label": "Collège universel",
@@ -1342,7 +1342,7 @@
 			},
 			"text": "Les technologies déjà connues d'un empire rencontré vous coûtent 40 % de moins.",
 			"special": "known_tech",
-			"quote": "On n'y invente rien. On y comprend tout, très vite.",
+			"lore": "Un collège ouvert aux savants de tous les empires, attaché à une université. Les étrangers y enseignent ce que l'on sait chez eux. Les laboratoires rattrapent ainsi en quelques années les découvertes déjà faites ailleurs.",
 			"fx": {
 				"known_tech_pct": -40
 			}
@@ -1372,7 +1372,7 @@
 				"market_fee_pct": -50,
 				"trade_income_pct": 20
 			},
-			"quote": "Elle prête à tout le monde. Surtout à ceux qui ne pourront pas rembourser."
+			"lore": "Une banque de dépôt installée sur des lunes à statut franc, hors de toute douane. Elle garantit les lettres de change de l'empire sur toutes les places. Les négociants y règlent leurs comptes sans transporter de métal."
 		},
 		"arche_forteresse": {
 			"label": "Arche-Forteresse",
@@ -1400,7 +1400,7 @@
 				"fort_pct": 50,
 				"garrison_pct": 50
 			},
-			"quote": "Elle a été bâtie pour la fin du monde. Elle s'ennuie un peu en attendant."
+			"lore": "Un abri creusé sous la capitale, assez vaste pour le gouvernement, l'état-major et les arsenaux. Il commande les batteries de tout le système. Les flottes qui se battent à sa portée reçoivent leurs ordres et leurs munitions sans délai."
 		},
 		"palais_delices": {
 			"label": "Palais des Délices infinis",
@@ -1429,7 +1429,7 @@
 			"fx": {
 				"culture_pct": 50
 			},
-			"quote": "On y entre pour une soirée. On en ressort pour l'enterrement de sa jeunesse."
+			"lore": "Une ville de plaisance bâtie sur un monde doux, avec ses théâtres, ses bains et ses jardins. Les artistes de l'empire y sont pensionnés. Les étrangers de qualité y passent une saison et en rapportent les modes."
 		},
 		"grand_oeuvre_koinon": {
 			"label": "Grand Œuvre du Koinon",
@@ -1451,7 +1451,7 @@
 			},
 			"upkeep": {},
 			"text": "Œuvre collective d'un Koinon : chaque membre peut verser au chantier ; achevée, elle produit 30 énergie et 30 Savoir par mois, partagés entre les membres au prorata de ce qu'ils ont versé.",
-			"quote": "Chacun y a posé une pierre. Chacun prétend avoir posé la première."
+			"lore": "Un ouvrage bâti en commun par les membres d'un Koinon, centrale et académie à la fois. Chaque membre y détache des ingénieurs et y tient un pavillon. Le produit est réparti selon les sommes versées, d'après un registre public."
 		},
 		"phare_concorde": {
 			"label": "Phare de la Concorde",
@@ -1474,7 +1474,7 @@
 			},
 			"upkeep": {},
 			"text": "Œuvre collective de l'Amphictyonie, bâtie au siège : chaque membre peut verser ; achevée, déclarer la guerre à un autre membre coûte deux fois plus d'influence, et chaque contributeur gagne de l'opinion chez les autres membres.",
-			"quote": "Sa lumière dit : ici, on parle. Les canons se taisent par politesse."
+			"lore": "Une tour élevée au siège de l'Amphictyonie, payée par souscription de ses membres. Son feu reste allumé tant qu'aucun d'eux n'a déclaré la guerre à un autre. Le nom des souscripteurs est gravé à sa base."
 		},
 		"grand_oeuvre": {
 			"label": "Grand Œuvre",
@@ -1499,7 +1499,7 @@
 			},
 			"upkeep": {},
 			"text": "Structure d'ère V qu'un empire peut bâtir plusieurs fois, chaque fois dans un autre système et 50 % plus cher. Avec la victoire des Grands Œuvres en jeu, en tenir assez (2 à 5 selon la taille de la galaxie) donne la victoire. Ils se prennent par la conquête.",
-			"quote": "Ils contiennent tout le savoir du monde. Ils ont un léger problème de chauffage."
+			"lore": "Un ouvrage qui occupe un système entier, bâti pour conserver ce qu'un empire sait et ce qu'il a fait. Il réunit des archives, des ateliers et un calculateur central. Chaque nouvel exemplaire demande plus de moyens que le précédent."
 		}
 	}
 }

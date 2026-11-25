@@ -82,10 +82,10 @@
 	},
 	"origins": {
 		"_doc": "Prop. 2 : catalogue ouvert. antibody = espèce de la faune lâchée contre les ennemis (prop. 13) ; strike = force des décharges (prop. 12) ; unmade_x = haine des briseurs de mondes ; leave_cd = jours entre deux fuites (prop. 18).",
-		"eveille": {"label": "Éveillé", "text": "Une biosphère entière qui a pris conscience d'elle-même, comme Planet dans Alpha Centauri. Elle aime qu'on la ménage.", "antibody": "rongeroc", "strike": 40, "unmade_x": 1, "leave_cd": 3600, "ecology": true, "names": ["la Planète qui rêve", "le Grand Champignon", "Celle-qui-pousse", "la Forêt pensante", "l'Océan qui compte"]},
-		"graine": {"label": "Graine", "text": "Né d'une graine venue d'ailleurs, comme Zonama Sekot. Il éprouve ses visiteurs, offre des vaisseaux vivants à ses amis et sait fuir.", "antibody": "nuees", "strike": 35, "unmade_x": 1, "leave_cd": 1800, "seed_x": 2, "names": ["le Monde-graine", "Sekh-Torr", "la Semence errante", "le Jardin voyageur"]},
+		"eveille": {"label": "Éveillé", "text": "Une biosphère entière qui a pris conscience d'elle-même. Elle s'attache à ceux qui la ménagent.", "antibody": "rongeroc", "strike": 40, "unmade_x": 1, "leave_cd": 3600, "ecology": true, "names": ["la Planète qui rêve", "le Grand Champignon", "Celle-qui-pousse", "la Forêt pensante", "l'Océan qui compte"]},
+		"graine": {"label": "Graine", "text": "Un monde né d'une graine venue d'ailleurs. Il met ses visiteurs à l'épreuve, offre des vaisseaux vivants à ses amis et sait fuir.", "antibody": "nuees", "strike": 35, "unmade_x": 1, "leave_cd": 1800, "seed_x": 2, "names": ["le Monde-graine", "Sekh-Torr", "la Semence errante", "le Jardin voyageur"]},
 		"reliquaire": {"label": "Reliquaire", "text": "Un monde-reliquaire des Façonneurs qui s'est réveillé vivant. Il aime ceux qui créent des mondes et hait doublement ceux qui les défont.", "antibody": "cristalloides", "strike": 50, "unmade_x": 2, "leave_cd": 3600, "names": ["le Monde qui écoute", "la Planète qui rêve", "le Cœur vert", "Celui-qui-choisit"]},
-		"hante": {"label": "Hanté", "text": "Un monde vivant touché par le Songe, comme un monde-démon. Il hait tous ceux qui n'ont pas fait l'Éveil.", "antibody": "betes_songe", "strike": 60, "unmade_x": 1, "leave_cd": 3600, "mood_cap": -30, "names": ["le Monde qui hurle", "la Plaie du Songe", "l'Œil ouvert", "Celui-qui-ne-dort-plus"]}
+		"hante": {"label": "Hanté", "text": "Un monde vivant touché par le Songe. Il hait tous ceux qui n'ont pas fait l'Éveil.", "antibody": "betes_songe", "strike": 60, "unmade_x": 1, "leave_cd": 3600, "mood_cap": -30, "names": ["le Monde qui hurle", "la Plaie du Songe", "l'Œil ouvert", "Celui-qui-ne-dort-plus"]}
 	},
 	"start_origins": ["eveille", "graine", "eveille", "graine"],
 	"temperaments": {
@@ -94,7 +94,7 @@
 		"jaloux": {"label": "Jaloux", "text": "Veut être le seul monde vivant de son hôte. Supporte mal les flottes en orbite.", "gain_pct": 80, "loss_pct": 130, "req_pct": 100, "asks": ["chasser", "repos", "offrande"]},
 		"maternel": {"label": "Maternel", "text": "Aime les colonies peuplées et la paix. Pardonne vite.", "gain_pct": 130, "loss_pct": 80, "req_pct": 100, "asks": ["paix", "peuple", "repos"]},
 		"fier": {"label": "Fier", "text": "Ne supporte pas qu'on lui refuse quoi que ce soit.", "gain_pct": 100, "loss_pct": 100, "req_pct": 120, "no_x": 2, "asks": ["offrande", "chasser", "paix"]},
-		"enigme": {"label": "Énigme", "text": "Comme l'océan de Solaris : ses humeurs restent cachées tant qu'un sensitif ne l'a pas écouté. Il lui arrive de renvoyer des fantômes.", "gain_pct": 100, "loss_pct": 100, "req_pct": 140, "hidden": true, "visitors": true, "asks": ["chant", "repos", "offrande"]}
+		"enigme": {"label": "Énigme", "text": "Ses humeurs restent cachées tant qu'un sensitif ne l'a pas écouté. Il lui arrive de renvoyer aux colons l'image de leurs morts.", "gain_pct": 100, "loss_pct": 100, "req_pct": 140, "hidden": true, "visitors": true, "asks": ["chant", "repos", "offrande"]}
 	},
 	"requests": {
 		"_doc": "Prop. 10 : demandes. Chacune a un texte, une condition, un coût à l'acceptation et parfois une obligation suivie (watch).",
@@ -142,7 +142,7 @@
 		"murmurants": {"label": "Ondes de fond", "text": "Ils écoutent les mondes vivants sans sensitif ni Résonance.", "free_listen": true}
 	},
 	"units": {
-		"vivant_nef_graine": {"label": "Nef-graine", "plural": "Nefs-graines", "line": "line", "size": "medium", "role": "Vaisseau vivant", "hp": 260, "armor": 10, "shield": 40, "weapons": {"decharge": 30}, "speed": 42, "military": true, "fleet_repair": true, "upkeep": {"food": 2}, "description": "Un vaisseau vivant offert par un monde lié, comme ceux de Zonama Sekot : rapide, et toute sa flotte se répare où qu'elle soit."}
+		"vivant_nef_graine": {"label": "Nef-graine", "plural": "Nefs-graines", "line": "line", "size": "medium", "role": "Vaisseau vivant", "hp": 260, "armor": 10, "shield": 40, "weapons": {"decharge": 30}, "speed": 42, "military": true, "fleet_repair": true, "upkeep": {"food": 2}, "description": "Un vaisseau vivant offert par un monde lié. Il est rapide, et toute sa flotte se répare où qu'elle se trouve."}
 	},
 	"visitors": ["la fondatrice de votre lignée", "un amiral disparu en mer d'étoiles", "une enfant morte il y a un siècle", "le premier colon de ce monde", "un savant dont personne ne se souvient", "votre propre souverain, plus jeune de vingt ans"],
 	"cards": [

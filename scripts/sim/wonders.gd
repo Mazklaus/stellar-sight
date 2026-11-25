@@ -963,7 +963,17 @@ static func effect_text(wid: String) -> String:
 	return String(def(wid).get("text", ""))
 
 
-## Jetons des cartes de merveille : {wonder}, {wonder_text}, {wonder_quote}, {wonder_effect}, {wonder_refund}.
+## Description d'univers d'une merveille (ce qu'elle est), sans ses effets.
+static func lore_text(wid: String) -> String:
+	return String(def(wid).get("lore", ""))
+
+
+## Description puis effets, pour les bulles et les fiches.
+static func fiche_text(wid: String) -> String:
+	return GameData.lore_then(lore_text(wid), effect_text(wid))
+
+
+## Jetons des cartes de merveille : {wonder}, {wonder_text}, {wonder_lore}, {wonder_effect}, {wonder_refund}.
 static func fill(state: GameState, eid: int, item: Dictionary, s: String) -> String:
 	if not s.contains("{wonder"):
 		return s
@@ -972,9 +982,9 @@ static func fill(state: GameState, eid: int, item: Dictionary, s: String) -> Str
 	var wid := ids[n] if n >= 0 and n < ids.size() else ""
 	var p := int(item.get("planet", -1))
 	var where := state.galaxy.get_planet(p).display_name(state.galaxy) if p >= 0 else "?"
-	var out := s.replace("{wonder_text}", "%s achève %s sur %s, le %s. Les architectes saluent ; les rivaux comptent leurs pertes." % [
+	var out := s.replace("{wonder_text}", "%s achève %s sur %s, le %s." % [
 			state.get_empire(eid).display_name(), label(wid), where, GameCalendar.date_string(int(item.get("tick", state.tick)))])
-	out = out.replace("{wonder_quote}", String(def(wid).get("quote", "Il y a des choses qu'on bâtit pour soi, et d'autres pour que les autres les voient.")))
+	out = out.replace("{wonder_lore}", lore_text(wid))
 	out = out.replace("{wonder_effect}", effect_text(wid))
 	var carry: Dictionary = _m(state, "carry").get(str(eid), {})
 	out = out.replace("{wonder_refund}", "Mise gardée : %s, jusqu'au %s ; reportée sur une merveille d'ère %d ou plus, elle compte entière. Sinon, la moitié revient." % [

@@ -353,13 +353,13 @@
 		}
 	},
 	"deeds": {
-		"budget_equilibre": {"label": "Budget à l'équilibre", "family": "expansion", "sort": "first", "k": "finance_balanced", "n": 20, "text": "Premier à tenir vingt ans sans un sou de dette avec au moins 10 systèmes (fiscalité en jeu).", "flavor": "Le ministre des Finances a pleuré en présentant le budget. De joie, cette fois."},
-		"banqueroute": {"label": "Banqueroute retentissante", "family": "expansion", "sort": "infamous", "k": "bankrupt", "n": 1, "text": "Faire faillite.", "flavor": "Nos créanciers se souviendront de nous. Nos historiens aussi, hélas."},
-		"premiere_compagnie": {"label": "Société anonyme", "family": "economie", "sort": "first", "k": "company_founded", "n": 1, "text": "Premier empire où naît une compagnie privée (économie privée complète).", "flavor": "Le premier conseil d'administration a duré six heures. Cinq consacrées au choix du logo."},
-		"multinationale": {"label": "Multinationale", "family": "economie", "sort": "first", "k": "branch_empires", "n": 5, "text": "Premier à avoir des filiales chez 5 empires différents (économie privée complète).", "flavor": "Le soleil ne se couche jamais sur nos comptoirs. Nos comptables non plus."},
-		"destination_reve": {"label": "Destination de rêve", "family": "economie", "sort": "record", "era": 2, "k": "tourism", "n": 40, "text": "Tirer 40 énergie par mois du tourisme privé (économie privée).", "flavor": "Les cartes postales disent « Il fait beau ». Il fait toujours beau, c'est le principe."},
-		"naufrageurs": {"label": "Le cimetière des cargos", "family": "economie", "sort": "infamous", "k": "cargos_lost", "n": 20, "text": "Perdre 20 cargos privés aux pirates et aux ennemis (économie privée complète).", "flavor": "Les assureurs ont cessé de répondre au téléphone. Puis ils ont débranché le téléphone."},
-		"mains_propres": {"label": "Mains propres", "family": "expansion", "sort": "first", "k": "admin_clean", "n": 10, "text": "Premier à tenir dix ans une corruption moyenne sous 5 % avec au moins 20 systèmes.", "flavor": "Nos inspecteurs n'ont rien trouvé. Nous avons fait inspecter les inspecteurs : rien non plus."},
+		"budget_equilibre": {"label": "Budget à l'équilibre", "family": "expansion", "sort": "first", "k": "finance_balanced", "n": 20, "text": "Premier à tenir vingt ans sans un sou de dette avec au moins 10 systèmes (fiscalité en jeu).", "lore": "Le Trésor clôt vingt exercices de suite sans emprunter. Les bilans sont gravés dans le hall du ministère, où les écoles de finance mènent leurs élèves."},
+		"banqueroute": {"label": "Banqueroute retentissante", "family": "expansion", "sort": "infamous", "k": "bankrupt", "n": 1, "text": "Faire faillite.", "lore": "L'État suspend ses paiements et ses créanciers saisissent ce qu'ils peuvent. Les places étrangères rayent sa signature de leurs registres pour une génération."},
+		"premiere_compagnie": {"label": "Société anonyme", "family": "economie", "sort": "first", "k": "company_founded", "n": 1, "text": "Premier empire où naît une compagnie privée (économie privée complète).", "lore": "Des négociants obtiennent une charte qui les autorise à lever des capitaux sous un nom commun. Leur compagnie est la première dont les parts s'échangent à la corbeille."},
+		"multinationale": {"label": "Multinationale", "family": "economie", "sort": "first", "k": "branch_empires", "n": 5, "text": "Premier à avoir des filiales chez 5 empires différents (économie privée complète).", "lore": "Une compagnie de l'empire tient des bureaux dans cinq capitales étrangères. Ses commis parlent cinq langues et relèvent d'un seul siège."},
+		"destination_reve": {"label": "Destination de rêve", "family": "economie", "sort": "record", "era": 2, "k": "tourism", "n": 40, "text": "Tirer 40 énergie par mois du tourisme privé (économie privée).", "lore": "Les mondes de l'empire reçoivent chaque année des voyageurs venus de toute la galaxie. Les compagnies de transport leur réservent des lignes régulières."},
+		"naufrageurs": {"label": "Le cimetière des cargos", "family": "economie", "sort": "infamous", "k": "cargos_lost", "n": 20, "text": "Perdre 20 cargos privés aux pirates et aux ennemis (économie privée complète).", "lore": "Vingt cargos privés ont disparu sur les routes de l'empire. Les assureurs refusent désormais de couvrir ses armateurs."},
+		"mains_propres": {"label": "Mains propres", "family": "expansion", "sort": "first", "k": "admin_clean", "n": 10, "text": "Premier à tenir dix ans une corruption moyenne sous 5 % avec au moins 20 systèmes.", "lore": "Dix années d'inspection n'ont relevé presque aucun détournement dans vingt systèmes. Les rapports sont publiés et servent de modèle aux administrations voisines."},
 		"cartographe": {
 			"label": "Cartographe des étoiles",
 			"family": "exploration",
@@ -368,7 +368,7 @@
 			"n": 50,
 			"title": "cartographe",
 			"text": "Premier à explorer la moitié des systèmes.",
-			"flavor": "Les cartes s'arrêtaient au bord du parchemin. Les nôtres ont dû en coller un second."
+			"lore": "Les éclaireurs de l'empire ont relevé la moitié des systèmes de la galaxie. Leurs cartes sont les premières à couvrir d'un seul tenant les deux bords du noyau."
 		},
 		"bout_du_monde": {
 			"label": "Le bout du monde",
@@ -377,7 +377,7 @@
 			"k": "explored_pct",
 			"n": 100,
 			"text": "Premier à explorer tous les systèmes.",
-			"flavor": "Au-delà, il n'y a rien. Nous avons vérifié deux fois."
+			"lore": "Le dernier système inconnu est porté sur les cartes. Le service d'exploration ferme ses registres et verse ses carnets aux archives."
 		},
 		"tous_les_visages": {
 			"label": "Tous les visages",
@@ -386,7 +386,7 @@
 			"k": "met_all",
 			"n": 1,
 			"text": "Premier à rencontrer tous les empires encore en vie (trois au moins).",
-			"flavor": "Nous connaissons désormais tous nos voisins. C'est rarement une bonne nouvelle."
+			"lore": "Les envoyés de l'empire ont été reçus dans toutes les capitales de la galaxie. La chancellerie tient un dossier sur chaque cour."
 		},
 		"reveil_legendes": {
 			"label": "Le réveil des légendes",
@@ -395,7 +395,7 @@
 			"k": "ancient_met",
 			"n": 1,
 			"text": "Premier contact avec une puissance ancienne.",
-			"flavor": "Elle nous a regardés comme on regarde une fourmi qui a appris à écrire."
+			"lore": "Une flotte de l'empire entre en rapport avec une puissance que l'on ne connaissait que par des récits. Son premier message tient en une ligne et ne pose aucune question."
 		},
 		"pionnier_mondes": {
 			"label": "Pionnier des mondes",
@@ -404,7 +404,7 @@
 			"k": "planet_types",
 			"n": 5,
 			"text": "Premier à coloniser cinq types de planètes différents.",
-			"flavor": "Glace, roche, jungle, désert, océan : nos colons se plaignent partout, mais différemment."
+			"lore": "Des colons de l'empire vivent sous cinq climats différents. Le service des colonies publie un manuel pour chacun."
 		},
 		"mere_des_peuples": {
 			"label": "Mère des peuples",
@@ -413,7 +413,7 @@
 			"k": "species",
 			"n": 5,
 			"text": "Premier à abriter cinq espèces différentes.",
-			"flavor": "Cinq langues aux marchés, cinq cuisines, et une seule administration pour tout compliquer."
+			"lore": "Cinq espèces vivent sous les mêmes lois. Les actes officiels paraissent dans chacune de leurs langues."
 		},
 		"aube_2": {
 			"label": "Aube de l'ère II",
@@ -422,7 +422,7 @@
 			"k": "era",
 			"n": 2,
 			"text": "Premier à entrer dans l'ère II.",
-			"flavor": "Le monde change. Nous l'avons changé un peu avant les autres."
+			"lore": "Les laboratoires de l'empire ouvrent les premiers un nouvel âge des sciences. Leurs manuels sont traduits dans les académies étrangères."
 		},
 		"aube_3": {
 			"label": "Aube de l'ère III",
@@ -431,7 +431,7 @@
 			"k": "era",
 			"n": 3,
 			"text": "Premier à entrer dans l'ère III.",
-			"flavor": "Les savants d'hier sont les manuels d'aujourd'hui."
+			"lore": "L'empire atteint avant tous les autres la troisième ère. Les découvertes de la génération précédente entrent au programme des écoles."
 		},
 		"aube_4": {
 			"label": "Aube de l'ère IV",
@@ -440,7 +440,7 @@
 			"k": "era",
 			"n": 4,
 			"text": "Premier à entrer dans l'ère IV.",
-			"flavor": "Nos ancêtres nous prendraient pour des dieux. Nos voisins nous prennent pour des tricheurs."
+			"lore": "L'empire entre le premier dans la quatrième ère. Ses voisins soupçonnent ses savants d'avoir trouvé leurs résultats dans des ruines."
 		},
 		"aube_5": {
 			"label": "Aube de l'ère V",
@@ -449,7 +449,7 @@
 			"k": "era",
 			"n": 5,
 			"text": "Premier à entrer dans l'ère V.",
-			"flavor": "La frontière du savoir recule. Elle recule devant nous."
+			"lore": "L'empire aborde seul la dernière ère connue des sciences. Ses chercheurs n'ont plus de travaux étrangers auxquels comparer les leurs."
 		},
 		"batisseur": {
 			"label": "Bâtisseur de merveilles",
@@ -459,7 +459,7 @@
 			"n": 1,
 			"title": "batisseur",
 			"text": "Premier à tenir trois merveilles galactiques (titre de Bâtisseur).",
-			"flavor": "On nous demande des conseils de chantier jusque dans les cours rivales."
+			"lore": "Trois merveilles s'élèvent sur les mondes de l'empire. Les cours rivales font venir ses architectes pour leurs propres chantiers."
 		},
 		"comptoirs_partout": {
 			"label": "Comptoirs partout",
@@ -468,7 +468,7 @@
 			"k": "trade_all",
 			"n": 1,
 			"text": "Premier à commercer avec tous les empires rencontrés (quatre au moins).",
-			"flavor": "Nos cargos ont vu toutes les douanes de la galaxie, et toutes les ont trouvées trop lentes."
+			"lore": "Des marchands de l'empire tiennent boutique chez tous les peuples connus. Leurs poids et leurs mesures finissent par servir de référence."
 		},
 		"chute_capitale": {
 			"label": "Chute d'une capitale",
@@ -478,7 +478,7 @@
 			"n": 1,
 			"title": "conquerant",
 			"text": "Premier à prendre une capitale d'origine rivale.",
-			"flavor": "Leur trône est vide. Le nôtre a une chaise de plus."
+			"lore": "Les troupes de l'empire occupent la capitale d'un rival. Son gouvernement s'est replié sur un monde de province."
 		},
 		"inviolee": {
 			"label": "Inviolée",
@@ -487,7 +487,7 @@
 			"k": "inviolate_years",
 			"n": 50,
 			"text": "Premier à tenir cinquante ans une capitale gardée par une station sans qu'elle soit jamais assiégée (défenses spatiales en jeu).",
-			"flavor": "Les guides montrent aux touristes les remparts. Les remparts n'ont jamais servi, et c'est tout leur mérite."
+			"lore": "Aucune flotte ennemie ne s'est présentée devant la capitale en cinquante ans. Sa station de garde n'a jamais ouvert le feu."
 		},
 		"espece_parfaite": {
 			"label": "L'Espèce parfaite",
@@ -496,7 +496,7 @@
 			"k": "gen_traits",
 			"n": 7,
 			"text": "Premier à porter sept traits sur son espèce fondatrice (ingénierie des espèces en jeu).",
-			"flavor": "Ils sont beaux, forts, intelligents et longévifs. Ils s'ennuient un peu."
+			"lore": "Les généticiens ont porté l'espèce fondatrice à la limite de ce qu'un organisme supporte. Aucun de ses ancêtres ne la reconnaîtrait."
 		},
 		"mille_visages": {
 			"label": "Mille visages",
@@ -505,14 +505,14 @@
 			"k": "gen_shaped",
 			"n": 5,
 			"text": "Premier à façonner cinq espèces ou lignées (ingénierie des espèces en jeu).",
-			"flavor": "Au recensement, la case « espèce » a été remplacée par une page entière."
+			"lore": "Cinq lignées façonnées en laboratoire vivent dans l'empire. Le recensement tient un registre séparé pour chacune."
 		},
-		"premier_elu": {"label": "Le premier Élu", "family": "foi", "sort": "first", "k": "psi_elu", "n": 1, "text": "Premier empire à avoir un Élu (pouvoirs psioniques en jeu).", "flavor": "Il a demandé ce qu'on attendait de lui. Tout le monde a répondu en même temps."},
-		"phare_allume": {"label": "Le Phare allumé", "family": "exploration", "sort": "first", "k": "psi_phare", "n": 1, "text": "Premier à allumer un Phare du Songe (pouvoirs psioniques en jeu).", "flavor": "Les navigateurs disent qu'on l'entend avant de le voir. Les navigateurs disent beaucoup de choses."},
-		"pacte_rompu": {"label": "Pacte rompu", "family": "perils", "sort": "secret", "k": "psi_broken", "n": 1, "text": "Rompre un pacte avec une Puissance du Songe.", "flavor": "Elle n'a rien dit. C'est ce silence-là qui empêche de dormir."},
-		"premier_oree": {"label": "Premier à l'Orée", "family": "science", "sort": "first", "k": "tr_path", "n": 1, "text": "Premier empire à se vouer à une voie de Transcendance (Transcendance en jeu).", "flavor": "Il a regardé l'au-delà le premier. L'au-delà, poli, a fait semblant de ne pas le voir."},
-		"grande_curee": {"label": "La Grande Curée", "family": "economie", "sort": "first", "k": "tr_ruins", "n": 3, "text": "Premier à fouiller trois reliques de savoir laissées par un peuple parti (Transcendance en jeu).", "flavor": "On ne part pas sans laisser de miettes. On ne mange pas les miettes sans se faire remarquer."},
-		"revenu_au_dela": {"label": "Revenu d'au-delà", "family": "foi", "sort": "secret", "k": "tr_descent", "n": 1, "text": "Accueillir un Parti redescendu parmi les mortels.", "flavor": "Il ne se souvient de rien. Il sait pourtant où sont rangées les tasses."},
+		"premier_elu": {"label": "Le premier Élu", "family": "foi", "sort": "first", "k": "psi_elu", "n": 1, "text": "Premier empire à avoir un Élu (pouvoirs psioniques en jeu).", "lore": "Un sensitif de l'empire atteint un degré de pouvoir qu'aucun autre n'avait approché. Les collèges l'appellent l'Élu et lui envoient leurs élèves."},
+		"phare_allume": {"label": "Le Phare allumé", "family": "exploration", "sort": "first", "k": "psi_phare", "n": 1, "text": "Premier à allumer un Phare du Songe (pouvoirs psioniques en jeu).", "lore": "Un Phare du Songe émet depuis un monde de l'empire. Les sensitifs de toute la galaxie le perçoivent, y compris ceux qui en ignorent l'origine."},
+		"pacte_rompu": {"label": "Pacte rompu", "family": "perils", "sort": "secret", "k": "psi_broken", "n": 1, "text": "Rompre un pacte avec une Puissance du Songe.", "lore": "L'empire dénonce le pacte qui le liait à une Puissance du Songe. Celle-ci n'a donné aucune réponse."},
+		"premier_oree": {"label": "Premier à l'Orée", "family": "science", "sort": "first", "k": "tr_path", "n": 1, "text": "Premier empire à se vouer à une voie de Transcendance (Transcendance en jeu).", "lore": "L'empire s'engage avant tous les autres sur une voie de Transcendance. Ses philosophes en fixent les étapes dans un texte que les suivants reprendront."},
+		"grande_curee": {"label": "La Grande Curée", "family": "economie", "sort": "first", "k": "tr_ruins", "n": 3, "text": "Premier à fouiller trois reliques de savoir laissées par un peuple parti (Transcendance en jeu).", "lore": "Les équipes de l'empire ont fouillé trois dépôts laissés par un peuple parti. Elles en rapportent des savoirs que leurs auteurs n'avaient pas jugé utile d'emporter."},
+		"revenu_au_dela": {"label": "Revenu d'au-delà", "family": "foi", "sort": "secret", "k": "tr_descent", "n": 1, "text": "Accueillir un Parti redescendu parmi les mortels.", "lore": "Un être qui avait franchi le Passage revient vivre parmi les mortels. Il ne garde aucun souvenir de l'autre côté et reprend ses habitudes d'autrefois."},
 		"dernier_de_chair": {
 			"label": "Le dernier de chair",
 			"family": "science",
@@ -520,7 +520,7 @@
 			"k": "gen_transfer",
 			"n": 1,
 			"text": "Transférer son espèce fondatrice dans des châssis (Grand Transfert).",
-			"flavor": "Le dernier repas fut servi dans un silence recueilli. Personne n'a eu faim depuis."
+			"lore": "Le dernier individu de chair de l'espèce fondatrice est transféré dans un châssis. Les hôpitaux et les cuisines de l'empire ferment dans l'année."
 		},
 		"premier_voile": {
 			"label": "Premier voile",
@@ -529,7 +529,7 @@
 			"k": "veiled_fleets",
 			"n": 1,
 			"text": "Premier à lancer une flotte camouflée (furtivité en jeu).",
-			"flavor": "Le jour du lancement, personne n'a rien vu. La cérémonie a été jugée très réussie."
+			"lore": "Une flotte de l'empire appareille sous camouflage. Les observateurs étrangers invités au lancement repartent sans avoir rien vu."
 		},
 		"spectre": {
 			"label": "Spectre",
@@ -538,7 +538,7 @@
 			"k": "spectre_systems",
 			"n": 10,
 			"text": "Premier à traverser dix systèmes rivaux sans être vu (furtivité en jeu).",
-			"flavor": "Les douanes de dix empires ont la même case vide sur leurs registres."
+			"lore": "Une flotte traverse dix systèmes rivaux sans paraître sur un seul écran. Les douanes de ces empires n'en gardent aucune trace."
 		},
 		"nul_ne_passe": {
 			"label": "Nul ne passe",
@@ -547,7 +547,7 @@
 			"k": "hidden_found",
 			"n": 5,
 			"text": "Premier à repérer cinq flottes camouflées (furtivité en jeu).",
-			"flavor": "« Il n'y a rien là-bas. » — « Il y en a cinq, et je les ai notées. »"
+			"lore": "Les stations d'écoute de l'empire ont repéré cinq flottes camouflées. Leurs opérateurs enseignent désormais la méthode."
 		},
 		"maitre_portes": {
 			"label": "Maître des portes",
@@ -556,7 +556,7 @@
 			"k": "linked_gates",
 			"n": 5,
 			"text": "Premier à tenir cinq portails de saut reliés à d'autres portails (portails de saut en jeu).",
-			"flavor": "On ne traverse plus la galaxie : on la plie, et l'on fait payer le pli."
+			"lore": "Cinq portails de l'empire sont accordés à d'autres portails. Ses flottes passent d'un bord à l'autre de son territoire en quelques jours."
 		},
 		"premier_leviathan": {
 			"label": "Premier Léviathan",
@@ -565,7 +565,7 @@
 			"k": "echelon",
 			"n": 2,
 			"text": "Premier à lancer un Léviathan.",
-			"flavor": "Les astronomes voisins l'ont d'abord pris pour une lune."
+			"lore": "Le premier Léviathan quitte son chantier. Les astronomes des systèmes voisins le prennent d'abord pour un corps céleste."
 		},
 		"premiere_nef": {
 			"label": "Première Nef-monde",
@@ -574,7 +574,7 @@
 			"k": "echelon",
 			"n": 3,
 			"text": "Premier à lancer une Nef-monde.",
-			"flavor": "Ce n'est plus une flotte qui part en guerre, c'est un pays."
+			"lore": "Une Nef-monde entre en service. Elle emporte une ville, ses ateliers et la population qui les fait vivre."
 		},
 		"tueur_de_geant": {
 			"label": "Tueur de géant",
@@ -584,7 +584,7 @@
 			"n": 1,
 			"outsider": true,
 			"text": "Vaincre en bataille une flotte de l'empire en tête de Gloire, en étant dans la moitié basse du classement.",
-			"flavor": "Plus il est grand, plus il fait de bruit en tombant."
+			"lore": "Une flotte de second rang bat celle de l'empire le plus glorieux de la galaxie. Les écoles de guerre étudient la bataille l'année même."
 		},
 		"premiere_loi": {
 			"label": "Première loi galactique",
@@ -593,7 +593,7 @@
 			"k": "nomos",
 			"n": 1,
 			"text": "Premier à faire adopter une loi du Nomos.",
-			"flavor": "Pour la première fois, la galaxie obéit à un texte. Le nôtre."
+			"lore": "Le Nomos adopte un texte proposé par l'empire. C'est la première loi qui s'impose à toute la galaxie."
 		},
 		"fondateur_koinon": {
 			"label": "Fondateur du Koinon",
@@ -602,7 +602,7 @@
 			"k": "koinon",
 			"n": 1,
 			"text": "Premier à fonder un Koinon.",
-			"flavor": "Nous ne serons plus jamais seuls. C'est le but, et c'est aussi le problème."
+			"lore": "L'empire réunit ses alliés dans un Koinon et en rédige la charte. Les ligues fondées ensuite la prennent pour modèle."
 		},
 		"grande_paix": {
 			"label": "La Grande Paix",
@@ -612,7 +612,7 @@
 			"n": 1,
 			"title": "pacificateur",
 			"text": "Premier en paix avec tous les empires rencontrés (quatre au moins) pendant cinq ans.",
-			"flavor": "Cinq ans sans une salve. Les amiraux s'ennuient, les poètes s'inquiètent."
+			"lore": "L'empire vit cinq ans en paix avec tous ses voisins. Les arsenaux travaillent à effectif réduit."
 		},
 		"revelation": {
 			"label": "La Révélation",
@@ -621,7 +621,7 @@
 			"k": "revelation",
 			"n": 1,
 			"text": "Premier à fonder une grande foi.",
-			"flavor": "Une voix a parlé. Nous étions les premiers à l'écouter, et les seuls à l'avoir comprise."
+			"lore": "Une foi née dans l'empire gagne plusieurs mondes. Ses fidèles tiennent leur premier concile et fixent leurs textes."
 		},
 		"voix_qui_porte": {
 			"label": "Une voix qui porte",
@@ -631,7 +631,7 @@
 			"n": 1,
 			"title": "mecene",
 			"text": "Premier à être Influent chez un rival.",
-			"flavor": "Leurs enfants chantent nos chansons, et ne savent pas d'où elles viennent."
+			"lore": "La culture de l'empire s'impose chez un rival. Ses écoles y enseignent la langue de l'empire, et ses théâtres en jouent le répertoire."
 		},
 		"coup_du_siecle": {
 			"label": "Le coup du siècle",
@@ -640,7 +640,7 @@
 			"k": "steal_up",
 			"n": 1,
 			"text": "Premier à voler une technologie d'une ère supérieure à la sienne.",
-			"flavor": "On ne l'a pas inventée. On l'a trouvée, dans le coffre de quelqu'un d'autre."
+			"lore": "Les agents de l'empire rapportent les plans d'une technologie que ses savants n'auraient pas su concevoir. Les laboratoires passent des années à la comprendre."
 		},
 		"tueur_de_gardien": {
 			"label": "Tueur de gardien",
@@ -649,7 +649,7 @@
 			"k": "guardians",
 			"n": 1,
 			"text": "Premier à abattre un gardien.",
-			"flavor": "Il veillait depuis dix mille ans. Il n'a pas vu venir le onze millième."
+			"lore": "Une flotte de l'empire abat un gardien qui tenait son système depuis des millénaires. Sa dépouille est remorquée jusqu'à la capitale."
 		},
 		"bouclier_galaxie": {
 			"label": "Bouclier de la galaxie",
@@ -658,7 +658,7 @@
 			"k": "crisis_top",
 			"n": 1,
 			"text": "Plus grande part de gloire contre une crise vaincue.",
-			"flavor": "Quand tout a vacillé, nous avons tenu. Les autres ont tenu derrière nous."
+			"lore": "L'empire a porté la plus grande part des combats contre une crise. Les autres peuples lui élèvent un monument à frais communs."
 		},
 		"sommeil_rendu": {
 			"label": "Le sommeil rendu",
@@ -667,7 +667,7 @@
 			"k": "ancient_world",
 			"n": 1,
 			"text": "Premier à prendre un monde d'une puissance ancienne.",
-			"flavor": "Elle dormait sur ce monde. Elle dormira ailleurs."
+			"lore": "Les troupes de l'empire prennent un monde à une puissance ancienne. Aucun peuple jeune n'y était entré en armes avant elles."
 		},
 		"chercheur_curiosites": {
 			"label": "Chercheur de curiosités",
@@ -677,7 +677,7 @@
 			"k": "curios",
 			"n": 6,
 			"text": "Fouiller 6 curiosités.",
-			"flavor": "Chaque caillou bizarre a une histoire. Nous les collectionnons."
+			"lore": "Les équipes d'étude de l'empire ont rendu six rapports sur des objets inexpliqués. L'académie leur ouvre une section."
 		},
 		"semeur_mondes": {
 			"label": "Semeur de mondes",
@@ -687,7 +687,7 @@
 			"k": "colonies",
 			"n": 5,
 			"text": "Tenir 5 colonies peuplées.",
-			"flavor": "Cinq mondes, cinq départs, cinq fêtes trop arrosées."
+			"lore": "Cinq colonies de l'empire ont dépassé le stade de l'avant-poste. Chacune élit son conseil et lève ses impôts."
 		},
 		"createur_richesse": {
 			"label": "Créateur de richesse",
@@ -698,7 +698,7 @@
 			"n": 1500,
 			"x": "materials",
 			"text": "Avoir 1 500 matériaux en réserve.",
-			"flavor": "Certains comptent les étoiles. D'autres comptent ce qu'ils ont dans les caves."
+			"lore": "Les entrepôts de l'État sont pleins. L'intendance en fait bâtir de nouveaux pour loger les réserves."
 		},
 		"vainqueur_escarmouches": {
 			"label": "Vainqueur d'escarmouches",
@@ -708,7 +708,7 @@
 			"k": "battles_won",
 			"n": 5,
 			"text": "Gagner 5 batailles.",
-			"flavor": "Cinq fois l'ennemi s'est présenté. Cinq fois il est reparti, en moins de morceaux."
+			"lore": "Les flottes de l'empire sont sorties victorieuses de cinq rencontres. L'amirauté en tire son premier manuel de tactique."
 		},
 		"archeologue": {
 			"label": "Archéologue",
@@ -718,7 +718,7 @@
 			"k": "digs",
 			"n": 3,
 			"text": "Achever 3 fouilles.",
-			"flavor": "La poussière des anciens a un goût de victoire. Et de poussière."
+			"lore": "Trois chantiers de fouille ont été menés à leur terme. Le produit en est exposé dans la capitale."
 		},
 		"batisseur_empire": {
 			"label": "Bâtisseur d'empire",
@@ -728,7 +728,7 @@
 			"k": "systems",
 			"n": 12,
 			"text": "Tenir 12 systèmes.",
-			"flavor": "Douze étoiles sur notre drapeau : il faudra un drapeau plus grand."
+			"lore": "Le drapeau de l'empire flotte sur douze systèmes. L'administration crée un échelon de province pour les gouverner."
 		},
 		"promoteur_sciences": {
 			"label": "Promoteur des sciences",
@@ -738,7 +738,7 @@
 			"k": "techs",
 			"n": 20,
 			"text": "Connaître 20 technologies.",
-			"flavor": "Nos bibliothèques débordent. Nos bibliothécaires aussi."
+			"lore": "Vingt découvertes majeures sont sorties des laboratoires de l'empire. Le souverain fonde un prix annuel pour les savants."
 		},
 		"conglomerats": {
 			"label": "Fondateur de conglomérats",
@@ -748,7 +748,7 @@
 			"k": "routes",
 			"n": 5,
 			"text": "Tenir 5 routes commerciales actives.",
-			"flavor": "L'argent circule. Il circule surtout vers nous."
+			"lore": "Cinq routes commerciales partent des ports de l'empire. Les maisons de négoce s'associent pour en partager les frais d'escorte."
 		},
 		"conquerant_systemes": {
 			"label": "Conquérant des systèmes",
@@ -758,7 +758,7 @@
 			"k": "conquests",
 			"n": 3,
 			"text": "Conquérir 3 systèmes.",
-			"flavor": "Les cartes sont redessinées. À l'encre de nos couleurs."
+			"lore": "Trois systèmes ont été pris par les armes. Les géographes refont les cartes aux couleurs de l'empire."
 		},
 		"faiseur_traites": {
 			"label": "Faiseur de traités",
@@ -768,7 +768,7 @@
 			"k": "treaty",
 			"n": 3,
 			"text": "Signer 3 traités.",
-			"flavor": "La plume a pesé plus lourd que le canon. Cette fois."
+			"lore": "La chancellerie a conclu trois traités. Ses négociateurs commencent à faire école."
 		},
 		"lieux_saints": {
 			"label": "Gardien des lieux saints",
@@ -778,7 +778,7 @@
 			"k": "holy",
 			"n": 2,
 			"text": "Tenir 2 mondes saints.",
-			"flavor": "Les pèlerins viennent de loin. Ils repartent plus légers."
+			"lore": "Deux mondes saints sont sous la garde de l'empire. Les pèlerins y viennent de tous les pays de la foi."
 		},
 		"maitre_espion": {
 			"label": "Maître espion",
@@ -788,7 +788,7 @@
 			"k": "operations",
 			"n": 5,
 			"text": "Réussir 5 opérations d'espionnage.",
-			"flavor": "Officiellement, rien ne s'est passé. Cinq fois."
+			"lore": "Cinq opérations ont réussi sans qu'aucune soit attribuée à l'empire. Le service reçoit un budget à part."
 		},
 		"chasseur_pirates": {
 			"label": "Chasseur de pirates",
@@ -798,7 +798,7 @@
 			"k": "lair",
 			"n": 3,
 			"text": "Détruire 3 repaires pirates.",
-			"flavor": "Les routes sont sûres. Les tavernes sont tristes."
+			"lore": "Trois repaires pirates ont été détruits. Les convois circulent sans escorte sur les routes voisines."
 		},
 		"explorateur_abimes": {
 			"label": "Explorateur des abîmes",
@@ -808,7 +808,7 @@
 			"k": "explored_terrain",
 			"n": 10,
 			"text": "Avoir exploré 10 systèmes à terrain particulier.",
-			"flavor": "Là où les cartes disaient « ne pas aller », nous sommes allés."
+			"lore": "Les éclaireurs ont relevé dix systèmes que les cartes donnaient pour impraticables. Leurs pilotes forment ceux des flottes."
 		},
 		"consolidateur": {
 			"label": "Consolidateur",
@@ -818,7 +818,7 @@
 			"k": "terrain_held",
 			"n": 6,
 			"text": "Tenir 6 systèmes à terrain particulier.",
-			"flavor": "Personne ne voulait ces nébuleuses. Elles sont à nous, avec leurs orages."
+			"lore": "L'empire tient six systèmes dont personne ne voulait, au milieu des nébuleuses et des champs d'astéroïdes. Il y a installé des postes permanents."
 		},
 		"collectionneur_eurekas": {
 			"label": "Collectionneur d'eurêkas",
@@ -828,7 +828,7 @@
 			"k": "eurekas",
 			"n": 5,
 			"text": "Obtenir 5 eurêkas.",
-			"flavor": "Cinq fois, un savant a crié dans son bain. Cinq fois, il avait raison."
+			"lore": "Cinq découvertes de l'empire sont venues d'une observation de hasard. L'académie décide de financer les savants sans leur fixer de programme."
 		},
 		"monopoliste": {
 			"label": "Monopoliste",
@@ -838,7 +838,7 @@
 			"k": "monopoly",
 			"n": 1,
 			"text": "Tenir un monopole de luxe.",
-			"flavor": "Ils en veulent ? Ils paieront notre prix."
+			"lore": "L'empire tient presque tous les gisements d'un luxe. Les autres cours l'achètent au prix qu'il fixe."
 		},
 		"maitre_sieges": {
 			"label": "Maître des sièges",
@@ -848,7 +848,7 @@
 			"k": "conquests",
 			"n": 6,
 			"text": "Conquérir 6 systèmes.",
-			"flavor": "Aucune muraille n'a tenu. Nous avons cessé de compter les murailles."
+			"lore": "Six systèmes fortifiés sont tombés devant les armées de l'empire. Le corps du génie rédige son règlement de siège."
 		},
 		"suzerain": {
 			"label": "Suzerain",
@@ -858,7 +858,7 @@
 			"k": "proteges",
 			"n": 3,
 			"text": "Être suzerain de 3 peuples mineurs.",
-			"flavor": "Trois petits peuples nous appellent « protecteur ». Les plus polis."
+			"lore": "Trois peuples mineurs se sont placés sous la protection de l'empire. Chacun envoie un représentant à sa cour."
 		},
 		"conservateur": {
 			"label": "Conservateur",
@@ -868,7 +868,7 @@
 			"k": "museum",
 			"n": 1,
 			"text": "Ouvrir un Musée galactique.",
-			"flavor": "Le passé de la galaxie a un toit. C'est le nôtre."
+			"lore": "Un Musée galactique ouvre ses portes dans l'empire. Les antiquités des peuples disparus y sont réunies pour la première fois."
 		},
 		"toile_araignee": {
 			"label": "Toile d'araignée",
@@ -878,7 +878,7 @@
 			"k": "networks_all",
 			"n": 1,
 			"text": "Tenir un réseau d'espionnage chez chaque empire rencontré (trois au moins).",
-			"flavor": "Il n'y a plus de secret dans la galaxie. Il n'y a que des secrets que nous n'avons pas encore lus."
+			"lore": "L'empire entretient un réseau d'agents dans chaque cour étrangère. Peu de décisions s'y prennent sans qu'il en soit averti."
 		},
 		"dompteur": {
 			"label": "Dompteur",
@@ -888,7 +888,7 @@
 			"k": "studied",
 			"n": 3,
 			"text": "Avoir étudié 3 espèces de créatures.",
-			"flavor": "Elles mordent toujours. Mais nous savons désormais pourquoi."
+			"lore": "Les naturalistes ont achevé l'étude de trois espèces du vide. Les amiraux savent désormais ce qui les attire et ce qui les fait fuir."
 		},
 		"coeur_battant": {
 			"label": "Cœur battant",
@@ -898,7 +898,7 @@
 			"k": "colony_pop",
 			"n": 25,
 			"text": "Avoir une colonie à 25 de population.",
-			"flavor": "Une ville qui ne dort jamais, sur un monde qui ne finit pas."
+			"lore": "Une colonie de l'empire a grandi jusqu'à couvrir son monde. Elle compte plus d'habitants que certains États voisins."
 		},
 		"esprit_encyclopedique": {
 			"label": "Esprit encyclopédique",
@@ -908,7 +908,7 @@
 			"k": "techs",
 			"n": 60,
 			"text": "Connaître 60 technologies.",
-			"flavor": "Nous savons presque tout. Le reste, nous l'inventerons."
+			"lore": "Soixante découvertes majeures sont enseignées dans l'empire. Ses savants travaillent dans tous les domaines connus."
 		},
 		"corne_abondance": {
 			"label": "Corne d'abondance",
@@ -918,7 +918,7 @@
 			"k": "luxuries",
 			"n": 6,
 			"text": "Profiter de 6 luxes différents.",
-			"flavor": "Le superflu, chose très nécessaire."
+			"lore": "Six produits de luxe arrivent sur les marchés de l'empire. Les colons les plus éloignés en trouvent chez leurs marchands."
 		},
 		"levee_en_masse": {
 			"label": "Levée en masse",
@@ -928,7 +928,7 @@
 			"k": "regiments",
 			"n": 20,
 			"text": "Tenir 20 régiments.",
-			"flavor": "Vingt régiments au pas. Le sol tremble, les voisins aussi."
+			"lore": "Vingt régiments sont sous les armes. Les casernes ne suffisent plus et l'on en bâtit dans chaque colonie."
 		},
 		"legislateur": {
 			"label": "Législateur",
@@ -938,7 +938,7 @@
 			"k": "nomos",
 			"n": 3,
 			"text": "Faire adopter 3 lois du Nomos.",
-			"flavor": "La galaxie a un code. Nous en avons écrit les meilleurs articles."
+			"lore": "Trois lois du Nomos portent la signature de l'empire. Ses juristes siègent dans toutes les commissions."
 		},
 		"conversion_capitale": {
 			"label": "Conversion d'une capitale",
@@ -948,7 +948,7 @@
 			"k": "capital_converted",
 			"n": 1,
 			"text": "La foi que vous avez fondée domine la capitale d'origine d'un rival.",
-			"flavor": "Leurs prêtres prient désormais nos dieux. Les leurs sont vexés."
+			"lore": "La foi née dans l'empire a gagné la capitale d'un rival. Le clergé local s'y est rallié."
 		},
 		"multitudes": {
 			"label": "Multitudes",
@@ -958,7 +958,7 @@
 			"k": "pop_total",
 			"n": 300,
 			"text": "Avoir 300 de population dans l'empire.",
-			"flavor": "Nous sommes légion. Et légion a faim."
+			"lore": "La population de l'empire dépasse tout ce que ses fondateurs avaient prévu. Le recensement demande trois ans de travail."
 		},
 		"bout_arbre": {
 			"label": "Au bout de l'arbre",
@@ -968,7 +968,7 @@
 			"k": "branch_full",
 			"n": 1,
 			"text": "Connaître toutes les technologies d'un domaine.",
-			"flavor": "Il n'y a plus de branche à ce rameau. Il faudra planter un autre arbre."
+			"lore": "Les savants ont épuisé un domaine entier des sciences. La faculté qui l'enseignait se tourne vers les applications."
 		},
 		"banquier_etoiles": {
 			"label": "Banquier des étoiles",
@@ -979,7 +979,7 @@
 			"n": 8000,
 			"x": "materials",
 			"text": "Avoir 8 000 matériaux en réserve.",
-			"flavor": "Notre trésor a sa propre gravité."
+			"lore": "Les réserves de l'État dépassent ce que plusieurs empires produisent en dix ans. Les voisins viennent y emprunter."
 		},
 		"invaincu": {
 			"label": "Invaincu",
@@ -989,7 +989,7 @@
 			"k": "streak",
 			"n": 10,
 			"text": "Gagner 10 batailles d'affilée.",
-			"flavor": "Dix batailles, dix victoires. La onzième, on la gagnera par habitude."
+			"lore": "Les flottes de l'empire ont remporté dix batailles de suite. Les amiraux adverses évitent désormais la rencontre."
 		},
 		"casse_millenaire": {
 			"label": "Le casse du millénaire",
@@ -1001,7 +1001,7 @@
 				"registre": "Picaresque / pulp"
 			},
 			"text": "Voler une relique.",
-			"flavor": "Elle était sous trois gardes, deux verrous et un dragon. Le dragon dormait."
+			"lore": "Des agents ont enlevé une relique dans le trésor d'un rival. Les gardes n'ont constaté le vol qu'à l'inventaire suivant."
 		},
 		"empire_marchand": {
 			"label": "Empire marchand",
@@ -1013,7 +1013,7 @@
 				"credo": "profit"
 			},
 			"text": "Tenir 10 routes commerciales actives.",
-			"flavor": "Tout se vend. Tout s'achète. Surtout chez nous."
+			"lore": "Dix routes commerciales aboutissent aux ports de l'empire. Sa monnaie a cours sur toutes les places."
 		},
 		"grande_digestion": {
 			"label": "La Grande Digestion",
@@ -1025,7 +1025,7 @@
 				"archetype": "ruche"
 			},
 			"text": "Digérer 200 de biomasse.",
-			"flavor": "Rien ne se perd. Tout se mange."
+			"lore": "La ruche a absorbé la matière vivante de plusieurs mondes. Rien de ce qu'elle a pris n'a été perdu."
 		},
 		"cathedrale_cathedrales": {
 			"label": "Cathédrale des cathédrales",
@@ -1037,7 +1037,7 @@
 				"gouvernement": "theocratie"
 			},
 			"text": "Tenir 3 mondes saints.",
-			"flavor": "Trois lieux saints, et toujours pas assez de bancs."
+			"lore": "Trois mondes saints relèvent de l'empire. Le clergé y tient ses conciles à tour de rôle."
 		},
 		"idole": {
 			"label": "L'Idole",
@@ -1049,7 +1049,7 @@
 				"credo": "plaisir"
 			},
 			"text": "Être Influent chez trois rivaux.",
-			"flavor": "Ils veulent nous ressembler. Nous les laissons essayer."
+			"lore": "Trois peuples rivaux ont adopté les modes et les arts de l'empire. Leurs élites y envoient leurs enfants étudier."
 		},
 		"serment_tenu": {
 			"label": "Le serment tenu",
@@ -1061,7 +1061,7 @@
 				"credo": "honneur"
 			},
 			"text": "Gagner 15 batailles.",
-			"flavor": "Nous avions juré de ne jamais reculer. Nous n'avons pas eu à le faire."
+			"lore": "Quinze batailles ont été gagnées sans qu'une flotte rompe le combat. Le serment des capitaines est inscrit dans la loi."
 		},
 		"derniers_debout": {
 			"label": "Les derniers debout",
@@ -1073,7 +1073,7 @@
 				"credo": "survie"
 			},
 			"text": "Survivre à une crise de fin de partie.",
-			"flavor": "Le ciel est tombé. Nous l'avons ramassé."
+			"lore": "L'empire a traversé une crise qui a détruit des États entiers. Il reçoit les réfugiés des autres et rebâtit avec eux."
 		},
 		"briseur_mondes": {
 			"label": "Briseur de mondes",
@@ -1082,7 +1082,7 @@
 			"k": "exterminated",
 			"n": 10,
 			"text": "Exterminer 10 de population.",
-			"flavor": "Les archives parleront de nous. Pas en bien."
+			"lore": "Les armées de l'empire ont dépeuplé des mondes entiers. Les archives étrangères en tiennent le compte."
 		},
 		"fossoyeur_traites": {
 			"label": "Fossoyeur de traités",
@@ -1091,7 +1091,7 @@
 			"k": "broke",
 			"n": 3,
 			"text": "Rompre 3 traités de paix ou d'alliance.",
-			"flavor": "Notre parole vaut ce qu'elle vaut. Elle ne vaut plus grand-chose."
+			"lore": "L'empire a rompu trois traités solennels. Les chancelleries n'acceptent plus sa signature sans garanties."
 		},
 		"bruleur_archives": {
 			"label": "Brûleur d'archives",
@@ -1100,7 +1100,7 @@
 			"k": "archives",
 			"n": 3,
 			"text": "Brûler 3 fois les archives d'un rival.",
-			"flavor": "L'histoire est écrite par les vainqueurs. Nous avons simplement effacé celle des autres."
+			"lore": "Par trois fois, des agents de l'empire ont brûlé les archives d'un rival. Des siècles de travaux n'existent plus qu'en fragments."
 		},
 		"survivant": {
 			"label": "Survivant",
@@ -1109,7 +1109,7 @@
 			"k": "crisis_survived",
 			"n": 2,
 			"text": "Survivre à deux crises de fin de partie.",
-			"flavor": "Deux fois la fin du monde. Deux fois le lendemain."
+			"lore": "L'empire a survécu à deux crises. Ses institutions prévoient désormais la suivante."
 		},
 		"tresor_quetes": {
 			"label": "Le trésor des quêtes",
@@ -1118,7 +1118,7 @@
 			"k": "quest_relics",
 			"n": 3,
 			"text": "Réunir 3 reliques de quête.",
-			"flavor": "Trois légendes dans une même vitrine. Le gardien du musée ne dort plus."
+			"lore": "Trois reliques de légende sont réunies dans le même trésor. Les savants peuvent enfin les comparer."
 		},
 		"phenix": {
 			"label": "Phénix",
@@ -1127,7 +1127,7 @@
 			"k": "phoenix",
 			"n": 1,
 			"text": "Reprendre sa capitale d'origine perdue.",
-			"flavor": "Ils l'avaient prise. Nous l'avons reprise. Ils s'en souviendront."
+			"lore": "L'empire reprend la capitale qu'il avait perdue. Le gouvernement y rentre le jour anniversaire de sa chute."
 		},
 		"david": {
 			"label": "David",
@@ -1136,7 +1136,7 @@
 			"k": "david",
 			"n": 1,
 			"text": "Signer la paix en vainqueur contre un empire plus grand que soi.",
-			"flavor": "La fronde n'était pas grande. La pierre a suffi."
+			"lore": "Un empire plus vaste et plus peuplé signe la paix aux conditions du vainqueur. Les écoles de guerre cherchent à comprendre comment."
 		},
 		"long_silence": {
 			"label": "Le long silence",
@@ -1145,25 +1145,25 @@
 			"k": "silence",
 			"n": 1,
 			"text": "Vingt ans sans guerre ni opération d'espionnage subie.",
-			"flavor": "Vingt ans de calme. Les historiens n'ont rien eu à écrire, et c'est le plus beau chapitre."
+			"lore": "Vingt ans ont passé sans guerre ni affaire d'espionnage. Une génération entière a grandi sans connaître l'alerte."
 		},
-		"kardashev_ii": {"label": "Civilisation stellaire", "family": "science", "sort": "first", "k": "mega_kard", "n": 2, "text": "Premier à atteindre le type II de l'échelle de Kardashev (mégastructures en jeu).", "flavor": "Notre étoile travaille pour nous. Elle n'a pas été consultée."},
-		"kardashev_iii": {"label": "Civilisation galactique", "family": "science", "sort": "first", "k": "mega_kard", "n": 3, "text": "Premier à atteindre le type III de l'échelle de Kardashev (mégastructures en jeu).", "flavor": "Les voisins ne regardent plus le ciel : ils regardent nos chantiers."},
-		"premier_monde_anneau": {"label": "Le premier Anneau", "family": "economie", "sort": "first", "k": "mega_rings", "n": 1, "text": "Premier à achever un Monde-anneau (mégastructures en jeu).", "flavor": "Le soleil ne se couche jamais. Les horaires de travail ont dû être revus."},
-		"pas_seuls": {"label": "Nous ne sommes pas seuls", "family": "science", "sort": "first", "k": "ct_porteuse", "n": 1, "text": "Premier empire à déchiffrer la Porteuse du Signal (Contact en jeu).", "flavor": "2, 3, 5, 7, 11… Quelqu'un, là-bas, sait compter. C'est un début."},
-		"ce_que_nous_fumes": {"label": "Ce que nous fûmes", "family": "perils", "sort": "secret", "k": "ct_echo_crime", "n": 1, "text": "Voir l'Écho du Signal ressortir un de vos crimes oubliés (Contact en jeu).", "flavor": "On croyait l'émission perdue. L'univers, lui, garde tout."},
-		"ne_pas_repondre": {"label": "On vous avait dit de ne pas répondre", "family": "perils", "sort": "secret", "k": "ct_survived", "n": 1, "text": "Survivre à l'Outre-Nuit après l'avoir appelée (Contact en jeu).", "flavor": "La prochaine fois, peut-être, on lira l'Abécédaire jusqu'au bout."},
-		"atelier_de_mondes": {"label": "Atelier de mondes", "family": "science", "sort": "first", "k": "forge_made", "n": 5, "text": "Premier à achever cinq mondes façonnés (Forge des mondes en jeu).", "flavor": "Magrathea avait un catalogue. Nous avons un carnet de commandes."},
-		"le_grand_vide": {"label": "Le Grand Vide", "family": "perils", "sort": "secret", "k": "forge_void", "n": 1, "text": "Démanteler le dernier monde d'un système, jusqu'à ce qu'il ne reste que l'étoile (Forge des mondes complète).", "flavor": "Elle brille toujours. Pour qui, on ne sait plus."},
-		"premier_berceau": {"label": "Le premier à revenir", "family": "exploration", "sort": "first", "k": "archaeo_cradle", "n": 1, "text": "Être le premier à fouler le Monde-berceau d'un Disparu (archéologie complète).", "flavor": "Sur le seuil, une inscription : « Ne touchez à rien. » Évidemment, on a tout touché."},
-		"trois_reconstitutions": {"label": "Les morceaux recollés", "family": "foi", "sort": "record", "k": "archaeo_reco", "n": 3, "text": "Achever trois Reconstitutions (archéologie complète).", "flavor": "Il manquait une vis. On l'a remplacée par une vis d'aujourd'hui. Personne ne l'a remarqué, sauf les morts."},
-		"musee_theme": {"label": "Une salle entière", "family": "foi", "sort": "first", "k": "archaeo_theme", "n": 1, "text": "Exposer une salle à thème complète d'antiquités dans le Musée galactique (archéologie complète).", "flavor": "Le guide parle depuis quarante minutes. Les enfants regardent la sortie de secours, qui est d'époque."},
-		"cercle_decimales": {"label": "Un cercle dans les décimales", "family": "science", "sort": "first", "k": "ct_won", "n": 1, "text": "Recevoir la réponse des Lointains (Contact en jeu).", "flavor": "Tout au fond des décimales de pi, une suite de zéros et de uns dessine un cercle. Quelqu'un l'a mis là."},
-		"prise_titan": {"label": "Prise d'un titan", "family": "guerre", "sort": "first", "k": "cap_titan", "n": 1, "text": "Prendre une méga-coque à l'abordage ou par reddition (prises de guerre complètes).", "flavor": "Le nouveau propriétaire a fait repeindre la coque. Il a fallu quatre cents litres et un discours."},
-		"flotte_prises": {"label": "Flotte de prises", "family": "guerre", "sort": "first", "k": "cap_fleet", "n": 10, "text": "Avoir 10 prises en service en même temps (prises de guerre complètes).", "flavor": "Aucun vaisseau de cette flotte n'a été construit par nous. Tous ont été payés, d'une façon ou d'une autre."},
-		"ferrailleur": {"label": "Ferrailleur", "family": "economie", "sort": "first", "k": "cap_scrap", "n": 50, "text": "Récolter 50 épaves (champs d'épaves, cimetières, politique Ferrailler).", "flavor": "Un vaisseau perdu, c'est triste. Cinquante, c'est un stock."},
-		"jardinier_kynes": {"label": "Le Jardinier de Kynes", "family": "expansion", "sort": "first", "k": "eco_regreen", "n": 1, "text": "Faire reverdir un monde : désert, banquise ou monde toxique florissant pendant cinq ans (écologie Complète).", "flavor": "Il a fallu cinq ans, trois réserves et un ministre qui arrosait lui-même. Le désert a cédé le premier."},
-		"terre_brulee": {"label": "Terre brûlée", "family": "guerre", "sort": "infamous", "k": "eco_shift", "n": 3, "text": "Faire basculer le climat de trois de ses mondes (écologie Complète).", "flavor": "« Le ciel était bleu, autrefois », dit le guide. Personne ne le croit."},
+		"kardashev_ii": {"label": "Civilisation stellaire", "family": "science", "sort": "first", "k": "mega_kard", "n": 2, "text": "Premier à atteindre le type II de l'échelle de Kardashev (mégastructures en jeu).", "lore": "L'empire capte la plus grande part de l'énergie de son étoile. Ses ouvrages sont visibles depuis les systèmes voisins."},
+		"kardashev_iii": {"label": "Civilisation galactique", "family": "science", "sort": "first", "k": "mega_kard", "n": 3, "text": "Premier à atteindre le type III de l'échelle de Kardashev (mégastructures en jeu).", "lore": "Les ouvrages de l'empire tirent leur énergie de centaines d'étoiles. Aucune autre puissance connue n'a atteint cette échelle."},
+		"premier_monde_anneau": {"label": "Le premier Anneau", "family": "economie", "sort": "first", "k": "mega_rings", "n": 1, "text": "Premier à achever un Monde-anneau (mégastructures en jeu).", "lore": "Le premier Monde-anneau est fermé autour de son étoile. Les colons s'y installent sur une terre où le jour ne finit pas."},
+		"pas_seuls": {"label": "Nous ne sommes pas seuls", "family": "science", "sort": "first", "k": "ct_porteuse", "n": 1, "text": "Premier empire à déchiffrer la Porteuse du Signal (Contact en jeu).", "lore": "Les savants de l'empire isolent dans le Signal une suite de nombres premiers. La galaxie apprend qu'une intelligence émet depuis l'extérieur."},
+		"ce_que_nous_fumes": {"label": "Ce que nous fûmes", "family": "perils", "sort": "secret", "k": "ct_echo_crime", "n": 1, "text": "Voir l'Écho du Signal ressortir un de vos crimes oubliés (Contact en jeu).", "lore": "L'Écho du Signal restitue une émission ancienne de l'empire. Elle porte la trace d'un crime que ses archives avaient effacé."},
+		"ne_pas_repondre": {"label": "On vous avait dit de ne pas répondre", "family": "perils", "sort": "secret", "k": "ct_survived", "n": 1, "text": "Survivre à l'Outre-Nuit après l'avoir appelée (Contact en jeu).", "lore": "L'empire a répondu au Signal malgré les avertissements, et l'Outre-Nuit est venue. Il y a survécu."},
+		"atelier_de_mondes": {"label": "Atelier de mondes", "family": "science", "sort": "first", "k": "forge_made", "n": 5, "text": "Premier à achever cinq mondes façonnés (Forge des mondes en jeu).", "lore": "Cinq mondes ont été façonnés par les architectes de l'empire. Ils reçoivent maintenant des commandes de l'étranger."},
+		"le_grand_vide": {"label": "Le Grand Vide", "family": "perils", "sort": "secret", "k": "forge_void", "n": 1, "text": "Démanteler le dernier monde d'un système, jusqu'à ce qu'il ne reste que l'étoile (Forge des mondes complète).", "lore": "Les architectes ont démantelé jusqu'à la dernière planète d'un système. L'étoile y brille seule."},
+		"premier_berceau": {"label": "Le premier à revenir", "family": "exploration", "sort": "first", "k": "archaeo_cradle", "n": 1, "text": "Être le premier à fouler le Monde-berceau d'un Disparu (archéologie complète).", "lore": "Une expédition de l'empire se pose sur le monde natal d'un peuple disparu. Personne n'y avait marché depuis leur départ."},
+		"trois_reconstitutions": {"label": "Les morceaux recollés", "family": "foi", "sort": "record", "k": "archaeo_reco", "n": 3, "text": "Achever trois Reconstitutions (archéologie complète).", "lore": "Trois engins de peuples disparus ont été rebâtis d'après leurs débris. Les pièces manquantes ont été refaites sur calcul."},
+		"musee_theme": {"label": "Une salle entière", "family": "foi", "sort": "first", "k": "archaeo_theme", "n": 1, "text": "Exposer une salle à thème complète d'antiquités dans le Musée galactique (archéologie complète).", "lore": "Le Musée galactique consacre une salle entière à un seul thème. Les visiteurs y suivent une civilisation de sa naissance à sa fin."},
+		"cercle_decimales": {"label": "Un cercle dans les décimales", "family": "science", "sort": "first", "k": "ct_won", "n": 1, "text": "Recevoir la réponse des Lointains (Contact en jeu).", "lore": "Les Lointains ont répondu. Leur message désigne, très loin dans les décimales d'une constante, une figure qui ne peut pas s'y trouver par hasard."},
+		"prise_titan": {"label": "Prise d'un titan", "family": "guerre", "sort": "first", "k": "cap_titan", "n": 1, "text": "Prendre une méga-coque à l'abordage ou par reddition (prises de guerre complètes).", "lore": "Une méga-coque ennemie passe sous le pavillon de l'empire. Elle rejoint sa flotte après avoir été repeinte à ses couleurs."},
+		"flotte_prises": {"label": "Flotte de prises", "family": "guerre", "sort": "first", "k": "cap_fleet", "n": 10, "text": "Avoir 10 prises en service en même temps (prises de guerre complètes).", "lore": "Dix bâtiments pris à l'ennemi servent dans les flottes de l'empire. Leurs équipages ont appris à lire les cadrans étrangers."},
+		"ferrailleur": {"label": "Ferrailleur", "family": "economie", "sort": "first", "k": "cap_scrap", "n": 50, "text": "Récolter 50 épaves (champs d'épaves, cimetières, politique Ferrailler).", "lore": "Cinquante épaves ont été récupérées sur les champs de bataille. Les arsenaux en tirent des pièces pour toute la flotte."},
+		"jardinier_kynes": {"label": "Le Jardinier de Kynes", "family": "expansion", "sort": "first", "k": "eco_regreen", "n": 1, "text": "Faire reverdir un monde : désert, banquise ou monde toxique florissant pendant cinq ans (écologie Complète).", "lore": "Un monde hostile est devenu fertile après des années de travaux. Les agronomes y ont planté les premières forêts."},
+		"terre_brulee": {"label": "Terre brûlée", "family": "guerre", "sort": "infamous", "k": "eco_shift", "n": 3, "text": "Faire basculer le climat de trois de ses mondes (écologie Complète).", "lore": "L'industrie de l'empire a déréglé le climat de trois de ses mondes. Les colons y vivent sous abri."},
 		"au_bord_abime": {
 			"label": "Au bord de l'abîme",
 			"family": "expansion",
@@ -1171,7 +1171,7 @@
 			"k": "blackhole_colony",
 			"n": 1,
 			"text": "Coloniser un système à trou noir.",
-			"flavor": "Le soleil ne se lève jamais. Il tombe, très lentement."
+			"lore": "Des colons s'installent dans un système dont l'étoile est un trou noir. Leur ciel est occupé par le disque de matière qui y tombe."
 		}
 	}
 }

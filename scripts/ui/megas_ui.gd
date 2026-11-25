@@ -121,7 +121,7 @@ static func build(es: EmpireScreens) -> void:
 		var where := Megastructures.site_name(state, {"s": int(site[0]), "p": int(site[1])})
 		es._side_box.add_child(_btn(es, "%s : %s (%s)" % [Megastructures.label(k), where, GameData.format_amounts(Megastructures.stage_cost(state, player, k, 0, int(site[0])))],
 				SimCommands.mega_act(player, "plan", {"k": k, "s": int(site[0]), "p": int(site[1])}),
-				"Le Vaisseau-architecte libre le plus proche part poser le Chantier ; il doit rester sur place jusqu'à ce qu'il tienne.\n\n" + String(Megastructures.kind_def(k).get("text", "")),
+				"Le Vaisseau-architecte libre le plus proche part poser le Chantier ; il doit rester sur place jusqu'à ce qu'il tienne.\n\n" + Megastructures.fiche_text(k),
 				"plan:" + k))
 	if not any:
 		es._side_box.add_child(UiTheme.paragraph("Aucun site disponible : il faut la technologie, un système tenu qui convient et la place dans les limites du type.", w, 12))
@@ -175,7 +175,7 @@ static func build(es: EmpireScreens) -> void:
 		var open := Megastructures.unlocked(state, player, k)
 		var made := WondersUi.catalog_card("mega_" + k, COLOR, Megastructures.label(k), "DISPONIBLE" if open else "TECHNOLOGIE MANQUANTE",
 				UiTheme.GOOD if open else UiTheme.TEXT_DIM, "Ère %d · %d étape%s" % [int(d.get("era", 1)), st.size(), "s" if st.size() > 1 else ""],
-				String(d.get("text", "")), ("" if open else "Il manque : %s.\n" % Research.missing_text(state, player, d.get("tech", []))) + "Étapes : %s." % ", ".join(st), not open)
+				GameData.lore_then(String(d.get("lore", "")), String(d.get("text", ""))), ("" if open else "Il manque : %s.\n" % Research.missing_text(state, player, d.get("tech", []))) + "Étapes : %s." % ", ".join(st), not open)
 		flow.add_child(made[0])
 		es.wonder_cards["mega:" + k] = made[0]
 
@@ -193,7 +193,7 @@ static func actions_for(es: EmpireScreens, m: Dictionary) -> Array[Button]:
 	holder.flat = true
 	holder.disabled = true
 	holder.clip_text = true
-	holder.tooltip_text = String(Megastructures.kind_def(k).get("text", ""))
+	holder.tooltip_text = Megastructures.fiche_text(k)
 	out.append(holder)
 	if Megastructures.is_ruin(m):
 		return out
@@ -288,7 +288,7 @@ static func system_actions(state: GameState, player: int, p: Planet, emit: Calla
 			var where := Megastructures.site_name(state, {"s": sid, "p": tp})
 			out.append(WondersUi._act(state, SimCommands.mega_act(player, "plan", {"k": k, "s": sid, "p": tp}), "Mégastructure : %s" % Megastructures.label(k),
 					"%s  »  %s" % [GameData.format_amounts(Megastructures.stage_cost(state, player, k, 0, sid)), where],
-					"Un Vaisseau-architecte part poser le Chantier et reste jusqu'à ce qu'il tienne.\n\n" + String(Megastructures.kind_def(k).get("text", "")), emit))
+					"Un Vaisseau-architecte part poser le Chantier et reste jusqu'à ce qu'il tienne.\n\n" + Megastructures.fiche_text(k), emit))
 	if p.id != first:
 		return out
 	for m in Megastructures.in_system(state, sid):

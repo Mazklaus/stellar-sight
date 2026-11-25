@@ -440,10 +440,9 @@ static func _award(state: GameState, id: String, eids: Array[int], added: Array[
 		DeedsBridges.on_award(state, eid, id, added)
 		_offer(state, eid, id, added)
 	var who := " et ".join(names)
-	var txt := "Haut fait : %s accomplit « %s » (%s). %s" % [who, label(id), String(def(id).get("text", "")).trim_suffix("."),
-			String(def(id).get("flavor", ""))]
+	var txt := "Haut fait : %s accomplit « %s » (%s)." % [who, label(id), String(def(id).get("text", "")).trim_suffix(".")]
 	if sort_of(id) == "infamous":
-		txt += " Toute la galaxie s'en souviendra, et pas en bien."
+		txt += " Les autres empires en garderont le souvenir."
 	added.append(state.add_chronicle(txt))
 
 

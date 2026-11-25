@@ -54,6 +54,11 @@ static func kind_def(k: String) -> Dictionary:
 	return v if v is Dictionary else {}
 
 
+## Description d'univers puis effets d'une mégastructure, pour les bulles et les fiches.
+static func fiche_text(k: String) -> String:
+	return GameData.lore_then(String(kind_def(k).get("lore", "")), String(kind_def(k).get("text", "")))
+
+
 static func is_kind(k: String) -> bool:
 	return kinds().has(k)
 
@@ -982,7 +987,7 @@ static func finish_stage(state: GameState, m: Dictionary, added: Array[Dictionar
 		if not first.has(k):
 			first[k] = eid
 		Announce.next(state, "mega_done", {"actor": eid, "system": int(m["s"])})
-		added.append(state.add_chronicle("%s achève son %s : « %s »" % [e.short_name(), name_of(state, m), String(kind_def(k).get("quote", ""))],
+		added.append(state.add_chronicle("%s achève son %s." % [e.short_name(), name_of(state, m)],
 				_who(state, eid, int(m["s"]), k, pub)))
 		MegasBridges.on_complete(state, m, added)
 	elif n == 0:

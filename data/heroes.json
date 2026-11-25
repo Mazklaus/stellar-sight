@@ -222,7 +222,7 @@
 		"chasseur_ombres": {"label": "Chasseur d'ombres", "cls": "stratege", "stealth": true, "text": "Furtivité en jeu : +25 % de dégâts dans une bataille où une flotte ennemie était cachée.", "fx": {"stealth_hunter_pct": 25}},
 		"archeologue": {"label": "Archéologue", "cls": "", "earned": true, "text": "Gagné en menant des fouilles (archéologie complète) : +2 à chaque jet de fouille dans le système qu'il gouverne.", "fx": {"dig_skill": 2}},
 		"architecte": {"label": "Architecte", "cls": "", "earned": true, "text": "Gagné quand une merveille ou une mégastructure s'achève dans le système qu'il gouverne : les chantiers de merveille et les étapes de mégastructure qu'il gouverne vont 30 % plus vite.", "fx": {}},
-		"veteran_front": {"label": "Vétéran du Front", "cls": "stratege", "earned": true, "text": "A combattu une crise de fin de partie jusqu'à la victoire : +5 % de dégâts, et l'on paie ses verres.", "fx": {"damage_pct": 5}},
+		"veteran_front": {"label": "Vétéran du Front", "cls": "stratege", "earned": true, "text": "A combattu une crise de fin de partie jusqu'à la victoire : +5 % de dégâts.", "fx": {"damage_pct": 5}},
 		"tueur_monstres": {"label": "Tueur de monstres", "cls": "stratege", "earned": true, "text": "Gagné en abattant un gardien ou un fléau : +25 % de dégâts contre les créatures.", "fx": {"fauna_damage_pct": 25}},
 		"foudre": {
 			"label": "Foudre de guerre",
