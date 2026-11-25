@@ -54,6 +54,7 @@ static func _sites_block(es: EmpireScreens) -> Control:
 		var row := VBoxContainer.new()
 		row.add_theme_constant_override("separation", 6)
 		card.add_child(row)
+		row.add_child(GameIcon.Medal.new("fouille", Archaeology.site_type(state, sid), 30.0))
 		var nm := Button.new()
 		nm.flat = true
 		nm.focus_mode = Control.FOCUS_NONE
@@ -138,6 +139,8 @@ static func _trails_block(es: EmpireScreens) -> Control:
 				(" · Monde-berceau à %s" % state.galaxy.systems[int(ArchaeoWorld.cradle_of(state, d)["s"])].system_name) if known else "",
 				(" · %d antiquité(s)" % ArchaeoWorld.antiqs_of_disparu(state, player, d).size()) if v > 0 else ""], 560.0, 13)
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		if v > 0:
+			row.add_child(GameIcon.Medal.new("fouille", String(d), 30.0))
 		row.add_child(l)
 		if v > 0:
 			row.add_child(_button(es, "Reconstitution", ArchaeoWorld.check_reco(state, player, d), String((dd.get("reco", {}) as Dictionary).get("text", "")),

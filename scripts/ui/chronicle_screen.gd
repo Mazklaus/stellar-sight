@@ -308,6 +308,7 @@ static func _showcase(es: EmpireScreens, mine: Array[String]) -> Control:
 		slot.mouse_filter = Control.MOUSE_FILTER_STOP
 		if held:
 			slot.variant = rid.hash() % 97
+			slot.set_icon("relique", rid, 30.0)
 			slot.tooltip_text = "%s\n%s" % [String(Relics.def(rid)["name"]), String(Relics.def(rid)["text"])]
 		else:
 			slot.tooltip_text = "Case vide : cette relique n'est pas à vous."

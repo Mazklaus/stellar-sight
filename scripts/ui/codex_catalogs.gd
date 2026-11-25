@@ -139,9 +139,9 @@ static func entries(cid: String) -> Array:
 			var w: Dictionary = _data("data/wonders.json").get("wonders", {})
 			for k: String in w:
 				var x: Dictionary = w[k]
-				out.append(_e(cid, k, String(x["label"]), String(x.get("text", "")), String(x.get("text", "")),
+				out.append(_e(cid, k, String(x["label"]), String(x.get("lore", x.get("text", ""))), GameData.lore_then(String(x.get("lore", "")), String(x.get("text", "")), "**En jeu.** "),
 						[["Ère", _roman(int(x.get("era", 1)))], ["Coût", _amounts(x.get("cost", {}))]],
-						String(x.get("quote", "")), [String(x["label"])], ["15e-merveilles"]))
+						"", [String(x["label"])], ["15e-merveilles"]))
 		"reliques":
 			for r: Dictionary in _data("data/relics.json").get("relics", []):
 				out.append(_e(cid, String(r["id"]), String(r["name"]), String(r.get("text", "")), String(r.get("text", "")), [], "", [], ["14-perils"]))

@@ -143,7 +143,7 @@
 		},
 		{
 			"label": "Récente",
-			"text": "À peine refroidie. Parfois, on connaît encore les noms.",
+			"text": "La plus récente. Les noms de ceux qui vivaient là sont parfois encore lisibles.",
 			"diff": 0,
 			"weight": 30
 		}
@@ -159,7 +159,7 @@
 			"antiq_fx": {
 				"stability": 1
 			},
-			"text": "Foi et Rayonnement : des tombes, des prières et des gens qui n'aiment pas qu'on dérange les morts.",
+			"text": "Foi et Rayonnement : des tombes et des lieux de prière, que les descendants supposés n'aiment pas voir ouvrir.",
 			"names": [
 				"Nécropole des Sept Soleils",
 				"Ossuaire des titans",
@@ -179,7 +179,7 @@
 					"knowledge": 2
 				}
 			},
-			"text": "Savoir : des rues, des archives, des boîtes aux lettres pleines.",
+			"text": "Savoir : les rues, les archives et la correspondance d'une ville abandonnée.",
 			"names": [
 				"Archive engloutie de Vœl",
 				"Cité sous la glace",
@@ -197,7 +197,7 @@
 			"antiq_fx": {
 				"curio_power": 1
 			},
-			"text": "Détection et Contact : ils regardaient le ciel, et le ciel les regardait.",
+			"text": "Détection et Contact : les instruments d'un peuple qui surveillait le ciel.",
 			"names": [
 				"Observatoire du Dernier Matin",
 				"Oreille de pierre",
@@ -214,7 +214,7 @@
 			"antiq_fx": {
 				"damage_pct": 1
 			},
-			"text": "Militaire : la guerre laisse beaucoup de ferraille et quelques leçons.",
+			"text": "Militaire : les épaves et les positions d'une bataille ancienne.",
 			"names": [
 				"Arène des anciens rois",
 				"Plaine des lances brisées",
@@ -231,7 +231,7 @@
 			"antiq_fx": {
 				"growth_pct": 2
 			},
-			"text": "Population et génome : ils voulaient sauver la vie, et ont oublié de se sauver eux-mêmes.",
+			"text": "Population et génome : un conservatoire d'espèces, dont les bâtisseurs n'ont pas survécu.",
 			"names": [
 				"Jardins pétrifiés",
 				"Silo des premiers colons",
@@ -251,7 +251,7 @@
 					"influence": 3
 				}
 			},
-			"text": "Psionique et foi : l'air y vibre encore d'un chant que personne n'entend.",
+			"text": "Psionique et foi : un lieu de culte où les sensitifs perçoivent encore une présence.",
 			"names": [
 				"Sanctuaire du Silence",
 				"Cloître des échos",
@@ -269,7 +269,7 @@
 			"antiq_fx": {
 				"repair_pct": 3
 			},
-			"text": "Modules et gabarits : un vaisseau qu'on n'aurait jamais dû enterrer, ou qui s'est enterré tout seul.",
+			"text": "Modules et gabarits : un vaisseau enfoui, tombé là ou enterré par ses constructeurs.",
 			"names": [
 				"Vaisseau-tombeau enfoui",
 				"Forge sans fond",
@@ -303,7 +303,7 @@
 				"epave"
 			],
 			"fall": "dechirure",
-			"lore": "Ils tissaient des anneaux autour des étoiles et des sphères autour des anneaux. Un jour, leurs métiers ont tiré trop fort sur l'étoffe de l'espace, et quelque chose est passé par le trou.",
+			"lore": "Ils bâtissaient des anneaux autour des étoiles, puis des sphères autour des anneaux. Leurs derniers ouvrages ont déchiré l'espace près de leur monde natal, et quelque chose est entré par la brèche.",
 			"fall_text": "Leurs derniers relevés montrent une faille au cœur d'une tempête, et des silhouettes pâles qui en sortent. Vous saurez la reconnaître.",
 			"objects": [
 				"Navette de métier stellaire",
@@ -362,7 +362,7 @@
 				"necropole"
 			],
 			"fall": "inspection",
-			"lore": "Ils brûlaient les mondes qui leur résistaient, puis ceux qui leur ressemblaient trop. Une machine très ancienne les a jugés trop avancés, et a mis leur empire sous scellés.",
+			"lore": "Ils brûlaient les mondes qui leur résistaient, puis ceux qui leur ressemblaient trop. Une machine très ancienne les a jugés trop avancés et a mis leur empire sous scellés.",
 			"fall_text": "Les dernières archives parlent de Contrôleurs polis qui confisquaient tout. Vous savez maintenant comment ils pensent.",
 			"objects": [
 				"Lance cendrée",
@@ -417,7 +417,7 @@
 				"sanctuaire"
 			],
 			"fall": "recif",
-			"lore": "Ils semaient la vie sur les mondes morts, avec patience et beaucoup d'engrais. Leur dernier jardin s'est mis à chanter, puis à pousser sur eux.",
+			"lore": "Ils semaient la vie sur les mondes morts et la soignaient pendant des siècles. Leur dernier jardin s'est mis à chanter, puis il a recouvert leurs propres mondes.",
 			"fall_text": "Leurs carnets décrivent un corail qui chante et recouvre les planètes. Vous saurez où tailler.",
 			"objects": [
 				"Graine d'Ouvre",
@@ -475,7 +475,7 @@
 				"observatoire"
 			],
 			"fall": "krach",
-			"lore": "Mille ports, dix mille routes, un million de contrats. Une rumeur sur une route de saut a suffi : en un an, tout s'est vendu, puis plus rien ne s'est acheté.",
+			"lore": "Ils tenaient mille ports et dix mille routes. Une rumeur sur une route de saut a déclenché une panique, et tout leur commerce s'est arrêté en un an.",
 			"fall_text": "Leurs registres montrent la panique suivre les routes commerciales. Vous savez où couper les ponts.",
 			"objects": [
 				"Sceau des Mille Ports",
@@ -531,7 +531,7 @@
 				"necropole"
 			],
 			"fall": "outre_nuit",
-			"lore": "Ils parlaient d'esprit à esprit et chantaient sans voix. Un jour, une réponse est venue de très loin. Ils ont chanté plus fort pour la saluer. C'était une erreur.",
+			"lore": "Ils se parlaient d'esprit à esprit, sans voix. Une réponse leur est venue de très loin, et ils ont émis plus fort pour la saluer. Personne n'a plus rien reçu d'eux ensuite.",
 			"fall_text": "Leur dernier chant est une mise en garde : ceux qui répondent par la Bordure ont faim. Vous les entendrez venir.",
 			"objects": [
 				"Diapason muet",
@@ -613,7 +613,7 @@
 			"weight": 30,
 			"grave": true,
 			"clues": -1,
-			"text": "une équipe s'est perdue dans les galeries. On la retrouvera, peut-être, dans un prochain chapitre."
+			"text": "une équipe s'est perdue dans les galeries. Les recherches se poursuivent."
 		},
 		{
 			"id": "eboulement",
@@ -621,13 +621,13 @@
 			"grave": true,
 			"clues": -2,
 			"wound": true,
-			"text": "éboulement dans la salle principale : le chef de chantier jure que la voûte était « parfaitement stable hier »."
+			"text": "éboulement dans la salle principale. La voûte avait été jugée stable la veille."
 		},
 		{
 			"id": "danger_evite",
 			"weight": 25,
 			"clues": 3,
-			"text": "un piège ancien désamorcé de justesse. Il indiquait, très poliment, la bonne direction."
+			"text": "un piège ancien a été désamorcé de justesse. Son mécanisme indiquait la direction de la salle suivante."
 		},
 		{
 			"id": "paiement",

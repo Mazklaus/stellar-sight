@@ -1039,6 +1039,7 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 			"text": "Mettre en file : %s" % b["label"],
 			"detail": "%s, %d j  »  %s" % [GameData.format_amounts(Economy.building_cost(_state, _player, bid)), int(b["days"]), gain],
 			"reason": "",
+			"icon": ["batiment", bid],
 			"tooltip": "Le chantier est occupé : ce bâtiment sera lancé, et payé, dès qu'il se libère.\n\n%s" % tip,
 			"action": func() -> void: command_requested.emit(bq),
 		}
@@ -1046,6 +1047,7 @@ func _build_action(p: Planet, bid: String, b: Dictionary) -> Dictionary:
 		"text": "%s : %s" % [verb, b["label"]],
 		"detail": "%s, %d j  »  %s" % [GameData.format_amounts(Economy.building_cost(_state, _player, bid)), int(b["days"]), gain],
 		"reason": reason,
+		"icon": ["batiment", bid],
 		"tooltip": ("%s\n\n%s" % [reason, tip]) if reason != "" and tip != "" else (reason if reason != "" else tip),
 		"action": func() -> void: build_requested.emit(pid, bid),
 	}
@@ -1073,6 +1075,8 @@ func _set_actions(actions: Array[Dictionary]) -> void:
 		b.disabled = a["reason"] != ""
 		b.tooltip_text = a["tooltip"]
 		b.pressed.connect(a["action"])
+		if a.has("icon"):
+			GameIcon.on_button(b, String(a["icon"][0]), String(a["icon"][1]), 30)
 		b.set_meta("tab", String(a.get("tab", "overview")))
 		_actions.add_child(b)
 

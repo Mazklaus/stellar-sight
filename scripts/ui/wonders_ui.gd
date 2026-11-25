@@ -52,7 +52,7 @@ static func system_actions(state: GameState, player: int, p: Planet, emit: Calla
 		out.append(_act(state, cmd, "Merveille : %s" % Wonders.label(wid),
 				"avance %s (total %s), %d j  »  %s" % [GameData.format_amounts(Wonders.advance_cost(state, player, wid)),
 						GameData.format_amounts(Wonders.total_cost(state, player, wid)), int(Wonders.def(wid).get("days", 360)), Wonders.family_label(Wonders.family(wid))],
-				Wonders.effect_text(wid), emit))
+				Wonders.fiche_text(wid), emit))
 	return out
 
 
@@ -285,7 +285,7 @@ static func _card(es: EmpireScreens, wid: String, seen: Dictionary) -> Control:
 	var fam := Wonders.family(wid)
 	var made := catalog_card("wonder_" + wid, FAMILY_TINTS.get(fam, Color(0.9, 0.78, 0.45)), Wonders.label(wid), String(st["text"]), st["color"],
 			"%s · %s · %d j" % [Wonders.family_label(fam), GameData.format_amounts(Wonders.total_cost(state, player, wid)), int(Wonders.def(wid).get("days", 360))],
-			Wonders.effect_text(wid), String(st["detail"]), String(st["id"]) == "done" or String(st["id"]) == "locked")
+			Wonders.fiche_text(wid), String(st["detail"]), String(st["id"]) == "done" or String(st["id"]) == "locked")
 	if String(st["id"]) == "free" or String(st["id"]) == "race":
 		var site := _first_site(state, player, wid)
 		if site >= 0:

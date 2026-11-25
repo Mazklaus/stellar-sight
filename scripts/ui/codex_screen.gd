@@ -30,6 +30,9 @@ var _body: RichTextLabel
 var _captures: VBoxContainer
 var _scroll: ScrollContainer
 var _art: Widgets.ArtSlot
+## Icône encadrée de l'entrée de catalogue (bâtiment, relique, luxe), au-dessus de l'illustration.
+var _medal: GameIcon.Medal
+const MEDAL_FAMILIES := {"batiments": "batiment", "reliques": "relique", "biens": "ressource"}
 var _rows: GridContainer
 var _also: VBoxContainer
 var _manual_btn: Button
@@ -153,6 +156,9 @@ func _ready() -> void:
 	right.custom_minimum_size = Vector2(RIGHT_W, 0)
 	right.add_theme_constant_override("separation", 10)
 	body.add_child(right)
+	_medal = GameIcon.Medal.new("", "", 76.0)
+	_medal.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	right.add_child(_medal)
 	_art = Widgets.ArtSlot.new("", Vector2(RIGHT_W, 170))
 	right.add_child(_art)
 	_rows = GridContainer.new()
@@ -518,6 +524,11 @@ func _show(aid: String) -> void:
 				if not c2.is_empty():
 					_add_row("Chapitre", CodexData.chapter_label(c2))
 	_art.tech_id = aid.trim_prefix("cat:technologies:") if aid.begins_with("cat:technologies:") and not locked else ""
+	var cat := aid.split(":")
+	if cat.size() == 3 and cat[0] == "cat" and MEDAL_FAMILIES.has(cat[1]) and not locked:
+		_medal.set_entry(String(MEDAL_FAMILIES[cat[1]]), cat[2])
+	else:
+		_medal.set_entry("", "")
 	_art.custom_minimum_size.y = 240.0 if _art.tech_id != "" else 170.0  # l'image de la technologie, en grand
 	_art.motif = "star" if aid.begins_with("cat:galerie:") else "none"
 	_art.set_art(art_id, UiTheme.ACCENT)

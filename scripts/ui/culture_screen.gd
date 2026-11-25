@@ -238,6 +238,7 @@ static func _museum_block(state: GameState, ex: Array[String]) -> Control:
 		slot.mouse_filter = Control.MOUSE_FILTER_STOP
 		if held:
 			slot.variant = rid.hash() % 97
+			slot.set_icon("relique", rid, 44.0)
 			slot.tooltip_text = String(Relics.def(rid).get("text", ""))
 		else:
 			slot.tooltip_text = "Vitrine vide : il faut une relique au Reliquaire, que nul héros ne porte."
