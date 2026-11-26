@@ -13,6 +13,10 @@ signal acknowledged
 signal locate_requested(system_id: int)
 signal screen_requested(screen: String)
 signal nav_requested(delta: int)
+## Ouvrir la diplomatie sur un empire et un volet ("relation", "deal", "war"). Bêta-test, 2.3 et 2.4.
+signal relation_requested(empire_id: int, pane: String)
+## Passer en revue les flottes sans ordres (Fanfare de guerre, bêta-test 3.3).
+signal idle_fleets_requested
 
 const WIDTH := 620.0
 const FANFARE_WIDTH := 900.0
@@ -30,6 +34,8 @@ var auto_check: CheckBox
 var prev_button: Widgets.IconButton
 var next_button: Widgets.IconButton
 var nav_label: Label
+## Boutons de la vue spéciale (tests) : "peace", "idle" pour la guerre, "wait", "revolt", "protector" pour un sujet.
+var special_buttons := {}
 
 var _dim: ColorRect
 var _root: Control
@@ -153,7 +159,7 @@ func open(state: GameState, viewer: int, recs: Array[Dictionary], g: int, nav_at
 	aid = int(rec["id"])
 	var kd := Announce.kind_def(kind)
 	fanfare = g >= Announce.FANFARE
-	view = String(kd.get("view", "")) if fanfare or String(kd.get("view", "")) == "memorial" else ""
+	view = String(kd.get("view", "")) if fanfare or ["memorial", "subject"].has(String(kd.get("view", ""))) else ""
 	var fam := Announce.family_of(kind)
 	var fcol := Announce.family_color(fam)
 	var need := Announce.need(rec, viewer)
@@ -219,6 +225,7 @@ func _build_special(state: GameState, viewer: int, rec: Dictionary, w: float) ->
 		c.queue_free()
 	_special.visible = view != ""
 	var r: Dictionary = rec.get("r", {})
+	special_buttons.clear()
 	match view:
 		"war":
 			var row := HBoxContainer.new()
@@ -230,6 +237,9 @@ func _build_special(state: GameState, viewer: int, rec: Dictionary, w: float) ->
 			row.add_child(_side(state, a))
 			row.add_child(UiTheme.title("CONTRE", 22, UiTheme.TEXT_DIM))
 			row.add_child(_side(state, b))
+			_war_actions(state, viewer, a, b)
+		"subject":
+			_subject_view(state, viewer, int(r.get("actor", -1)), w)
 		"memorial":
 			var row := HBoxContainer.new()
 			row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -255,6 +265,84 @@ func _build_special(state: GameState, viewer: int, rec: Dictionary, w: float) ->
 				var ep := UiTheme.paragraph("Ici repose qui %s." % why.trim_suffix("."), w * 0.55, 14)
 				ep.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
 				col_box.add_child(ep)
+
+
+## Fanfare de guerre qui concerne le lecteur : mener aux conditions de paix (bêta-test 2.4) et aux flottes
+## sans ordres (3.3).
+func _war_actions(state: GameState, viewer: int, a: int, b: int) -> void:
+	if viewer < 0 or (viewer != a and viewer != b):
+		return
+	var enemy := b if viewer == a else a
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 22)
+	_special.add_child(row)
+	if Combat.at_war(state, viewer, enemy):
+		var peace := Widgets.RoundButton.new("plus", "Conditions de paix", 13)
+		peace.tooltip_text = "Diplomatie, volet Traiter : ce que vous pouvez exiger ou céder, au prix du score de guerre (%+d aujourd'hui)." % Diplomacy.war_score(state, viewer, enemy)
+		peace.pressed.connect(func() -> void: relation_requested.emit(enemy, "deal"))
+		row.add_child(peace)
+		special_buttons["peace"] = peace
+	var idle := Fleets.idle_fleets(state, viewer).filter(func(f: Fleet) -> bool: return Combat.is_armed(f))
+	if not idle.is_empty():
+		var go := Widgets.RoundButton.new("next", "Flottes sans ordres (%d)" % idle.size(), 13)
+		go.tooltip_text = main_idle_text(state, viewer).strip_edges()
+		go.pressed.connect(func() -> void: idle_fleets_requested.emit())
+		row.add_child(go)
+		special_buttons["idle"] = go
+
+
+static func main_idle_text(state: GameState, viewer: int) -> String:
+	var parts := PackedStringArray()
+	for f: Fleet in Fleets.idle_fleets(state, viewer):
+		if Combat.is_armed(f):
+			parts.append("%s, à %s" % [f.fleet_name, state.galaxy.get_system(f.system_id).system_name])
+	return "\n".join(parts)
+
+
+## Sujet malgré lui (bêta-test 2.3) : les trois voies qui restent, chacune avec son bouton vers la diplomatie.
+func _subject_view(state: GameState, viewer: int, lord: int, w: float) -> void:
+	if viewer < 0 or state.get_empire(lord) == null:
+		return
+	var rival := -1
+	var best := -1
+	var me := state.get_empire(viewer)
+	for x in me.contacts:
+		var o := state.get_empire(int(x))
+		if o == null or o.eliminated or int(x) == lord or Vassals.check_fealty(state, viewer, int(x)) != "":
+			continue
+		var pw := Vassals.power(state, int(x))
+		if pw > best:
+			best = pw
+			rival = int(x)
+	var lname := state.get_empire(lord).short_name()
+	var ways := [
+		["wait", "Payer et attendre", "Vos mondes et vos flottes restent à vous. Le tribut part chaque mois et vous suivez %s dans ses guerres. Lui seul peut assouplir les clauses." % lname, "Voir le lien", lord],
+		["revolt", "Préparer la révolte", "Des empires peuvent soutenir votre indépendance. Exigez-la quand votre camp pèse assez : s'il refuse, c'est la guerre de libération.", "Exiger l'indépendance", lord],
+		["protector", "Chercher un protecteur", "Jurez en secret allégeance à un rival de %s. Le jour où il lui fait la guerre, vous changez de camp." % lname,
+				"Voir %s" % state.get_empire(rival).short_name() if rival >= 0 else "Aucun rival connu", rival],
+	]
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	_special.add_child(row)
+	for wd in ways:
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", UiTheme.box(Color(0.04, 0.06, 0.09, 0.85), UiTheme.LINE, 4, 1))
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(card)
+		var col := VBoxContainer.new()
+		col.add_theme_constant_override("separation", 6)
+		card.add_child(col)
+		col.add_child(UiTheme.title(String(wd[1]), 17))
+		var txt := UiTheme.paragraph(String(wd[2]), (w - 60.0) / 3.0, 13)
+		txt.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		col.add_child(txt)
+		var target := int(wd[4])
+		var b := Widgets.RoundButton.new("plus", String(wd[3]), 12)
+		b.disabled = target < 0
+		b.pressed.connect(func() -> void: relation_requested.emit(target, "deal"))
+		col.add_child(b)
+		special_buttons[String(wd[0])] = b
 
 
 func _side(state: GameState, eid: int) -> Control:

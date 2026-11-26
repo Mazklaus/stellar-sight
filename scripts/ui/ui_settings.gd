@@ -38,6 +38,12 @@ static var fleet_silhouettes := false
 static var turn_stop_intrusion := true
 static var turn_stop_war := true
 static var turn_stop_events := true
+## Bêta-test, lot 2 (3.3) : les mêmes arrêts valent en temps réel, sous forme de pause automatique
+## (realtime_stops). S'y ajoutent une bataille qui s'engage (le tour par tour s'interrompt toujours) et,
+## en temps réel seulement, un chantier qui se vide.
+static var realtime_stops := true
+static var stop_battle := true
+static var stop_yard := true
 ## La fin de tour prévient de ce qui attend encore (refonte, A6 ; voir TurnChecks).
 static var turn_warn_todo := true
 ## Carte (refonte D3f, onglet Carte des options) : emblèmes des empires sur leur territoire, cargos sur
@@ -85,6 +91,9 @@ static func load_settings() -> void:
 	turn_stop_intrusion = bool(cfg.get_value("turns", "stop_intrusion", true))
 	turn_stop_war = bool(cfg.get_value("turns", "stop_war", true))
 	turn_stop_events = bool(cfg.get_value("turns", "stop_events", true))
+	realtime_stops = bool(cfg.get_value("turns", "realtime_stops", true))
+	stop_battle = bool(cfg.get_value("turns", "stop_battle", true))
+	stop_yard = bool(cfg.get_value("turns", "stop_yard", true))
 	turn_warn_todo = bool(cfg.get_value("turns", "warn_todo", true))
 	autosave_minutes = int(cfg.get_value("game", "autosave_minutes", 10))
 	map_emblems = bool(cfg.get_value("map", "emblems", true))
@@ -118,6 +127,9 @@ static func save_settings() -> void:
 	cfg.set_value("turns", "stop_intrusion", turn_stop_intrusion)
 	cfg.set_value("turns", "stop_war", turn_stop_war)
 	cfg.set_value("turns", "stop_events", turn_stop_events)
+	cfg.set_value("turns", "realtime_stops", realtime_stops)
+	cfg.set_value("turns", "stop_battle", stop_battle)
+	cfg.set_value("turns", "stop_yard", stop_yard)
 	cfg.set_value("turns", "warn_todo", turn_warn_todo)
 	cfg.set_value("game", "autosave_minutes", autosave_minutes)
 	cfg.set_value("map", "emblems", map_emblems)

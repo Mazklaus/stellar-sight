@@ -295,6 +295,7 @@ func _test_main_scene() -> void:
 	await _test_vassal_ui(main)
 	await _test_koinon_ui(main)
 	await _test_war_goals_ui(main)
+	await _test_beta_lot2_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_quiet_minor_contacts(main)
@@ -1783,6 +1784,65 @@ func _test_war_goals_ui(main: Node) -> void:
 		_check(not Combat.at_war(st, me, foe), "EXIGER SA REDDITION : l'IA écrasée se rend")
 	st.wars_on = goals_were
 	main.close_empire_screen()
+	await process_frame
+
+
+## Bêta-test, lot 2 (3.3) : en temps réel, une déclaration de guerre et un chantier qui se vide mettent le
+## jeu en pause ; décoché, un simple avis. La fenêtre de sujet et la Fanfare mènent à la diplomatie (2.3, 2.4).
+func _test_beta_lot2_ui(main: Node) -> void:
+	var st: GameState = main.simulation.state
+	var clock: Node = root.get_node("GameClock")
+	var me: int = main.view_empire
+	var was := [UiSettings.realtime_stops, UiSettings.turn_stop_war, UiSettings.stop_yard]
+	clock.set_mode(clock.MODE_REALTIME)
+	var foe := -1
+	for e in st.empires:
+		if e.id != me and not e.is_npc() and not e.eliminated and not Diplomacy.no_treaties(st, e.id) and not Vassals.is_subject(st, e.id) \
+				and Vassals.lord_of(st, me) != e.id and not Diplomacy.allied(st, me, e.id) and Diplomacy.team_of(st, me, e.id) <= 0:
+			foe = e.id
+			break
+	_check(foe >= 0, "arrêts automatiques : un rival à qui faire déclarer la guerre")
+	if foe >= 0:
+		if Combat.at_war(st, me, foe):
+			Diplomacy.sign_treaty(st, me, foe, Diplomacy.PEACE)
+		for on in [true, false]:
+			UiSettings.realtime_stops = on
+			UiSettings.turn_stop_war = true
+			main._turn_interruptions()
+			main._turn_interruptions()
+			clock.set_paused(false)
+			Diplomacy._rel_w(st, me, foe)["truce"] = 0
+			Diplomacy._rel_w(st, me, foe)["pact"] = Diplomacy.COLD
+			Combat.start_war(st, foe, me)
+			main._turn_interruptions()
+			_check(clock.paused == on, "temps réel : la guerre déclarée %s le jeu" % ("met en pause" if on else "ne met pas en pause (case décochée)"))
+			Diplomacy.sign_treaty(st, me, foe, Diplomacy.PEACE)
+	# Chantier qui se vide.
+	UiSettings.realtime_stops = true
+	UiSettings.stop_yard = true
+	var pid := -1
+	for k in st.sorted_colony_ids():
+		var c: Colony = st.colonies[k]
+		if c.owner == me and c.is_colony() and c.is_established():
+			pid = k
+			break
+	if pid >= 0:
+		var c: Colony = st.colonies[pid]
+		var saved := [c.construction, c.build_queue.duplicate()]
+		c.construction = "ferme"
+		main._yard_emptied(st)
+		c.construction = ""
+		c.build_queue.clear()
+		var found: int = main._yard_emptied(st)
+		_check(found == pid or TurnChecks.free_yards(st, me).find(pid) < 0, "temps réel : le chantier qui vient de se vider est repéré (%d)" % found)
+		_check(main._yard_emptied(st) < 0, "un chantier vide ne sonne qu'une fois")
+		c.construction = String(saved[0])
+		c.build_queue.assign(saved[1])
+	UiSettings.realtime_stops = bool(was[0])
+	UiSettings.turn_stop_war = bool(was[1])
+	UiSettings.stop_yard = bool(was[2])
+	main._turn_interruptions()
+	clock.set_paused(true)
 	await process_frame
 
 

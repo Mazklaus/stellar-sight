@@ -22,6 +22,9 @@ var _autosave: Button
 var _stop_intrusion: Button
 var _stop_war: Button
 var _stop_events: Button
+var _stop_battle: Button
+var _stop_yard: Button
+var _realtime_stops: Button
 var _warn_todo: Button
 var _silhouettes: Button
 var _emblems: Button
@@ -156,20 +159,36 @@ func _ready() -> void:
 		UiSettings.save_settings()
 		sync())
 	arow.add_child(_autosave)
-	game.add_child(UiTheme.section("Tour par tour : ce qui interrompt le tour"))
+	game.add_child(UiTheme.section("Ce qui arrête le jeu"))
+	game.add_child(UiTheme.dim("Au tour par tour, le tour en cours s'interrompt. En temps réel, le jeu se met en pause si la dernière case est cochée.", 13))
 	_stop_intrusion = _toggle_row(game, "Une flotte étrangère armée entre chez vous",
-			"Le tour s'arrête quand une flotte armée d'un autre empire, de pirates ou d'une crise arrive dans un de vos systèmes. Une bataille l'interrompt toujours.", func() -> void:
+			"Une flotte armée d'un autre empire, de pirates ou d'une crise arrive dans un de vos systèmes.", func() -> void:
 		UiSettings.turn_stop_intrusion = not UiSettings.turn_stop_intrusion
 		UiSettings.save_settings()
 		sync())
 	_stop_war = _toggle_row(game, "On vous déclare la guerre",
-			"Le tour s'arrête le jour où un empire vous déclare la guerre.", func() -> void:
+			"Le jour de la déclaration. L'avis donne aussi la liste de vos flottes sans ordres et leur position.", func() -> void:
 		UiSettings.turn_stop_war = not UiSettings.turn_stop_war
 		UiSettings.save_settings()
 		sync())
 	_stop_events = _toggle_row(game, "Un événement attend votre choix",
-			"Le tour s'arrête quand un événement à choix arrive.", func() -> void:
+			"Une carte d'événement à choix vient d'arriver.", func() -> void:
 		UiSettings.turn_stop_events = not UiSettings.turn_stop_events
+		UiSettings.save_settings()
+		sync())
+	_stop_battle = _toggle_row(game, "Une bataille s'engage (temps réel)",
+			"Une de vos flottes entre en combat. Au tour par tour, une bataille interrompt toujours le tour.", func() -> void:
+		UiSettings.stop_battle = not UiSettings.stop_battle
+		UiSettings.save_settings()
+		sync())
+	_stop_yard = _toggle_row(game, "Un chantier n'a plus rien à bâtir (temps réel)",
+			"Une colonie termine sa construction et sa file est vide. Au tour par tour, l'avertissement de fin de tour s'en charge.", func() -> void:
+		UiSettings.stop_yard = not UiSettings.stop_yard
+		UiSettings.save_settings()
+		sync())
+	_realtime_stops = _toggle_row(game, "En temps réel, ces arrêts mettent le jeu en pause",
+			"Décoché, un simple avis s'affiche et le temps continue. Sans effet en réseau : la pause y arrêterait tout le monde.", func() -> void:
+		UiSettings.realtime_stops = not UiSettings.realtime_stops
 		UiSettings.save_settings()
 		sync())
 	_warn_todo = _toggle_row(game, "Prévenir avant la fin du tour",
@@ -254,6 +273,12 @@ func reset_defaults() -> void:
 	UiSettings.apply()
 	UiSettings.auto_pause_menus = false
 	UiSettings.autosave_minutes = 10
+	UiSettings.turn_stop_intrusion = true
+	UiSettings.turn_stop_war = true
+	UiSettings.turn_stop_events = true
+	UiSettings.stop_battle = true
+	UiSettings.stop_yard = true
+	UiSettings.realtime_stops = true
 	UiSettings.fleet_silhouettes = false
 	UiSettings.map_emblems = true
 	UiSettings.art_ids = true
@@ -283,6 +308,9 @@ func sync() -> void:
 	_set_toggle(_stop_intrusion, UiSettings.turn_stop_intrusion)
 	_set_toggle(_stop_war, UiSettings.turn_stop_war)
 	_set_toggle(_stop_events, UiSettings.turn_stop_events)
+	_set_toggle(_stop_battle, UiSettings.stop_battle)
+	_set_toggle(_stop_yard, UiSettings.stop_yard)
+	_set_toggle(_realtime_stops, UiSettings.realtime_stops)
 	_set_toggle(_warn_todo, UiSettings.turn_warn_todo)
 	_set_toggle(_silhouettes, UiSettings.fleet_silhouettes)
 	_set_toggle(_emblems, UiSettings.map_emblems)

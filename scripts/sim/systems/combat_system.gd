@@ -701,7 +701,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 		var before := Combat.garrison(state, sid)
 		# Les bastions tirent tant que la garnison tient.
 		if before > 0:
-			_battery_fire(state, sid, by)
+			_battery_fire(state, sid, by, added)
 		var power := 0
 		for f: Fleet in by:
 			if state.fleets.has(f.id):
@@ -720,7 +720,7 @@ static func _sieges(state: GameState, fought: Dictionary, added: Array[Dictionar
 
 
 ## Les batteries des bastions tirent à moyenne portée sur les assiégeants.
-static func _battery_fire(state: GameState, sid: int, by: Array[Fleet]) -> void:
+static func _battery_fire(state: GameState, sid: int, by: Array[Fleet], added: Array[Dictionary] = []) -> void:
 	var bat := Combat.battery(state, sid)
 	if bat.is_empty():
 		return
@@ -742,16 +742,31 @@ static func _battery_fire(state: GameState, sid: int, by: Array[Fleet]) -> void:
 				Combat.fleet_tactic(tg), 0, Combat.defense_bonus(state, tg.owner, Combat.ship_marks(state, tg, int(pick[1]))))
 		var key := Vector2i(tg.id, int(pick[1]))
 		pending[key] = int(pending.get(key, 0)) + dmg
+	var sname := state.galaxy.systems[sid].system_name
+	var oname := state.get_empire(owner).display_name() if state.get_empire(owner) != null else "la garnison"
+	var siege: Dictionary = state.sieges.get(sid, {})
 	for f: Fleet in by:
+		var downed := ""
 		for i in range(f.ships.size() - 1, -1, -1):
 			var dmg := int(pending.get(Vector2i(f.id, i), 0))
 			if dmg > 0:
 				f.hp[i] -= dmg
 				if f.hp[i] <= 0:
+					downed = String(GameData.ship(f.ships[i]).get("label", f.ships[i]))
 					f.remove_at(i)
 		f.troops = mini(f.troops, Combat.max_troops(f, state))
+		# Bêta-test (2.1) : ces pertes n'ont pas de rapport de bataille. Le premier vaisseau abattu du siège
+		# et la flotte détruite font chacun une ligne de chronique, pour l'assiégeant et l'assiégé.
 		if f.ships.is_empty():
 			state.fleets.erase(f.id)
+			Announce.next(state, "fleet_lost", {"actor": owner, "target": f.owner, "system": sid})
+			added.append(state.add_chronicle("Les bastions de %s ont abattu le dernier vaisseau de la flotte %s devant %s. Il n'y a pas eu de bataille : la garnison tire sur les assiégeants tant qu'elle tient." % [
+					oname, f.fleet_name, sname], Espionage.private_to(state, [f.owner, owner], sid)))
+		elif downed != "" and not siege.has("shot"):
+			siege["shot"] = 1
+			Announce.next(state, "ship_downed", {"actor": owner, "target": f.owner, "system": sid})
+			added.append(state.add_chronicle("Devant %s, les bastions de %s ouvrent le feu : la flotte %s perd un %s. Ils tireront chaque jour tant que la garnison tient." % [
+					sname, oname, f.fleet_name, downed], Espionage.private_to(state, [f.owner, owner], sid)))
 
 
 ## Méga-modules de peuple du vainqueur : le reliquaire nourrit la ferveur, le ventre digesteur change
