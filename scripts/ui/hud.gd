@@ -43,6 +43,8 @@ const CARD_WIDTH := 320.0
 const CHRONICLE_WIDTH := 360.0
 const TOAST_SECONDS := 3.5
 const TOAST_MAX := 4
+const POINTER_NOTICE_WINDOW_MS := 600
+const POINTER_NOTICE_SECONDS := 3.0
 ## Place prise en bas à droite par le cadran (la vue système s'arrête avant).
 const DIAL_RESERVED := TimeDial.SIDE + 20.0
 ## Petit texte d'ambiance par type d'étoile, pour la fiche.
@@ -131,6 +133,11 @@ var _card_owner: Label
 var _planet_dots: HBoxContainer
 var _enter_button: Button
 var _toasts: VBoxContainer
+## Refus affiché sous le pointeur (tâche 1.2 du bêta-test) et dernier clic gauche, pour savoir si un
+## refus répond à un clic.
+var _pointer_notice: PanelContainer
+var _last_click_ms := -100000
+var _last_click_pos := Vector2.ZERO
 var _chronicle: Widgets.RichTipPanel
 var _chronicle_label: Label
 var _chronicle_date: Label
@@ -402,6 +409,62 @@ func _place_toasts() -> void:
 
 
 ## Avis compacts (texte plus petit, retour à la ligne) quand ils sont rangés sur le côté.
+## Un refus (ordre impossible, bouton qui ne peut pas agir) : si le joueur vient de cliquer, la raison
+## s'affiche juste sous le pointeur, là où il regarde ; sinon c'est un avis ordinaire.
+func refuse(text: String) -> void:
+	if Time.get_ticks_msec() - _last_click_ms > POINTER_NOTICE_WINDOW_MS:
+		notify(text, "bad")
+		return
+	if is_instance_valid(_pointer_notice):
+		_pointer_notice.queue_free()
+	var p := PanelContainer.new()
+	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	p.top_level = true
+	p.z_index = 100
+	var st := UiTheme.box(Color(0.03, 0.04, 0.06, 0.96), UiTheme.BAD, 0, 1)
+	st.border_width_left = 3
+	st.content_margin_left = 10
+	st.content_margin_right = 10
+	st.content_margin_top = 6
+	st.content_margin_bottom = 7
+	p.add_theme_stylebox_override("panel", st)
+	var l := Label.new()
+	l.text = text
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var f := l.get_theme_font("font")
+	var fs := l.get_theme_font_size("font_size")
+	l.custom_minimum_size = Vector2(clampf(f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x + 4.0, 80.0, 360.0), 0)
+	p.add_child(l)
+	add_child(p)
+	_pointer_notice = p
+	_place_pointer_notice.call_deferred(p, _last_click_pos)
+	var tw := p.create_tween()
+	tw.tween_interval(POINTER_NOTICE_SECONDS)
+	tw.tween_property(p, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(p.queue_free)
+
+
+## Sous le point du clic, décalé pour ne pas cacher le bouton ; au-dessus s'il touche le bas de l'écran.
+## Placé une image plus tard, quand le texte enroulé a sa vraie hauteur.
+func _place_pointer_notice(p: PanelContainer, at: Vector2) -> void:
+	if not is_instance_valid(p):
+		return
+	var vp := get_viewport().get_visible_rect().size
+	var sz := p.get_combined_minimum_size()
+	p.size = sz
+	var pos := at + Vector2(-12.0, 26.0)
+	if pos.y + sz.y > vp.y - 4.0:
+		pos.y = at.y - 18.0 - sz.y
+	p.position = Vector2(clampf(pos.x, 4.0, maxf(4.0, vp.x - sz.x - 4.0)), clampf(pos.y, 4.0, maxf(4.0, vp.y - sz.y - 4.0)))
+
+
+func _input(event: InputEvent) -> void:
+	var mb := event as InputEventMouseButton
+	if mb and mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+		_last_click_ms = Time.get_ticks_msec()
+		_last_click_pos = mb.position
+
+
 func _style_toast(toast: PanelContainer) -> void:
 	var l := toast.get_child(0) as Label
 	if _empire_screen:
@@ -422,6 +485,8 @@ func toast_texts() -> PackedStringArray:
 	for t in _toasts.get_children():
 		if not t.is_queued_for_deletion():
 			out.append((t.get_child(0) as Label).text)
+	if is_instance_valid(_pointer_notice) and not _pointer_notice.is_queued_for_deletion():
+		out.append((_pointer_notice.get_child(0) as Label).text)
 	return out
 
 

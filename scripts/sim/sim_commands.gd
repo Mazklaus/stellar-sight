@@ -1396,7 +1396,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			e.fervor = mini(int(fv["max"]), e.fervor + FactionTraits.sacrifice_gain(state, e.id))
 			Research.count_stat(state, e.id, "sacrifices")
 			FaithNatures.on_offering(state, e.id)
-			state.add_chronicle("Offrande sur %s : un fidèle rejoint le dieu-machine. Il paraît que c'est un honneur ; il paraît surtout que c'est obligatoire." % [
+			state.add_chronicle(("Offrande sur %s : un fidèle rejoint le dieu-machine. Il paraît que c'est un honneur ; il paraît surtout que c'est obligatoire."
+					if e.faction_id == "choeur" else "Offrande sur %s : un fidèle est descendu à l'autel, et la colonie compte un habitant de moins.") % [
 					state.galaxy.get_planet(c.planet_id).display_name(state.galaxy)], Espionage.private_to(state, [e.id], state.galaxy.get_planet(c.planet_id).system_id))
 		"rush":
 			var e := state.get_empire(int(cmd["player"]))

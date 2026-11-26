@@ -388,6 +388,9 @@ func _test_main_scene() -> void:
 		main.close_deed_panel()
 	if main.is_event_panel_open():
 		main.close_event_panel()
+	# La partie a changé depuis la sauvegarde : le premier Ctrl+L prévient, le second charge (tâche 8.1).
+	_press(KEY_L, KEY_NONE, true)
+	_check(main.simulation.state.tick != saved_tick and main.galaxy.systems[5].system_name == "Autre-Nom", "Ctrl+L : le premier appui ne charge pas une partie qui a changé")
 	_press(KEY_L, KEY_NONE, true)
 	_check(main.simulation.state.tick == saved_tick, "F9 : retour au jour sauvegardé")
 	_check(main.simulation.state.checksum() == saved_checksum, "F9 : partie rechargée à l'identique")
@@ -1118,6 +1121,31 @@ func _test_navigation_ui(main: Node) -> void:
 	_check(main.is_codex_open(), "Codex : Maj+F1 l'ouvre")
 	main.codex.close_codex()
 	await process_frame
+	# Tâche 1.1 du bêta-test : la première mesure d'une infobulle (texte pas encore enroulé) peut
+	# dépasser l'écran ; une fois la vraie taille connue, elle revient près du pointeur. Sans affichage
+	# l'écran fait 64 px : on vérifie dans une vue de 1600 × 900, avec un gestionnaire à part qui ne
+	# tourne pas (il fermerait ces infobulles faute de contrôle survolé).
+	var tip_view := SubViewport.new()
+	tip_view.size = Vector2i(1600, 900)
+	root.add_child(tip_view)
+	var tips2 := TipManager.new()
+	tip_view.add_child(tips2)
+	tips2.set_process(false)
+	TipManager.instance = main.tips
+	var tip_at := Vector2(800, 860)
+	var long_tip := "Raison du refus : il faut d'abord fonder la colonie, puis attendre que la population atteigne trois pour lancer ce chantier. ".repeat(3)
+	var tip_panel: TipManager.TipPanel = tips2._open(Glossary.escape_bbcode(long_tip), "", null, tip_at)
+	for _i in 4:
+		await process_frame
+	_check(tip_panel.position.y + tip_panel.size.y <= tip_at.y + 1.0 and tip_panel.position.y > 450.0,
+			"infobulle : en bas de l'écran, elle s'ouvre juste au-dessus du pointeur (y = %d, hauteur %d)" % [int(tip_panel.position.y), int(tip_panel.size.y)])
+	tips2.close_all()
+	var high_panel: TipManager.TipPanel = tips2._open(Glossary.escape_bbcode(long_tip), "", null, Vector2(200, 120))
+	for _i in 4:
+		await process_frame
+	_check(absf(high_panel.position.y - 120.0) < 1.0, "infobulle : en haut de l'écran, elle s'ouvre sous le pointeur (y = %d)" % int(high_panel.position.y))
+	tip_view.queue_free()
+	TipManager.instance = main.tips
 
 	# Menu principal : reprendre, puis nouvelle partie avec une autre faction et une graine choisie.
 	main.open_main_menu()
@@ -1247,7 +1275,17 @@ func _test_navigation_ui(main: Node) -> void:
 	await process_frame
 	_check(not menu.is_open() and main.simulation.state.seed_value == 123, "nouvelle partie avec la graine choisie")
 	_check(clock.is_turn_based() and clock.turn_days == GameClock.TURN_LENGTHS[1], "nouvelle partie au tour par tour")
+	# Tâche 8.1 du bêta-test : charger demande confirmation si la partie a changé depuis la sauvegarde.
+	_check(main.unsaved_text() == "", "chargement : une partie qui vient de commencer n'a rien à perdre")
+	main.simulation.state.tick += 12
+	_check(main.unsaved_text().contains("12 jours"), "chargement : douze jours non sauvegardés sont signalés (%s)" % main.unsaved_text())
+	var tick_before: int = main.simulation.state.tick
+	main.quick_load()
+	_check(main.simulation.state.tick == tick_before and hud.toast_texts()[-1].contains("Ctrl+L de nouveau"), "Ctrl+L : le premier appui prévient au lieu de charger")
+	main._quickload_armed_ms = -100000
+	main.simulation.state.tick -= 12
 	main.save_game()
+	_check(main.unsaved_text() == "", "chargement : après une sauvegarde, plus rien à perdre")
 	clock.set_mode(clock.MODE_REALTIME)
 	main.load_game()
 	_check(clock.is_turn_based() and clock.turn_days == GameClock.TURN_LENGTHS[1], "le mode tour par tour est gardé dans la sauvegarde")

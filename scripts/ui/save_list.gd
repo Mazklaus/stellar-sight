@@ -2,7 +2,8 @@ class_name SaveList
 extends VBoxContainer
 ## Liste des sauvegardes (refonte D3b), partagée par le menu principal et le menu du jeu : une ligne
 ## par fichier, la plus récente en tête, avec la vignette, le peuple joué, la date de jeu et le moment
-## de l'enregistrement. Charger d'un clic, supprimer en deux.
+## de l'enregistrement. Charger d'un clic (deux si la partie en cours n'est pas sauvegardée), supprimer
+## en deux.
 
 signal load_requested(path: String)
 signal changed
@@ -18,6 +19,10 @@ var paths: Array[String] = []
 var _rows: VBoxContainer
 var _empty: Label
 var _armed := ""
+## Ce que charger ferait perdre (main.unsaved_text) : "" = rien, on charge d'un clic ; sinon la
+## phrase s'affiche sur la ligne et un second clic confirme.
+var unsaved_check: Callable
+var _armed_load := ""
 
 
 func _ready() -> void:
@@ -43,6 +48,7 @@ func refresh() -> void:
 	if _rows == null:
 		return
 	_armed = ""
+	_armed_load = ""
 	for c in _rows.get_children():
 		_rows.remove_child(c)
 		c.queue_free()
@@ -103,12 +109,29 @@ func _row(s: Dictionary) -> Control:
 	text.add_child(when)
 	var kind := String(KIND_LABELS.get(String(s.get("kind", "")), ""))
 	text.add_child(UiTheme.dim("%s%s" % [(kind + " · ") if kind != "" else "", when_text(String(s.get("saved_at", "")))], 13))
+	var warn := UiTheme.dim("", 13)
+	warn.add_theme_color_override("font_color", UiTheme.BAD)
+	warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	warn.visible = false
+	text.add_child(warn)
 	var load_b := Button.new()
 	load_b.text = "Charger"
 	load_b.focus_mode = Control.FOCUS_NONE
 	load_b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var path := String(s["path"])
-	load_b.pressed.connect(func() -> void: load_requested.emit(path))
+	load_b.pressed.connect(func() -> void:
+		var why := String(unsaved_check.call()) if unsaved_check.is_valid() else ""
+		if why != "" and _armed_load != path:
+			_disarm_loads()
+			_armed_load = path
+			load_b.text = "Confirmer"
+			warn.text = why
+			warn.visible = true
+			return
+		_armed_load = ""
+		load_requested.emit(path))
+	load_b.set_meta("warn", warn)
+	load_b.add_to_group("save_list_load")
 	row.add_child(load_b)
 	var del := Button.new()
 	del.text = "Supprimer"
@@ -129,6 +152,18 @@ func _row(s: Dictionary) -> Control:
 
 
 ## « 2026-11-24T19:23:40 » devient « 24/11/2026, 19 h 23 ».
+## Remet les boutons « Charger » armés dans leur état de départ.
+func _disarm_loads() -> void:
+	_armed_load = ""
+	for other in get_tree().get_nodes_in_group("save_list_load"):
+		if not is_ancestor_of(other):
+			continue
+		(other as Button).text = "Charger"
+		var w: Label = (other as Button).get_meta("warn")
+		if is_instance_valid(w):
+			w.visible = false
+
+
 static func when_text(iso: String) -> String:
 	var parts := iso.split("T")
 	var d := parts[0].split("-")

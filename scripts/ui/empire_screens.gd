@@ -347,6 +347,11 @@ func _fit_side() -> void:
 	if _side_scroll == null or not is_instance_valid(_side_scroll):
 		return
 	var avail := _root.get_viewport_rect().size.y - SIDE_TOP - 24.0
+	# Recherche : la fiche de la technologie choisie occupe le bas de la colonne. La colonne s'arrête
+	# au-dessus (et défile) au lieu de passer dessous, où ses lignes se lisaient à travers la fiche.
+	if _tech_panel != null and is_instance_valid(_tech_panel) and _tech_panel.visible:
+		var pad := _side.get_theme_stylebox("panel").get_minimum_size().y if _side.has_theme_stylebox("panel") else 0.0
+		avail = minf(avail, _tech_panel.position.y - SIDE_TOP - 10.0 - pad)
 	var need := _side_box.get_combined_minimum_size().y
 	_side_scroll.custom_minimum_size.y = minf(need, maxf(120.0, avail))
 	_side.reset_size()
@@ -1702,11 +1707,22 @@ func _fill_tech_panel() -> void:
 		c.queue_free()
 	_tech_panel.visible = research_selected != "" and current == "research"
 	if not _tech_panel.visible:
+		_fit_side.call_deferred()
 		return
 	_tech_panel.add_child(_tech_detail(research_selected))
+	_place_tech_panel()
+	# Les paragraphes s'enroulent à la mise en page : la vraie hauteur n'est connue qu'ensuite.
+	_place_tech_panel.call_deferred()
+
+
+## Fiche collée en bas à gauche, à sa hauteur réelle ; la colonne s'arrête au-dessus (_fit_side).
+func _place_tech_panel() -> void:
+	if _tech_panel == null or not is_instance_valid(_tech_panel) or not _tech_panel.visible:
+		return
 	_tech_panel.reset_size()
 	var vp := get_viewport().get_visible_rect().size
 	_tech_panel.position = Vector2(MARGIN, vp.y - MARGIN - _tech_panel.get_combined_minimum_size().y)
+	_fit_side()
 
 
 func _tech_detail(tid: String) -> Control:
