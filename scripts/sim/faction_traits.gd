@@ -104,6 +104,19 @@ static func sacrifice_gain(state: GameState, empire_id: int) -> int:
 	return int(e.faction()["fervor"]["sacrifice_gain"]) + Research.fx_int(state, empire_id, "sacrifice_gain")
 
 
+## Les offrandes que l'empire peut faire, une ligne chacune, avec les chiffres réels : celle d'un fidèle
+## (fiche de planète, check_sacrifice) et, en théocratie, celle de stabilité (fiche de système,
+## Stability.check_offering). Le texte de la barre du haut et ceux des boutons tirent des mêmes valeurs.
+static func offerings_text(state: GameState, empire_id: int) -> String:
+	var e := state.get_empire(empire_id)
+	if e == null or not has_fervor(e.faction()):
+		return ""
+	var lines: Array[String] = ["Offrande d'un fidèle (fiche de planète) : -1 population, +%d ferveur." % sacrifice_gain(state, empire_id)]
+	if bool(Stability.talent(state, empire_id).get("offering", false)):
+		lines.append(Stability.offering_text())
+	return "\n".join(lines)
+
+
 ## "" si l'empire peut sacrifier un fidèle sur cette colonie, sinon la raison du refus.
 static func check_sacrifice(state: GameState, empire_id: int, planet_id: int) -> String:
 	var e := state.get_empire(empire_id)
@@ -672,8 +685,7 @@ static func gauge(state: GameState, empire_id: int) -> Dictionary:
 				else ("Le dieu se tait : %d %% de production" % (int(fv["silent_pct"]) - 100) if e.fervor <= 0 \
 				else "Ferveur ordinaire. Exaltation à %d." % int(fv["exalted_at"]))
 		return {"label": "Ferveur", "value": "%d" % e.fervor, "delta": delta,
-				"tip": "Ferveur %d / %d (%+d par mois)\n%s\nOffrande : -1 population, +%d ferveur." % [
-					e.fervor, int(fv["max"]), delta, mood, sacrifice_gain(state, empire_id)],
+				"tip": "Ferveur %d / %d (%+d par mois)\n%s\n%s" % [e.fervor, int(fv["max"]), delta, mood, offerings_text(state, empire_id)],
 				"bad": e.fervor <= 0}
 	if has_network(f):
 		var nodes := network_nodes(state, empire_id)

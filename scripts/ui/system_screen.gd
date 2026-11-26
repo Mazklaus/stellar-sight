@@ -368,8 +368,7 @@ func _refresh_stability(s: StarSystem) -> void:
 		ob.visible = true
 		var why := Stability.check_offering(_state, _player, s.id)
 		ob.disabled = why != ""
-		var od: Dictionary = Stability.data()["offering"]
-		ob.tooltip_text = "Offrande : %d stabilité ici, +%d ferveur.%s" % [int(od["stability"]), int(od["fervor"]), ("\n" + why) if why != "" else ""]
+		ob.tooltip_text = Stability.offering_text() + (("\n" + why) if why != "" else "")
 
 
 ## Flèches de part et d'autre de la scène : système précédent / suivant de l'empire.
@@ -883,10 +882,11 @@ func _sacrifice_action(p: Planet) -> Dictionary:
 	var reason := SimCommands.validate(_state, cmd)
 	var fv: Dictionary = me.faction()["fervor"]
 	return {
-		"text": "Offrande au dieu-machine",
+		"text": "Offrande d'un fidèle",
 		"detail": "-1 population  »  +%d ferveur (%d / %d)" % [FactionTraits.sacrifice_gain(_state, _player), me.fervor, int(fv["max"])],
 		"reason": reason,
-		"tooltip": reason if reason != "" else "Un fidèle rejoint le dieu-machine. La ferveur remonte ; la natalité, elle, prend note.",
+		"tooltip": reason if reason != "" else ("Un fidèle rejoint le dieu-machine. La ferveur remonte ; la natalité, elle, prend note." if me.faction_id == "choeur"
+				else "Un fidèle descend à l'autel. La ferveur remonte, la colonie perd un habitant."),
 		"action": func() -> void: command_requested.emit(cmd),
 	}
 

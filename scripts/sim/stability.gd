@@ -636,6 +636,13 @@ static func decree(state: GameState, empire_id: int, sid: int, id: String) -> vo
 
 # --- Offrande (théocratie) ---------------------------------------------------------------------
 
+## Résumé de l'offrande de stabilité, chiffres tirés de stability.json.
+static func offering_text() -> String:
+	var od: Dictionary = data()["offering"]
+	return "Offrande de stabilité (fiche de système) : %d stabilité dans le système, %+d ferveur ; une par système tous les %d mois." % [
+			int(od["stability"]), int(od["fervor"]), int(od["cooldown_days"]) / 30]
+
+
 static func check_offering(state: GameState, empire_id: int, sid: int) -> String:
 	if not bool(talent(state, empire_id).get("offering", false)) or not FactionTraits.has_fervor(state.get_empire(empire_id).faction()):
 		return "seule une théocratie fait cette offrande"
@@ -644,7 +651,7 @@ static func check_offering(state: GameState, empire_id: int, sid: int) -> String
 	var od: Dictionary = data()["offering"]
 	var en := entry(state, sid)
 	if en.has("offer") and state.tick - int(en["offer"]) < int(od["cooldown_days"]):
-		return "une offrande a déjà été faite ici il y a moins de 6 mois"
+		return "une offrande a déjà été faite ici il y a moins de %d mois" % (int(od["cooldown_days"]) / 30)
 	if value(state, sid) + int(od["stability"]) < 0:
 		return "il ne reste plus rien à offrir ici"
 	return ""

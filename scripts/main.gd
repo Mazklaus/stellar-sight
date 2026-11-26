@@ -35,6 +35,11 @@ var save_path := SaveGame.QUICKSAVE_PATH
 var save_dir := SaveGame.SAVE_DIR
 ## Temps de jeu réel écoulé depuis la dernière sauvegarde automatique (la pause ne compte pas).
 var autosave_clock := 0.0
+## Ce qui a changé depuis la dernière sauvegarde (ou le chargement) : jour de la partie à ce moment
+## et ordres donnés depuis. Charger demande confirmation si la partie en cours a changé (tâche 8.1).
+var _saved_tick := 0
+var _orders_since_save := 0
+var _quickload_armed_ms := -100000
 var _thumb: Image
 ## Faction du joueur local pour les nouvelles parties (choisie dans le menu principal).
 var player_faction := "ossarane"
@@ -487,6 +492,7 @@ func save_game(path := "", kind := "quick") -> bool:
 		if img != null:
 			img.save_png(SaveGame.thumb_path(path))
 		autosave_clock = 0.0
+		_mark_saved()
 		_hud.notify("%s (%s)" % ["Sauvegarde automatique" if kind == "auto" else "Partie sauvegardée", GameCalendar.date_string(simulation.state.tick)], "good")
 	else:
 		_hud.notify("Échec de la sauvegarde : %s" % SaveGame.last_error, "bad")
@@ -527,6 +533,34 @@ func tick_autosave(delta: float) -> bool:
 	return save_game(SaveGame.autosave_path(save_dir), "auto")
 
 
+func _mark_saved() -> void:
+	_saved_tick = simulation.state.tick if simulation != null else 0
+	_orders_since_save = 0
+
+
+## "" si charger ne fait rien perdre ; sinon la phrase qui dit ce qui serait perdu.
+func unsaved_text() -> String:
+	if not game_in_progress or simulation == null or net.is_active():
+		return ""
+	var days := simulation.state.tick - _saved_tick
+	if days <= 0 and _orders_since_save == 0:
+		return ""
+	if days <= 0:
+		return "Vos derniers ordres ne sont pas sauvegardés : charger les efface."
+	return "La partie en cours n'est pas sauvegardée depuis %d jour%s de jeu : charger les efface." % [days, "s" if days > 1 else ""]
+
+
+## Ctrl+L : le chargement rapide, avec un second appui si la partie en cours a changé.
+func quick_load() -> void:
+	var why := unsaved_text()
+	if why != "" and Time.get_ticks_msec() - _quickload_armed_ms > 5000:
+		_quickload_armed_ms = Time.get_ticks_msec()
+		_hud.notify("%s Ctrl+L de nouveau pour charger quand même." % why, "bad")
+		return
+	_quickload_armed_ms = -100000
+	load_game()
+
+
 ## Recharge une sauvegarde (sans chemin : la sauvegarde rapide). Renvoie false, avec un message, si c'est impossible.
 func load_game(path := "") -> bool:
 	if path == "":
@@ -549,6 +583,7 @@ func load_game(path := "") -> bool:
 	if me and FactionTraits.capital_system(state, me.id) >= 0:
 		_select(FactionTraits.capital_system(state, me.id))
 		_camera.position = galaxy.get_system(_view.selected_id).position
+	_mark_saved()
 	_hud.notify("Partie chargée (%s)" % GameCalendar.date_string(state.tick), "good")
 	return true
 
@@ -767,6 +802,7 @@ func open_main_menu() -> void:
 		var h := SaveGame.head(latest)
 		label = "%s, %s" % [h.get("empire", "partie"), h.get("date", "")] if h.has("empire") else String(h.get("date", ""))
 	_main_menu.save_list.dir = save_dir
+	_main_menu.save_list.unsaved_check = unsaved_text
 	_main_menu.open(game_in_progress, latest != "", label)
 	_update_map_input()
 
@@ -785,6 +821,7 @@ func open_pause_menu() -> void:
 	_hud.show_hover(null, Vector2.ZERO)
 	_thumb = _grab_thumb()  # la carte avant que le menu la couvre
 	_pause_menu.save_list.dir = save_dir
+	_pause_menu.save_list.unsaved_check = unsaved_text
 	_pause_menu.open(GameClock.date_string() if not net.is_active() else "", net.is_active())
 	_update_map_input()
 
@@ -1067,11 +1104,14 @@ func _start(state: GameState) -> void:
 	# Ce que l'interface montre hors de vue : la mémoire du joueur, ou tout pour le spectateur.
 	Intel.lens = -1 if spectator else view_empire
 	simulation = Simulation.new(state)
+	_mark_saved()
 	simulation.command_applied.connect(_on_command_applied)
 	simulation.command_rejected.connect(func(cmd: Dictionary, reason: String) -> void:
 		if int(cmd.get("player", view_empire)) == view_empire:
 			Son.cue("ui_refus")
-		_hud.notify("Ordre refusé : %s" % reason, "bad"))
+			_hud.refuse("Ordre refusé : %s" % reason)
+		else:
+			_hud.notify("Ordre refusé : %s" % reason, "bad"))
 	simulation.chronicle_added.connect(_hud.show_chronicle)
 	simulation.combat_event.connect(_on_combat_event)
 	_hud.battle_replay.close_silently()
@@ -1175,7 +1215,7 @@ func _submit(cmd: Dictionary) -> bool:
 	if net.is_active():
 		var why := net.submit(cmd)
 		if why != "":
-			_hud.notify("Ordre refusé : %s" % why, "bad")
+			_hud.refuse("Ordre refusé : %s" % why)
 		return why == ""
 	var ok := simulation.submit(cmd)
 	if ok:
@@ -1461,7 +1501,9 @@ func _on_rename_requested(system_id: int, new_name: String) -> void:
 	_submit(SimCommands.rename_system(view_empire, system_id, new_name))
 
 
-func _on_command_applied(_cmd: Dictionary) -> void:
+func _on_command_applied(cmd: Dictionary) -> void:
+	if int(cmd.get("player", -1)) == local_player:
+		_orders_since_save += 1
 	_fleets_moving = _moving_fleet_ids()
 	_refresh_all()
 	if not simulation.state.chronicle.is_empty():
@@ -1591,7 +1633,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			save_game()
 		elif key.keycode == KEY_L and key.ctrl_pressed:
 			close_pause_menu()
-			load_game()
+			quick_load()
 		return
 
 	match key.keycode:
@@ -1631,7 +1673,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				save_game()
 		KEY_L:
 			if key.ctrl_pressed:
-				load_game()
+				quick_load()
 			elif not is_system_view_open():
 				_hud.set_lens("" if _hud.lens == "economy" else "economy")
 		KEY_K:

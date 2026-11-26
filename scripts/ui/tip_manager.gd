@@ -185,12 +185,23 @@ func _open(bbcode: String, term_id: String, origin: Control, at: Vector2, parent
 	t.meta_left.connect(_on_meta_left.bind(t))
 	t.meta_activated.connect(func(id: String) -> void: open_article(id))
 	stack.append(t)
+	t.anchor = at
+	t.placer = _replace
 	_place(t, at, parent)
 	_grace = -1.0
 	return t
 
 
+func _replace(t: TipPanel) -> void:
+	_place(t, t.anchor, t.parent_tip if is_instance_valid(t.parent_tip) else null)
+
+
+## Pose l'infobulle près du point d'ancrage (le pointeur) : en dessous et à droite, sinon au-dessus ou
+## à gauche. Rappelée par TipPanel._process quand le texte s'est enroulé et que la vraie taille est
+## connue : la première mesure, faite avant l'enroulement, peut être bien plus haute que l'écran.
 func _place(t: TipPanel, at: Vector2, parent: TipPanel) -> void:
+	if not is_instance_valid(t) or not t.is_inside_tree():
+		return
 	var vp := get_viewport().get_visible_rect().size
 	var sz := t.get_combined_minimum_size()
 	t.size = sz
@@ -400,6 +411,9 @@ class TipPanel:
 	var hovered_meta := ""
 	var meta_time := 0.0
 	var rtl: RichTextLabel
+	## Point d'ancrage (pointeur à l'ouverture) et placement à rejouer quand la taille change.
+	var anchor := Vector2.ZERO
+	var placer: Callable
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -448,6 +462,9 @@ class TipPanel:
 		var want := get_combined_minimum_size()
 		if absf(size.y - want.y) > 1.0 or absf(size.x - want.x) > 1.0:
 			size = want
+			if placer.is_valid():
+				placer.call(self)
+				return
 			var vp := get_viewport_rect().size
 			position = Vector2(clampf(position.x, 4.0, maxf(4.0, vp.x - want.x - 4.0)), clampf(position.y, 4.0, maxf(4.0, vp.y - want.y - 4.0)))
 

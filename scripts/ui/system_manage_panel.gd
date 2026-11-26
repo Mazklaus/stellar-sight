@@ -17,6 +17,8 @@ var selected_planet := -1
 var actions_for: Callable
 
 var _row: HBoxContainer
+## Colonnes étroites (six planètes ou plus) : rendements sans « / mois » pour tenir dans la colonne.
+var _narrow := false
 var _columns := {}
 var _action_sigs := {}
 
@@ -44,8 +46,14 @@ func set_system(value_state: GameState, s: StarSystem, viewer: int) -> void:
 	_action_sigs.clear()
 	if s == null:
 		return
-	var n := maxi(s.planet_count, 1)
-	var col_w := clampf((size.x - 10.0 * (n - 1)) / n, 96.0, 230.0)
+	var n := maxi(s.planet_ids.size(), 1)
+	# Largeur disponible : la nôtre, ou celle que nous donneront nos ancres si la mise en page n'a pas
+	# encore eu lieu (sinon la rangée, trop large, débordait sous le panneau de gauche).
+	var avail := size.x
+	if avail <= 1.0:
+		avail = get_viewport_rect().size.x * (anchor_right - anchor_left) + offset_right - offset_left
+	var col_w := clampf((avail - 10.0 * (n - 1)) / n, 84.0, 230.0)
+	_narrow = col_w < 150.0
 	var sphere := minf(MAX_SPHERE, col_w - 40.0)
 	for pid in s.planet_ids:
 		var col := _make_column(state.galaxy.get_planet(pid), col_w, sphere)
@@ -98,13 +106,14 @@ func _make_column(p: Planet, width: float, sphere: float) -> Dictionary:
 		val.add_theme_font_size_override("font_size", 11)
 		cell.add_child(val)
 		var pips := Control.new()
-		pips.custom_minimum_size = Vector2(5 * 9, 12)
+		var step := 7.0 if _narrow else 9.0
+		pips.custom_minimum_size = Vector2(5 * step, 12)
 		pips.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var rc: Color = PlanetInfo.RESOURCE_COLORS.get(r, Color.WHITE)
 		pips.draw.connect(func() -> void:
 			var v := int(pips.get_meta("value", 0))
 			for i in 5:
-				pips.draw_rect(Rect2(i * 9.0, 3.0, 7.0, 6.0), rc if i < v else Color(rc, 0.14)))
+				pips.draw_rect(Rect2(i * step, 3.0, step - 2.0, 6.0), rc if i < v else Color(rc, 0.14)))
 		cell.add_child(pips)
 		yield_labels[r] = {"value": val, "pips": pips}
 
@@ -126,6 +135,10 @@ func _make_column(p: Planet, width: float, sphere: float) -> Dictionary:
 
 	var status := _label(box, 13)
 	status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	# Disponibilité et population sur deux lignes plutôt que coupées des deux côtés.
+	status.clip_text = false
+	status.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var actions := VBoxContainer.new()
 	actions.add_theme_constant_override("separation", 3)
 	box.add_child(actions)
@@ -153,7 +166,7 @@ func _refresh_column(p: Planet, col: Dictionary) -> void:
 		l.visible = mine
 		pips.visible = not mine
 		if mine:
-			l.text = "%+d / mois" % int(net.get(r, 0))
+			l.text = ("%+d" if _narrow else "%+d / mois") % int(net.get(r, 0))
 			l.modulate = Color(1, 1, 1, 0.95 if int(net.get(r, 0)) != 0 else 0.4)
 		else:
 			pips.set_meta("value", int(pot[r]))
@@ -185,7 +198,7 @@ func _refresh_column(p: Planet, col: Dictionary) -> void:
 		var b := Button.new()
 		b.focus_mode = Control.FOCUS_NONE
 		b.text = String(a["text"]).get_slice("  (", 0).replace("Poser un avant-poste", "Avant-poste")
-		b.clip_text = true
+		b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		b.add_theme_font_size_override("font_size", 13)
 		b.disabled = a["reason"] != ""
 		b.tooltip_text = "%s\n%s" % [a["text"], a["tooltip"]]
@@ -219,6 +232,7 @@ func _label(parent: Control, fs: int) -> Label:
 	var l := Label.new()
 	l.add_theme_font_size_override("font_size", fs)
 	l.clip_text = true
+	l.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(l)
 	return l
