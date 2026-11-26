@@ -1284,7 +1284,7 @@ static func kind_text(state: GameState, p: Dictionary) -> String:
 	match String(p["treaty"]):
 		"terms":
 			return "Conditions : %s (prix %d, score %d)." % [terms_text(state, int(p["to"]), p.get("terms", {})),
-					price(state, int(p["to"]), p.get("terms", {}), int(p["from"])), Diplomacy.war_score(state, int(p["from"]), int(p["to"]))]
+					price(state, int(p["to"]), p.get("terms", {}), int(p["from"])), WarPeace.terms_score(state, int(p["from"]), int(p["to"]))]
 		"surrender":
 			return "Il deviendrait votre vassal (clauses du préréglage Vassal)."
 		"protect":
@@ -1315,7 +1315,7 @@ static func ai_accepts(state: GameState, kind: String, from: int, to: int, terms
 	var ai := _cfg("ai")
 	match kind:
 		"terms":
-			return price(state, to, terms, from) <= Diplomacy.war_score(state, from, to)
+			return price(state, to, terms, from) <= WarPeace.terms_score(state, from, to)
 		"surrender":
 			var et := state.get_empire(to)
 			return not bool(AiLevels.personality(et).get("temperament", {}).get("never_peace", false))

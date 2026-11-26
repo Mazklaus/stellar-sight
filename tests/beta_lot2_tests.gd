@@ -1,7 +1,8 @@
 class_name BetaLot2Tests
 extends RefCounted
 ## Lot 2 du bêta-test (ne plus perdre sans comprendre) : flotte abattue par les bastions d'un siège (2.1),
-## fenêtre du sujet malgré lui (2.3), chemins vers les conditions de paix (2.4). Les pauses automatiques en
+## fenêtre du sujet malgré lui (2.3), chemins vers les conditions de paix (2.4), reddition sur occupation
+## totale (2.2 : dernier rempart, reddition sans conditions, délai de grâce). Les pauses automatiques en
 ## temps réel (3.3) se vérifient dans smoke_test, avec la scène principale.
 ##   tools/run_tests.sh beta_lot2_tests
 
@@ -15,6 +16,8 @@ func run(check: Callable) -> void:
 	_test_bastion_losses()
 	_test_subject_window()
 	_test_war_paths()
+	_test_surrender_human_winner()
+	_test_surrender_human_loser()
 
 
 func _ok(cond: bool, what: String) -> void:
@@ -146,3 +149,104 @@ func _test_war_paths() -> void:
 	(panel.special_buttons["peace"] as Button).pressed.emit()
 	_ok(asked == [[1, "deal"]], "conditions de paix : volet Traiter de l'ennemi")
 	panel.free()
+
+
+static func _kinds_since(st: GameState, before: int, k: String) -> Array:
+	return st.announces.slice(before).filter(func(r: Dictionary) -> bool: return String(r["k"]) == k)
+
+
+## 2.2 : vainqueur humain. Dernier rempart à un système libre, puis reddition sans conditions : il compose
+## ses termes (score au maximum) ou applique son but ; sans traité, sa lassitude monte, puis le but s'applique.
+func _test_surrender_human_winner() -> void:
+	var wp: RefCounted = preload("res://tests/war_peace_tests.gd").new()
+	var st: GameState = wp._new(61)
+	var a := 0
+	var b := -1
+	for x in wp._majors(st):
+		if x != a and EmpireReport.owned_systems(st, x).size() >= 2:
+			b = x
+			break
+	_ok(b > 0, "un rival IA à deux systèmes au moins")
+	if b < 0:
+		return
+	var rec: Dictionary = wp._war(st, a, b)
+	var own := EmpireReport.owned_systems(st, b)
+	var before := st.announces.size()
+	for i in own.size() - 1:
+		WarPeace.invade(st, own[i], a)
+	var ls := _kinds_since(st, before, "last_stand")
+	_ok(ls.size() == 1 and Announce.can_see(ls[0], a) and Announce.can_see(ls[0], b), "dernier rempart : les deux camps sont prévenus (%d)" % ls.size())
+	_ok(not ls.is_empty() and String(ls[0].get("x", "")).contains(st.galaxy.get_system(own[own.size() - 1]).system_name), "il nomme le système encore libre")
+	_ok(AlertBar.free_gauge(st, b) == "1 sur %d" % own.size(), "jauge : 1 système libre (%s)" % AlertBar.free_gauge(st, b))
+	before = st.announces.size()
+	WarPeace.invade(st, own[own.size() - 1], a)
+	_ok(_kinds_since(st, before, "last_stand").is_empty(), "plus de dernier rempart une fois tout occupé")
+	Wars.monthly(st)
+	_ok(Combat.at_war(st, a, b), "vainqueur humain : pas de traité imposé d'office")
+	_ok(String(WarPeace.uncond_of(st, a, b).get("k", "")) == "win", "reddition sans conditions en cours")
+	var win := _kinds_since(st, before, "uncond_win")
+	_ok(win.size() == 1 and Announce.gravity(st, win[0], a) >= Announce.WINDOW, "une fenêtre pour le vainqueur")
+	_ok(WarPeace.terms_score(st, a, b) == 100, "ses termes se paient au score maximum")
+	_ok(Wars.check_demand(st, a, b) == "" and Wars.ai_accepts(st, "wdemand", a, b), "exiger la reddition passe toujours")
+	var terms := {"repar": true, "trib": true}
+	_ok(Vassals.ai_accepts(st, "terms", a, b, terms) == (Vassals.price(st, b, terms, a) <= 100), "l'IA vaincue accepte tout ce qui tient sous 100")
+	# La fenêtre : appliquer le but ou composer.
+	var panel := AnnouncePanel.new()
+	Engine.get_main_loop().root.add_child(panel)
+	if not win.is_empty():
+		panel.open(st, a, [win[0]] as Array[Dictionary], Announce.WINDOW, 1, 1)
+	_ok(panel.view == "endgame" and panel.special_buttons.has("apply") and panel.special_buttons.has("compose"), "fenêtre : appliquer le but, composer les termes")
+	var sent := []
+	panel.command_requested.connect(func(cmd: Dictionary) -> void: sent.append(cmd))
+	if panel.special_buttons.has("apply"):
+		(panel.special_buttons["apply"] as Button).pressed.emit()
+	_ok(sent.size() == 1 and String(sent[0]["act"]) == "demand" and int(sent[0]["x"]) == b, "appliquer le but : l'ordre d'exiger la reddition (%s)" % str(sent))
+	panel.free()
+	# Sans traité : lassitude du vainqueur après 90 jours, but appliqué au bout d'un an.
+	var u: Dictionary = rec["unc"]
+	u["t"] = st.tick - 100
+	var ex0 := int(rec["ex"][0])
+	Wars.monthly(st)
+	_ok(int(rec["ex"][0]) >= ex0 + 6, "après 90 jours, la lassitude du vainqueur monte (%d -> %d)" % [ex0, int(rec["ex"][0])])
+	u["t"] = st.tick - 400
+	var start := st.chronicle.size()
+	Wars.monthly(st)
+	_ok(not Combat.at_war(st, a, b), "au bout d'un an, le but s'applique")
+	var said := false
+	for i in range(start, st.chronicle.size()):
+		if String(st.chronicle[i]["text"]).contains("tous les systèmes de %s étaient occupés" % st.get_empire(b).display_name()):
+			said = true
+	_ok(said, "le traité dit pourquoi : tous les systèmes étaient occupés")
+
+
+## 2.2 : vaincu humain face à l'IA. Délai de grâce ; reprendre un système annule la reddition.
+func _test_surrender_human_loser() -> void:
+	var wp: RefCounted = preload("res://tests/war_peace_tests.gd").new()
+	var st: GameState = wp._new(67)
+	var b := 0
+	var a: int = wp._majors(st)[1]
+	if a == b:
+		a = wp._majors(st)[2]
+	wp._war(st, a, b)
+	var own := EmpireReport.owned_systems(st, b)
+	for sid in own:
+		WarPeace.invade(st, sid, a)
+	var before := st.announces.size()
+	Wars.monthly(st)
+	_ok(Combat.at_war(st, a, b) and String(WarPeace.uncond_of(st, a, b).get("k", "")) == "grace", "vaincu humain : délai de grâce avant le traité")
+	var gr := _kinds_since(st, before, "uncond_grace")
+	_ok(gr.size() == 1 and Announce.can_see(gr[0], b), "le vaincu est prévenu")
+	_ok(WarPeace.terms_score(st, a, b) == Diplomacy.war_score(st, a, b), "le score de l'IA reste le vrai")
+	var alert := AlertBar.alerts(st, b).filter(func(x: Dictionary) -> bool: return String(x["kind"]) == "war")
+	_ok(not alert.is_empty() and String(alert[0]["text"]).contains("tous vos systèmes sont occupés"), "la pastille de guerre le rappelle")
+	# Reprendre un système : la reddition tombe.
+	WarPeace.release(st, own[0])
+	before = st.announces.size()
+	Wars.monthly(st)
+	_ok(Combat.at_war(st, a, b) and WarPeace.uncond_of(st, a, b).is_empty() and _kinds_since(st, before, "uncond_lifted").size() == 1, "un système repris annule la reddition")
+	WarPeace.invade(st, own[0], a)
+	Wars.monthly(st)
+	_ok(not WarPeace.uncond_of(st, a, b).is_empty(), "tout occupé de nouveau : nouveau délai")
+	(Wars.war(st, a, b)["unc"] as Dictionary)["t"] = st.tick - 31
+	Wars.monthly(st)
+	_ok(not Combat.at_war(st, a, b), "délai écoulé : le but de l'IA s'applique")

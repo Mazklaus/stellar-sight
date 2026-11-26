@@ -13,6 +13,7 @@ signal locate_requested(system_id: int)
 signal screen_requested(screen: String)
 signal relation_requested(empire_id: int, pane: String)
 signal idle_fleets_requested
+signal command_requested(cmd: Dictionary)
 signal event_requested(event_id: int)
 signal deed_requested(item_id: int)
 ## La fenêtre s'est ouverte ou fermée (main.gd met à jour la caméra et le survol).
@@ -76,6 +77,9 @@ func setup(p_hud: Hud, p_clock: Node, p_blocked: Callable) -> void:
 	panel.idle_fleets_requested.connect(func() -> void:
 		close_panel()
 		idle_fleets_requested.emit())
+	panel.command_requested.connect(func(cmd: Dictionary) -> void:
+		close_panel()
+		command_requested.emit(cmd))
 	column = AnnounceColumn.new()
 	column.center = self
 	hud.add_child(column)

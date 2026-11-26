@@ -2844,6 +2844,19 @@
    ]
   },
   {
+   "id": "reddition_sans_conditions",
+   "name": "Reddition sans conditions",
+   "forms": [
+    "Reddition sans conditions",
+    "reddition sans conditions"
+   ],
+   "family": "meca",
+   "summary": "Tous les systèmes d'un empire sont occupés : le vainqueur fixe les termes avec le score au maximum, ou son but s'applique",
+   "chapters": [
+    "09-guerre"
+   ]
+  },
+  {
    "id": "registre",
    "name": "Registre",
    "forms": [

@@ -17,6 +17,8 @@ signal nav_requested(delta: int)
 signal relation_requested(empire_id: int, pane: String)
 ## Passer en revue les flottes sans ordres (Fanfare de guerre, bêta-test 3.3).
 signal idle_fleets_requested
+## Un ordre de guerre à envoyer pour le lecteur (bêta-test 2.2 : appliquer son but après une reddition sans conditions).
+signal command_requested(cmd: Dictionary)
 
 const WIDTH := 620.0
 const FANFARE_WIDTH := 900.0
@@ -159,7 +161,7 @@ func open(state: GameState, viewer: int, recs: Array[Dictionary], g: int, nav_at
 	aid = int(rec["id"])
 	var kd := Announce.kind_def(kind)
 	fanfare = g >= Announce.FANFARE
-	view = String(kd.get("view", "")) if fanfare or ["memorial", "subject"].has(String(kd.get("view", ""))) else ""
+	view = String(kd.get("view", "")) if fanfare or ["memorial", "subject", "endgame"].has(String(kd.get("view", ""))) else ""
 	var fam := Announce.family_of(kind)
 	var fcol := Announce.family_color(fam)
 	var need := Announce.need(rec, viewer)
@@ -240,6 +242,8 @@ func _build_special(state: GameState, viewer: int, rec: Dictionary, w: float) ->
 			_war_actions(state, viewer, a, b)
 		"subject":
 			_subject_view(state, viewer, int(r.get("actor", -1)), w)
+		"endgame":
+			_endgame_view(state, viewer, int(r.get("actor", -1)), int(r.get("target", -1)))
 		"memorial":
 			var row := HBoxContainer.new()
 			row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -290,6 +294,32 @@ func _war_actions(state: GameState, viewer: int, a: int, b: int) -> void:
 		go.pressed.connect(func() -> void: idle_fleets_requested.emit())
 		row.add_child(go)
 		special_buttons["idle"] = go
+
+
+## Fin de guerre par occupation (bêta-test 2.2) : le vainqueur d'une reddition sans conditions applique son
+## but ou compose ses termes ; les autres lecteurs retrouvent les conditions de paix et les flottes.
+func _endgame_view(state: GameState, viewer: int, a: int, b: int) -> void:
+	if viewer < 0 or (viewer != a and viewer != b):
+		return
+	if kind != "uncond_win" or viewer != a or WarPeace.uncond_of(state, a, b).is_empty():
+		_war_actions(state, viewer, a, b)
+		return
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 22)
+	_special.add_child(row)
+	var gid := Wars.goal_of(Wars.war(state, a, b), a)
+	var apply := Widgets.RoundButton.new("plus", "Appliquer votre but", 13)
+	apply.tooltip_text = "%s\nVos revendications vous reviennent aussi." % String(Wars.goal_def(gid).get("text", Wars.goal_label(gid)))
+	apply.disabled = Wars.check_demand(state, a, b) != ""
+	apply.pressed.connect(func() -> void: command_requested.emit(SimCommands.war_act(a, "demand", b)))
+	row.add_child(apply)
+	special_buttons["apply"] = apply
+	var compose := Widgets.RoundButton.new("next", "Composer vos termes", 13)
+	compose.tooltip_text = "Diplomatie, volet Traiter. Le score compte au maximum ; une clause que votre but ne justifie pas coûte le double."
+	compose.pressed.connect(func() -> void: relation_requested.emit(b, "deal"))
+	row.add_child(compose)
+	special_buttons["compose"] = compose
 
 
 static func main_idle_text(state: GameState, viewer: int) -> String:

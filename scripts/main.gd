@@ -302,6 +302,7 @@ func _ready() -> void:
 	announce.screen_requested.connect(toggle_empire_screen)
 	announce.relation_requested.connect(open_relation)
 	announce.idle_fleets_requested.connect(func() -> void: cycle_idle_fleet(1))
+	announce.command_requested.connect(diplomacy_command)
 	announce.event_requested.connect(open_event)
 	announce.deed_requested.connect(open_deed)
 	announce.panel_changed.connect(func(open: bool) -> void:

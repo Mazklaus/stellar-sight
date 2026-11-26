@@ -118,7 +118,14 @@ static func _terms_panel(state: GameState, player: int, id: int, emit: Callable,
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 4)
 	box.add_child(UiTheme.section("Conditions de paix"))
-	var score := Diplomacy.war_score(state, player, id)
+	var score := WarPeace.terms_score(state, player, id)
+	if not WarPeace.uncond_of(state, player, id).is_empty():
+		var ul := UiTheme.dim("Reddition sans conditions : le score compte au maximum. Les clauses que votre but ne justifie pas coûtent le double.", 13)
+		ul.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ul.custom_minimum_size = Vector2(480, 0)
+		ul.add_theme_color_override("font_color", UiTheme.GOOD)
+		box.add_child(ul)
+		buttons["uncond"] = ul
 	var t: Dictionary = Vassals.data()["terms"]
 	var key := str(id)
 	if not draft.has(key):

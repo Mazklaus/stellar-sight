@@ -3,7 +3,8 @@ extends SceneTree
 ##   xvfb-run -s "-screen 0 1600x900x24" godot --rendering-driver opengl3 --resolution 1600x900 -s res://tools/capture_beta_lot2.gd
 ## Écrit dans CAPTURE_DIR (par défaut user://captures) : la Fanfare de guerre avec ses deux boutons, la
 ## fenêtre du sujet malgré lui, la flotte perdue sous les bastions (touche B), la pastille de guerre et les
-## options « Ce qui arrête le jeu ».
+## options « Ce qui arrête le jeu », puis la reddition (2.2) : dernier rempart, reddition sans conditions,
+## volet Traiter au score maximum, jauge des systèmes libres.
 
 
 func _initialize() -> void:
@@ -89,6 +90,55 @@ func _initialize() -> void:
 	await _shot(out + "/fenetre-sujet.png")
 	main.announce.close_panel()
 	await _frames(10)
+
+	# Reddition sans conditions (2.2) : dernier rempart, puis la fenêtre du vainqueur.
+	Vassals.unbind(st, me)
+	st.wars_on = true
+	st.wars["occ_on"] = true
+	var foe2 := other
+	for pair in [[me, foe2], [foe2, me]]:
+		Diplomacy._rel_w(st, pair[0], pair[1])["truce"] = 0
+		Diplomacy._rel_w(st, pair[0], pair[1])["pact"] = Diplomacy.COLD
+	SimCommands.apply(st, SimCommands.declare_war(me, foe2, "agression", "humiliation"))
+	var wrec := Wars.war(st, me, foe2)
+	if not wrec.is_empty():
+		wrec["t"] = st.tick - 200
+		var own := EmpireReport.owned_systems(st, foe2)
+		if own.size() == 1:
+			var extra := -1
+			for s2 in st.galaxy.systems:
+				if s2.planet_ids.size() > 0 and st.system_owner(s2.id) == -1:
+					extra = s2.id
+					break
+			var c2 := Colony.new()
+			c2.planet_id = st.galaxy.get_system(extra).planet_ids[0]
+			c2.owner = foe2
+			c2.kind = Colony.KIND_COLONY
+			c2.population = 3
+			st.add_colony(c2)
+			own = EmpireReport.owned_systems(st, foe2)
+		for i in own.size() - 1:
+			WarPeace.invade(st, own[i], me)
+		main.announce.open_record(Announce.last_id(st))
+		await _frames(40)
+		await _shot(out + "/dernier-rempart.png")
+		main.announce.close_panel()
+		await _frames(10)
+		WarPeace.invade(st, own[own.size() - 1], me)
+		Wars.monthly(st)
+		main.announce.open_record(Announce.last_id(st))
+		await _frames(40)
+		await _shot(out + "/reddition-sans-conditions.png")
+		main.announce.close_panel()
+		await _frames(10)
+		main.open_relation(foe2, "deal")
+		await _frames(30)
+		await _shot(out + "/reddition-termes.png")
+		main.open_relation(foe2, "war")
+		await _frames(30)
+		await _shot(out + "/reddition-volet-guerre.png")
+		main.close_empire_screen()
+		await _frames(10)
 
 	# Options : ce qui arrête le jeu.
 	main.open_pause_menu()
