@@ -296,6 +296,7 @@ func _test_main_scene() -> void:
 	await _test_koinon_ui(main)
 	await _test_war_goals_ui(main)
 	await _test_beta_lot2_ui(main)
+	await _test_beta_lot3_ui(main)
 
 	var clock: Node = root.get_node("GameClock")
 	_quiet_minor_contacts(main)
@@ -1843,6 +1844,95 @@ func _test_beta_lot2_ui(main: Node) -> void:
 	UiSettings.stop_yard = bool(was[2])
 	main._turn_interruptions()
 	clock.set_paused(true)
+	await process_frame
+
+
+## Bêta-test, lot 3 : « Nouvelle flotte » crée une flotte vide qu'on commande (3.1), la fiche de flotte
+## montre Rassembler et Renforts hors des ordres rares et l'effet de la conduite (3.6), le survol d'un
+## système donne le rapport de force (3.2).
+func _test_beta_lot3_ui(main: Node) -> void:
+	var st: GameState = main.simulation.state
+	var screens: EmpireScreens = main._empire_screens
+	var me: int = main.view_empire
+	main.open_address("fleets")
+	await process_frame
+	_check(screens.current == "fleets" and screens.fleets_buttons.has("new") and screens.fleets_buttons.has("auto"), "onglet Flottes : « Nouvelle flotte » et le réglage des vaisseaux neufs")
+	var before := Musters.of_empire(st, me).size()
+	(screens.fleets_buttons["new"] as Button).pressed.emit()
+	main.simulation.flush_commands()
+	screens.show_screen("fleets")
+	await process_frame
+	var list := Musters.of_empire(st, me)
+	_check(list.size() == before + 1, "une flotte vide est créée")
+	if list.size() == before + 1:
+		var mid := int(list[-1]["id"])
+		_check(screens.fleets_selected == FleetsScreen.MUSTER_BASE - mid and screens.fleets_buttons.has("muster_drop"), "elle est choisie, avec sa fiche (nom, rassemblement, dissoudre)")
+		_check(screens.fleets_buttons.has("row:%d" % (FleetsScreen.MUSTER_BASE - mid)), "elle a sa ligne au tableau, même vide")
+		var ship := ""
+		for k: String in screens.fleets_buttons:
+			if k.begins_with("plus:") and not (screens.fleets_buttons[k] as Button).disabled:
+				ship = k.substr(5)
+				break
+		_check(ship != "", "au moins un vaisseau se commande")
+		if ship != "":
+			(screens.fleets_buttons["plus:" + ship] as Button).pressed.emit()
+			main.simulation.flush_commands()
+			screens.show_screen("fleets")
+			await process_frame
+			var rec := Musters.get_rec(st, mid)
+			_check(not rec.is_empty() and ((rec["q"] as Array).size() + (rec["y"] as Dictionary).size()) == 1, "le + commande un vaisseau")
+		(screens.fleets_buttons["muster_drop"] as Button).pressed.emit()
+		main.simulation.flush_commands()
+		await process_frame
+		_check(Musters.get_rec(st, mid).is_empty(), "« Dissoudre » efface la formation")
+	main.close_empire_screen()
+	await process_frame
+	# Fiche de flotte.
+	var f: Fleet = null
+	for fid in st.sorted_fleet_ids():
+		var x: Fleet = st.fleets[fid]
+		if x.owner == me and Combat.is_armed(x) and not x.is_moving():
+			f = x
+			break
+	if f == null:
+		f = st.spawn_ship(me, "fregate", st.galaxy.get_planet(st.get_empire(me).capital_planet).system_id)
+	var g := st.spawn_ship(me, "fregate", f.system_id)
+	main.select_fleet(f.id)
+	await process_frame
+	var hud: Hud = main._hud
+	var merge := hud.fleet_button("merge")
+	_check(merge.visible and merge.is_visible_in_tree(), "« Rassembler ici » se voit sans ouvrir les autres ordres")
+	_check(hud.fleet_button("reinforce").is_visible_in_tree(), "« Renforts » sur la fiche de flotte")
+	_check(hud._fleet_conduct_help.text.begins_with("Consigne : ") and hud._fleet_conduct_help.text.contains("Tactique : "), "la conduite dit ce qu'elle change (%s)" % hud._fleet_conduct_help.text)
+	merge.pressed.emit()
+	main.simulation.flush_commands()
+	await process_frame
+	_check(not st.fleets.has(g.id), "Rassembler ici fond l'autre flotte dans celle-ci")
+	hud.fleet_button("reinforce").pressed.emit()
+	await process_frame
+	_check(screens.is_open() and screens.current == "fleets" and screens.fleets_selected == f.id and screens.fleets_buttons.has("order_status"), "« Renforts » ouvre la flotte dans l'onglet Flottes, avec sa commande")
+	main.close_empire_screen()
+	await process_frame
+	# Rapport de force au survol.
+	var foe := -1
+	for e in st.empires:
+		if e.id != me and not e.is_npc() and not e.eliminated:
+			foe = e.id
+			break
+	var there: int = st.galaxy.systems[f.system_id].neighbors[0]
+	var enemy := st.spawn_ship(foe, "fregate", there)
+	for _i in 5:
+		enemy.add_ship("fregate", -1, -1)
+	var was_war := Combat.at_war(st, me, foe)
+	if not was_war:
+		Combat.start_war(st, me, foe)
+	var lines := Hud.fleet_hover_lines(st, me, f, there)
+	var seen := Fleets.visible_systems(st, me).has(there)
+	_check(not seen or (lines.size() > 0 and lines[0].begins_with("Rapport de force")), "survol d'un système ennemi : le rapport de force (%s)" % str(lines))
+	st.fleets.erase(enemy.id)
+	if not was_war:
+		Diplomacy.sign_treaty(st, me, foe, Diplomacy.PEACE)
+	main.select_fleet(-1)
 	await process_frame
 
 

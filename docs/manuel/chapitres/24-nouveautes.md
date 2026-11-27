@@ -3,6 +3,10 @@ titre: Nouveautés de l'édition
 numero: D
 etiquette: Annexe
 ---
+### Édition 2.69
+
+- **Bêta-test, lot 3 : faire une armée.** Dans l'onglet Flottes, **Nouvelle flotte** crée une flotte vide, en formation, à qui l'on commande des vaisseaux : les commandes se répartissent entre les chantiers libres et chaque vaisseau terminé rejoint la flotte. Une flotte existante reçoit des **renforts** de la même façon. Hors commande, un vaisseau armé neuf rejoint la flotte armée qui attend à quai ou au point de ralliement (réglable). **Rassembler ici** et **Renforts** passent dans les ordres Sur place, **Garder ce système** porte son nom en entier. Le survol d'un système, flotte choisie, donne le **rapport de force** et signale la sortie des halos verts du ravitaillement ; la Diplomatie compare les forces armées. Sous les boutons de la Conduite, une ligne dit ce que changent la consigne, la posture et la tactique. La Fanfare de guerre rappelle comment tenir un système.
+
 ### Édition 2.68
 
 - **Bêta-test, lot 2 : ne plus perdre sans comprendre.** Une flotte abattue par les bastions d'un siège a désormais sa ligne de chronique et son avis, et la touche [[B]] la rouvre quand il n'y a pas de bataille plus récente. Le premier vaisseau perdu sous ces tirs est signalé aussi. **Devenir sujet** sans l'avoir demandé ouvre une fenêtre qui rappelle les clauses et présente ce qui reste : payer et attendre, préparer la révolte, chercher un protecteur, chacune avec un bouton vers la diplomatie. La **Fanfare de guerre** mène aux conditions de paix et à vos flottes sans ordres, et la barre d'alertes gagne une pastille par guerre en cours, avec le score, qui ouvre le volet Traiter. **En temps réel**, les arrêts du tour par tour deviennent des pauses automatiques (guerre déclarée, flotte armée chez vous, événement à choix), plus une bataille qui s'engage et un chantier qui se vide. Tout se règle dans Options, onglet Partie, section « Ce qui arrête le jeu ».

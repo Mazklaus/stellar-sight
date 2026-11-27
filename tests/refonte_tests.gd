@@ -188,7 +188,7 @@ func _test_map() -> void:
 func _test_fleet_card() -> void:
 	# Fiche de flotte (B3) : groupes d'ordres et rangées de composition.
 	_ok(Hud.fleet_group_of("patrol") == "move" and Hud.fleet_group_of("invade") == "here" and Hud.fleet_group_of("tactic") == "conduct"
-			and Hud.fleet_group_of("merge") == "more", "les ordres sont rangés par usage, les rares dans « Autres ordres »")
+			and Hud.fleet_group_of("split") == "more" and Hud.fleet_group_of("merge") == "here", "les ordres sont rangés par usage, les rares dans « Autres ordres »")
 	var f := Fleet.new()
 	f.add_ship("scout")
 	f.add_ship("colony_ship")

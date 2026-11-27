@@ -203,6 +203,7 @@ var finance: Dictionary = {}  # fiscalité et dette publique (voir Finance) ; {}
 var private: Dictionary = {}  # économie privée (voir Private) ; {} = pilier désactivé
 var ports: Dictionary = {}  # spatioports et réseau de distribution (voir Ports) ; {} = pilier désactivé
 var defenses: Dictionary = {}  # défenses spatiales (voir Defenses) ; {} = désactivées
+var musters: Dictionary = {}  # flottes en formation et renforts en route (voir Musters) ; {} = rien en cours
 var stealth: Dictionary = {}  # furtivité et détection (voir Stealth) ; {} = désactivée
 var genetics: Dictionary = {}  # ingénierie des espèces (voir Genetics) ; {} = désactivée
 var psionics: Dictionary = {}  # pouvoirs psioniques (voir Psionics) ; {} = désactivés
@@ -549,6 +550,8 @@ func to_dict() -> Dictionary:
 		d["ports"] = Ports.to_dict(self)
 	if Defenses.worth_saving(self):
 		d["defenses"] = Defenses.to_dict(self)
+	if Musters.worth_saving(self):
+		d["musters"] = Musters.to_dict(self)
 	if Stealth.worth_saving(self):
 		d["stealth"] = Stealth.to_dict(self)
 	if Genetics.worth_saving(self):
@@ -720,6 +723,7 @@ static func from_dict(d: Dictionary) -> GameState:
 	Private.from_dict(s, d.get("private", {}))
 	Ports.from_dict(s, d.get("ports", {}))
 	Defenses.from_dict(s, d.get("defenses", {}))
+	Musters.from_dict(s, d.get("musters", {}))
 	Stealth.from_dict(s, d.get("stealth", {}))
 	Genetics.from_dict(s, d.get("genetics", {}))
 	Psionics.from_dict(s, d.get("psionics", {}))

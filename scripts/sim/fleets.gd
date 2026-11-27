@@ -1023,6 +1023,18 @@ static func check_order(state: GameState, empire_id: int, fleet_id: int, order: 
 	return ""
 
 
+## Verse tous les vaisseaux de f dans into (fusion de flottes, renforts qui rejoignent) ; f disparaît.
+static func absorb(state: GameState, f: Fleet, into: Fleet) -> void:
+	for i in f.ships.size():
+		into.add_ship(f.ships[i], f.hp[i], f.gen[i])
+	into.troops += f.troops
+	Heroes.on_merge(state, f.id, into.id)
+	Ground.on_merge(state, f.id, into.id)
+	Logistics.on_merge(state, f.id, into.id)
+	Musters.forget(state, f.id)
+	state.fleets.erase(f.id)
+
+
 static func check_merge(state: GameState, empire_id: int, fleet_id: int, into_id: int) -> String:
 	var f: Fleet = state.fleets.get(fleet_id)
 	var into: Fleet = state.fleets.get(into_id)

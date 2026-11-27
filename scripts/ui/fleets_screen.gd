@@ -3,8 +3,14 @@ extends RefCounted
 ## Onglet Flottes du domaine Forces (refonte, C12) : toutes les flottes de l'empire en tableau triable
 ## (composition, puissance, coque, position, ordre, amiral, autonomie). La flotte choisie se renomme,
 ## fusionne, se scinde et se met à niveau depuis l'écran. Construit dans les conteneurs d'EmpireScreens.
+##
+## Bêta-test (3.1) : « Nouvelle flotte » crée une flotte vide (une formation, voir Musters) ; on y
+## commande des vaisseaux, répartis entre les chantiers libres, qui la rejoignent en sortant. Une flotte
+## existante reçoit des renforts de la même façon. Les formations encore vides ont leur ligne au tableau.
 
 const COLOR := Color(0.93, 0.5, 0.42)
+## Sélection d'une formation encore vide : MUSTER_BASE - identifiant (les flottes gardent leur id >= 0).
+const MUSTER_BASE := -1000
 ## Clé de tri, libellé, largeur.
 const COLUMNS := [["name", "Flotte", 160.0], ["ships", "Composition", 180.0], ["power", "Puissance", 80.0], ["hull", "Coque", 56.0],
 		["place", "Position", 140.0], ["order", "Ordre", 140.0], ["admiral", "Amiral", 130.0], ["supply", "Autonomie", 76.0]]
@@ -20,6 +26,9 @@ static func order_text(state: GameState, f: Fleet) -> String:
 		return "Exploration auto"
 	if f.is_patrolling():
 		return "Patrouille"
+	var j := Musters.joining(state, f.id)
+	if j >= 0 and state.fleets.has(j):
+		return "Rejoint %s" % (state.fleets[j] as Fleet).fleet_name
 	if f.is_moving():
 		return "En route, %d j" % Fleets.eta_days(state, f)
 	if f.is_guarding():
@@ -41,10 +50,31 @@ static func rows(state: GameState, player: int) -> Array[Dictionary]:
 		var h := Heroes.at_post(state, "fleet", f.id, player)
 		@warning_ignore("integer_division")
 		var hull := f.total_hp() * 100 / maxi(1, f.total_max_hp())
-		out.append({"id": fid, "name": f.fleet_name, "ships": Fleets.composition(f), "count": f.ships.size(), "power": Capture.fleet_power(f),
+		var comp := Fleets.composition(f)
+		var mid := Musters.for_fleet(state, fid)
+		if mid >= 0:
+			var rec := Musters.get_rec(state, mid)
+			var more := (rec["q"] as Array).size() + (rec["y"] as Dictionary).size()
+			if more > 0:
+				comp += ", +%d en commande" % more
+		out.append({"id": fid, "name": f.fleet_name, "ships": comp, "count": f.ships.size(), "power": Capture.fleet_power(f),
 				"hull": hull, "place": place, "order": order_text(state, f), "admiral": String(h.get("name", "")),
 				"supply": Logistics.reserves(state, f) if Logistics.active(state) else -1})
+	# Flottes créées dans l'onglet et encore vides (formations sans vaisseau).
+	for m: Dictionary in Musters.of_empire(state, player):
+		var rec: Dictionary = m["rec"]
+		if Musters.has_fleet(state, rec):
+			continue
+		var n := (rec["q"] as Array).size() + (rec["y"] as Dictionary).size()
+		out.append({"id": MUSTER_BASE - int(m["id"]), "name": String(rec["n"]), "ships": ("%d en commande" % n) if n > 0 else "Vide",
+				"count": 0, "power": 0, "hull": 100, "place": state.galaxy.systems[int(rec["s"])].system_name,
+				"order": "En formation", "admiral": "", "supply": -1})
 	return out
+
+
+## Identifiant de formation d'une ligne de formation vide (-1 pour une flotte).
+static func muster_of_row(row_id: int) -> int:
+	return MUSTER_BASE - row_id if row_id <= MUSTER_BASE else -1
 
 
 ## Valeur de tri d'une ligne pour une colonne.
@@ -70,7 +100,8 @@ static func sorted_rows(state: GameState, player: int, key: String, desc: bool) 
 
 static func signature(es: EmpireScreens) -> String:
 	@warning_ignore("integer_division")
-	return "%s|%s|%s|%d|%d" % [str(rows(es._state, es._player)), es.fleets_sort, str(es.fleets_sort_desc), es.fleets_selected, es._state.tick / 30]
+	return "%s|%s|%s|%d|%d|%s|%s" % [str(rows(es._state, es._player)), es.fleets_sort, str(es.fleets_sort_desc), es.fleets_selected, es._state.tick / 30,
+			str(Musters.of_empire(es._state, es._player)), str(Musters.auto_join(es._state, es._player))]
 
 
 static func build(es: EmpireScreens) -> void:
@@ -105,6 +136,8 @@ static func build(es: EmpireScreens) -> void:
 	var up := Fleets.upkeep(state, player)
 	if not up.is_empty():
 		es._key_value(g, "Entretien", GameData.format_amounts(up) + " / mois")
+	es._side_box.add_child(HSeparator.new())
+	_side_new_fleet(es)
 	es._side_box.add_child(HSeparator.new())
 	es._side_box.add_child(UiTheme.paragraph("Un clic sur un en-tête trie le tableau, un second inverse l'ordre. Un clic sur une flotte ouvre ses réglages en bas ; « Voir sur la carte » y mène.", EmpireScreens.SIDE_WIDTH - 24.0, 12))
 
@@ -149,7 +182,7 @@ static func build(es: EmpireScreens) -> void:
 	box.add_theme_constant_override("separation", 3)
 	scroll.add_child(box)
 	if list.is_empty():
-		box.add_child(UiTheme.dim("Aucune flotte. Le Chantier en construit.", 14))
+		box.add_child(UiTheme.dim("Aucune flotte. « Nouvelle flotte », à gauche, en crée une à remplir.", 14))
 	for r: Dictionary in list:
 		var fid := int(r["id"])
 		var b := es._row_button(34)
@@ -184,8 +217,12 @@ static func build(es: EmpireScreens) -> void:
 					l.text = String(r["order"])
 					if l.text == "Attend des ordres":
 						l.add_theme_color_override("font_color", UiTheme.WARN)
+					elif l.text == "En formation" or l.text.begins_with("Rejoint"):
+						l.add_theme_color_override("font_color", UiTheme.ACCENT)
 					elif l.text == "Au combat":
 						l.add_theme_color_override("font_color", UiTheme.BAD)
+				"power":
+					l.text = str(r[key]) if fid > MUSTER_BASE else "—"
 				_:
 					l.text = str(r[key])
 			if key == "name":
@@ -197,6 +234,8 @@ static func build(es: EmpireScreens) -> void:
 		es.fleets_buttons["row:%d" % fid] = b
 	if es.fleets_selected >= 0:
 		col.add_child(_detail(es, state.fleets[es.fleets_selected]))
+	elif es.fleets_selected <= MUSTER_BASE:
+		col.add_child(_muster_detail(es, muster_of_row(es.fleets_selected)))
 
 
 static func _detail(es: EmpireScreens, f: Fleet) -> Control:
@@ -275,6 +314,8 @@ static func _detail(es: EmpireScreens, f: Fleet) -> Control:
 			es.command_requested.emit(SimCommands.split_fleet(player, fid, classes[i - 1])))
 	line.add_child(split)
 	es.fleets_buttons["split"] = split
+	# Renforts (bêta-test, 3.1) : vaisseaux commandés pour cette flotte.
+	blk.body.add_child(_order_block(es, Musters.for_fleet(state, fid), fid))
 	# Composition détaillée.
 	var comp := HFlowContainer.new()
 	comp.add_theme_constant_override("h_separation", 18)
@@ -284,3 +325,213 @@ static func _detail(es: EmpireScreens, f: Fleet) -> Control:
 		var l := UiTheme.dim("%d × %s, coque %d %%" % [int(r["n"]), String(r["label"]), int(r["hp"]) * 100 / maxi(1, int(r["max"]))], 13)
 		comp.add_child(l)
 	return blk
+
+
+# --- Flottes en formation (bêta-test, 3.1) ------------------------------------------------------
+
+## Colonne de gauche : créer une flotte vide, et le réglage des vaisseaux neufs qui rejoignent.
+static func _side_new_fleet(es: EmpireScreens) -> void:
+	var state := es._state
+	var player := es._player
+	es._side_box.add_child(UiTheme.section("Former une flotte"))
+	es._side_box.add_child(UiTheme.paragraph("Créez la flotte, même vide, puis commandez-lui des vaisseaux. Chaque commande part au chantier libre le plus proche ; le vaisseau terminé rejoint la flotte de lui-même.", EmpireScreens.SIDE_WIDTH - 24.0, 12))
+	var nb := Button.new()
+	nb.theme_type_variation = &"PrimaryButton"
+	nb.focus_mode = Control.FOCUS_NONE
+	nb.text = "NOUVELLE FLOTTE"
+	nb.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	var home := default_place(state, player)
+	var cmd := SimCommands.muster_act(player, "new", home, -1, next_name(state, player))
+	var why := SimCommands.validate(state, cmd)
+	nb.disabled = why != ""
+	nb.tooltip_text = why if why != "" else "Une flotte vide, rassemblée à %s. Nom et point de rassemblement se changent ensuite." % state.galaxy.systems[home].system_name
+	nb.pressed.connect(func() -> void:
+		es.fleets_selected = MUSTER_BASE - Musters.next_id(state)
+		es.command_requested.emit(cmd))
+	es._side_box.add_child(nb)
+	es.fleets_buttons["new"] = nb
+	var auto := CheckBox.new()
+	auto.text = "Les vaisseaux armés neufs rejoignent la flotte à quai"
+	auto.focus_mode = Control.FOCUS_NONE
+	auto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	auto.custom_minimum_size = Vector2(EmpireScreens.SIDE_WIDTH - 24.0, 0)
+	auto.button_pressed = Musters.auto_join(state, player)
+	auto.tooltip_text = "Hors commande, un vaisseau armé qui sort d'un chantier (ou arrive au point de ralliement) se fond dans la flotte armée à l'arrêt sur place. Décoché : il forme sa propre flotte, comme avant."
+	auto.toggled.connect(func(on: bool) -> void: es.command_requested.emit(SimCommands.muster_act(player, "auto", 1 if on else 0)))
+	es._side_box.add_child(auto)
+	es.fleets_buttons["auto"] = auto
+
+
+## Point de rassemblement par défaut : le point de ralliement s'il est à vous, sinon la capitale.
+static func default_place(state: GameState, player: int) -> int:
+	var e := state.get_empire(player)
+	if e == null:
+		return -1
+	if e.rally_system >= 0 and state.system_owner(e.rally_system) == player:
+		return e.rally_system
+	var cap := state.galaxy.get_planet(e.capital_planet)
+	return cap.system_id if cap != null else -1
+
+
+## Nom proposé : « Flotte de réserve », puis la première « Ne flotte » libre.
+static func next_name(state: GameState, player: int) -> String:
+	var used := {}
+	for f: Fleet in state.fleets.values():
+		if f.owner == player:
+			used[f.fleet_name] = true
+	for m: Dictionary in Musters.of_empire(state, player):
+		used[String(m["rec"]["n"])] = true
+	for i in range(1, 100):
+		var n := "%s flotte" % _ordinal(i)
+		if not used.has(n):
+			return n
+	return "Nouvelle flotte"
+
+
+static func _ordinal(i: int) -> String:
+	return "1re" if i == 1 else "%de" % i
+
+
+## Fiche d'une flotte encore vide : nom, point de rassemblement, commande, dissolution.
+static func _muster_detail(es: EmpireScreens, mid: int) -> Control:
+	var state := es._state
+	var player := es._player
+	var rec := Musters.get_rec(state, mid)
+	var blk := Widgets.Block.new(String(rec.get("n", "")))
+	if rec.is_empty():
+		return blk
+	var line := HFlowContainer.new()
+	line.add_theme_constant_override("h_separation", 10)
+	line.add_theme_constant_override("v_separation", 8)
+	blk.body.add_child(line)
+	var name_edit := LineEdit.new()
+	name_edit.text = String(rec["n"])
+	name_edit.max_length = Musters.NAME_MAX
+	name_edit.custom_minimum_size = Vector2(220, 0)
+	name_edit.tooltip_text = "Nom de la flotte, puis Entrée."
+	var rename := func(t: String) -> void:
+		var cmd := SimCommands.muster_act(player, "rename", mid, -1, t)
+		if SimCommands.validate(state, cmd) == "":
+			es.command_requested.emit(cmd)
+	name_edit.text_submitted.connect(rename)
+	line.add_child(name_edit)
+	es.fleets_buttons["muster_name"] = name_edit
+	var rb := Button.new()
+	rb.focus_mode = Control.FOCUS_NONE
+	rb.text = "RENOMMER"
+	rb.pressed.connect(func() -> void: rename.call(name_edit.text))
+	line.add_child(rb)
+	var place := OptionButton.new()
+	place.focus_mode = Control.FOCUS_NONE
+	place.tooltip_text = "Point de rassemblement : le premier vaisseau terminé s'y rend, les suivants le rejoignent."
+	var sids: Array[int] = []
+	for s in state.galaxy.systems:
+		if state.system_owner(s.id) == player:
+			sids.append(s.id)
+			place.add_item("Rassemblement : %s" % s.system_name)
+			if s.id == int(rec["s"]):
+				place.selected = sids.size() - 1
+	place.item_selected.connect(func(i: int) -> void:
+		var cmd := SimCommands.muster_act(player, "place", mid, sids[i])
+		if SimCommands.validate(state, cmd) == "":
+			es.command_requested.emit(cmd))
+	line.add_child(place)
+	es.fleets_buttons["muster_place"] = place
+	var drop := Button.new()
+	drop.focus_mode = Control.FOCUS_NONE
+	drop.text = "DISSOUDRE"
+	drop.tooltip_text = "Annule la commande. Un vaisseau déjà au chantier sort quand même, seul."
+	drop.pressed.connect(func() -> void:
+		es.fleets_selected = -1
+		es.command_requested.emit(SimCommands.muster_act(player, "drop", mid)))
+	line.add_child(drop)
+	es.fleets_buttons["muster_drop"] = drop
+	blk.body.add_child(_order_block(es, mid, -1))
+	return blk
+
+
+## Commande d'une formation : une ligne par classe que l'empire sait construire, avec le nombre en
+## attente et en chantier, et les boutons + et −. mid = -1 et fid >= 0 : flotte sans commande encore
+## (le premier + crée la commande de renforts).
+static func _order_block(es: EmpireScreens, mid: int, fid: int) -> Control:
+	var state := es._state
+	var player := es._player
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 4)
+	var rec := Musters.get_rec(state, mid) if mid >= 0 else {}
+	box.add_child(UiTheme.section("Renforts" if fid >= 0 else "Commande"))
+	var q: Array = rec.get("q", [])
+	var y: Array[String] = []
+	if not rec.is_empty():
+		y = Musters.building(rec)
+	var status := ""
+	if rec.is_empty() or (q.is_empty() and y.is_empty()):
+		status = "Rien en commande. Chaque + envoie un vaisseau au chantier libre le plus proche ; il se paie au lancement."
+	else:
+		status = "%d en chantier, %d en attente." % [y.size(), q.size()]
+		var why := Musters.wait_reason(state, mid)
+		if why != "":
+			status += " La suite attend : %s." % why
+	var st := UiTheme.paragraph(status, 640, 13)
+	st.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+	box.add_child(st)
+	es.fleets_buttons["order_status"] = st
+	var grid := GridContainer.new()
+	grid.columns = 5
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 3)
+	box.add_child(grid)
+	var ids := Musters.orderable(state, player)
+	if ids.is_empty():
+		box.add_child(UiTheme.dim("Aucun vaisseau à commander pour l'instant.", 13))
+	for ship_id in ids:
+		var sd := GameData.ship(ship_id)
+		var l := Label.new()
+		l.text = String(sd.get("label", ship_id))
+		l.custom_minimum_size = Vector2(190, 0)
+		l.clip_text = true
+		l.mouse_filter = Control.MOUSE_FILTER_STOP
+		l.tooltip_text = String(sd.get("description", ""))
+		grid.add_child(l)
+		var info := UiTheme.dim("%s, %d j%s" % [GameData.format_amounts(Fleets.ship_cost(state, player, ship_id)), Fleets.ship_days(state, player, ship_id),
+				(", puissance %d" % Combat.ship_strength(ship_id)) if Combat.is_military(ship_id) else ""], 12)
+		info.custom_minimum_size = Vector2(250, 0)
+		grid.add_child(info)
+		var n_q := q.count(ship_id)
+		var n_y := y.count(ship_id)
+		var cnt := Label.new()
+		cnt.theme_type_variation = &"Numbers"
+		cnt.custom_minimum_size = Vector2(70, 0)
+		cnt.text = ("%d + %d" % [n_y, n_q]) if n_y > 0 and n_q > 0 else str(n_y + n_q)
+		cnt.tooltip_text = "En chantier : %d. En attente d'un chantier : %d." % [n_y, n_q]
+		cnt.mouse_filter = Control.MOUSE_FILTER_STOP
+		grid.add_child(cnt)
+		var plus := Button.new()
+		plus.text = "+"
+		plus.focus_mode = Control.FOCUS_NONE
+		plus.custom_minimum_size = Vector2(34, 0)
+		var sid := ship_id
+		if mid >= 0:
+			var why := SimCommands.validate(state, SimCommands.muster_act(player, "add", mid, -1, sid))
+			plus.disabled = why != ""
+			plus.tooltip_text = why if why != "" else "Commander un vaisseau de plus."
+			plus.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.muster_act(player, "add", mid, -1, sid)))
+		else:
+			plus.tooltip_text = "Commander un vaisseau de plus pour cette flotte."
+			var why := SimCommands.validate(state, SimCommands.muster_act(player, "new", -1, fid, sid))
+			plus.disabled = why != ""
+			if why != "":
+				plus.tooltip_text = why
+			plus.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.muster_act(player, "new", -1, fid, sid)))
+		grid.add_child(plus)
+		es.fleets_buttons["plus:" + sid] = plus
+		var minus := Button.new()
+		minus.text = "−"
+		minus.focus_mode = Control.FOCUS_NONE
+		minus.custom_minimum_size = Vector2(34, 0)
+		minus.disabled = n_q == 0
+		minus.tooltip_text = "Retirer un vaisseau qui attend encore son chantier." if n_q > 0 else "Rien en attente de cette classe (un vaisseau au chantier ne se décommande pas)."
+		minus.pressed.connect(func() -> void: es.command_requested.emit(SimCommands.muster_act(player, "sub", mid, -1, sid)))
+		grid.add_child(minus)
+		es.fleets_buttons["minus:" + sid] = minus
+	return box

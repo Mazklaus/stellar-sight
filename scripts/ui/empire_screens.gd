@@ -2100,6 +2100,8 @@ func _relation_block(id: int) -> Control:
 	if e.is_ai():
 		extra.append("Tempérament : %s" % AiLevels.temperament_label(e))
 		extra.append(AiLevels.bonus_text(_state, id))
+	if not e.eliminated and _player >= 0 and st != "none":
+		extra.append(ForceOdds.empire_line(_state, _player, id))  # bêta-test (3.2)
 	if Kardashev.applies(_state, id) and not e.eliminated:
 		extra.append("Échelle de Kardashev : %s" % Kardashev.text(_state, id))
 	for x in extra:

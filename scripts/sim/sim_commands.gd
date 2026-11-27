@@ -807,6 +807,11 @@ static func defense_act(player: int, act: String, a := -1, b := -1, s := "") -> 
 	return {"type": "defense", "player": player, "act": act, "a": a, "b": b, "s": s}
 
 
+## Flottes en formation (voir Musters) : "new", "add", "sub", "drop", "rename", "place", "auto".
+static func muster_act(player: int, act: String, a := -1, b := -1, s := "") -> Dictionary:
+	return {"type": "muster", "player": player, "act": act, "a": a, "b": b, "s": s}
+
+
 static func decree(player: int, system_id: int, decree_id: String) -> Dictionary:
 	return {"type": "decree", "player": player, "system": system_id, "decree": decree_id}
 
@@ -1066,6 +1071,8 @@ static func validate(state: GameState, cmd: Dictionary) -> String:
 			return Stealth.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":
 			return Portals.check_raze(state, int(cmd["player"]), int(cmd.get("system", -1)))
+		"muster":
+			return Musters.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"defense":
 			return Defenses.check(state, int(cmd["player"]), String(cmd.get("act", "")), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"private":
@@ -1315,6 +1322,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 		"move_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var plan := Fleets.plan_route(state, f, int(cmd["system"]))
+			Musters.forget(state, f.id)  # et sur un vaisseau qui partait rejoindre sa flotte
 			f.standing_order = ""  # un ordre donné à la main reprend la main sur l'exploration
 			f.queue.clear()  # et sur les étapes données avant
 			f.system_id = int(plan["system"])
@@ -1332,6 +1340,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			(qc.ship_queue if bool(cmd.get("ship", false)) else qc.build_queue).clear()
 		"queue_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			Musters.forget(state, f.id)
 			if not f.is_moving() and f.queue.is_empty():
 				var plan := Fleets.plan_route(state, f, int(cmd["system"]))
 				f.standing_order = ""
@@ -1347,6 +1356,7 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			state.get_empire(int(cmd["player"])).rally_system = int(cmd["system"])
 		"stop_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			Musters.forget(state, f.id)
 			f.standing_order = ""
 			f.queue.clear()
 			var lane := Fleets.lane_length(state.galaxy, f.system_id, f.path[0])
@@ -1359,19 +1369,12 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 				f.progress = lane - f.progress
 		"set_fleet_order":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
+			Musters.forget(state, f.id)
 			f.standing_order = String(cmd["order"])
 			if f.is_exploring():
 				FleetSystem.explore_step(state, f)  # cap immédiat sur la frontière, sans attendre le tick
 		"merge_fleets":
-			var f: Fleet = state.fleets[int(cmd["fleet"])]
-			var into: Fleet = state.fleets[int(cmd["into"])]
-			for i in f.ships.size():
-				into.add_ship(f.ships[i], f.hp[i], f.gen[i])
-			into.troops += f.troops
-			Heroes.on_merge(state, f.id, into.id)
-			Ground.on_merge(state, f.id, into.id)
-			Logistics.on_merge(state, f.id, into.id)
-			state.fleets.erase(f.id)
+			Fleets.absorb(state, state.fleets[int(cmd["fleet"])], state.fleets[int(cmd["into"])])
 		"split_fleet":
 			var f: Fleet = state.fleets[int(cmd["fleet"])]
 			var ship_id := String(cmd["ship"])
@@ -1548,6 +1551,8 @@ static func apply(state: GameState, cmd: Dictionary) -> void:
 			Stealth.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"portal_raze":
 			Portals.raze(state, int(cmd["player"]), int(cmd["system"]))
+		"muster":
+			Musters.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"defense":
 			Defenses.apply(state, int(cmd["player"]), String(cmd["act"]), int(cmd.get("a", -1)), int(cmd.get("b", -1)), String(cmd.get("s", "")))
 		"private":
