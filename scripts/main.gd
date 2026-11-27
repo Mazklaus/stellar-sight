@@ -127,6 +127,8 @@ var _proposals_told := -1
 var _turn_wars := {}
 var _turn_intruders := {}
 var _turn_events := -1
+## Temps réel (bêta-test, 3.3) : colonies dont le chantier travaillait au jour précédent.
+var _yards_busy := {}
 
 
 func _ready() -> void:
@@ -298,6 +300,9 @@ func _ready() -> void:
 	announce.net_check = func() -> bool: return net != null and net.is_active()
 	announce.locate_requested.connect(_go_to_system)
 	announce.screen_requested.connect(toggle_empire_screen)
+	announce.relation_requested.connect(open_relation)
+	announce.idle_fleets_requested.connect(func() -> void: cycle_idle_fleet(1))
+	announce.command_requested.connect(diplomacy_command)
 	announce.event_requested.connect(open_event)
 	announce.deed_requested.connect(open_deed)
 	announce.panel_changed.connect(func(open: bool) -> void:
@@ -922,6 +927,8 @@ func _on_alert(kind: String, arg: int) -> void:
 			open_address("trade:routes")
 		"battle":
 			_go_to_system(arg)
+		"war":
+			open_relation(arg, "deal")
 
 
 ## Mène à ce qu'un point de TurnChecks.todo signale.
@@ -1136,6 +1143,7 @@ func _start(state: GameState) -> void:
 	_turn_wars = {}
 	_turn_intruders = {}
 	_turn_events = -1
+	_yards_busy = {}
 	simulation.ticked.connect(func(_tick: int) -> void:
 		_announce_arrivals()
 		_announce_proposals()
@@ -1159,21 +1167,27 @@ func _start(state: GameState) -> void:
 	GameClock.attach(simulation)
 
 
-## Tour par tour (étude d'équilibrage, C5) : en plus d'une bataille, le tour en cours de résolution
-## s'interrompt quand on déclare la guerre au joueur, quand une flotte étrangère armée entre dans un de
-## ses systèmes, et quand un événement attend son choix. Chaque arrêt se coche dans les options.
+## Arrêts automatiques (étude d'équilibrage, C5 ; bêta-test, 3.3). Au tour par tour, le tour en cours de
+## résolution s'interrompt quand on déclare la guerre au joueur, quand une flotte étrangère armée entre dans
+## un de ses systèmes et quand un événement attend son choix. En temps réel, les mêmes arrêts mettent le jeu
+## en pause (réglage « realtime_stops »), plus un chantier qui n'a plus rien à bâtir. Chaque arrêt se coche
+## dans les options.
 func _turn_interruptions() -> void:
 	var st := simulation.state
 	var e := st.get_empire(view_empire)
 	if spectator or e == null:
 		return
 	var why := ""
+	var keep := false
+	var on_click := Callable()
 	var wars := {}
 	for o in e.wars:
 		wars[o] = true
 		if not _turn_wars.has(o) and why == "" and UiSettings.turn_stop_war:
 			var oe := st.get_empire(o)
-			why = "Guerre avec %s : le tour s'interrompt." % (oe.short_name() if oe != null else "un ennemi")
+			why = "Guerre avec %s.%s" % [oe.short_name() if oe != null else "un ennemi", idle_fleets_text(st, view_empire)]
+			keep = true
+			on_click = func() -> void: cycle_idle_fleet(1)
 	var first := _turn_events < 0
 	_turn_wars = wars
 	var intr := {}
@@ -1187,14 +1201,78 @@ func _turn_interruptions() -> void:
 			continue
 		intr[f.id] = true
 		if not _turn_intruders.has(f.id) and why == "" and UiSettings.turn_stop_intrusion:
-			why = "Flotte étrangère armée à %s : le tour s'interrompt." % galaxy.get_system(f.system_id).system_name
+			why = "Flotte étrangère armée à %s." % galaxy.get_system(f.system_id).system_name
+			var sid := f.system_id
+			on_click = func() -> void: _go_to_system(sid)
 	_turn_intruders = intr
 	var inbox := Events.inbox(st, view_empire).size()
 	if inbox > _turn_events and why == "" and UiSettings.turn_stop_events and not first:
-		why = "Un événement attend votre choix : le tour s'interrompt."
+		why = "Un événement attend votre choix."
 	_turn_events = inbox
-	if why != "" and not first and GameClock.interrupt_turn():
-		_hud.notify(why, "bad")
+	if not GameClock.is_turn_based():
+		var idle_yard := _yard_emptied(st)
+		if idle_yard >= 0 and why == "" and UiSettings.stop_yard and not first:
+			var p := galaxy.get_planet(idle_yard)
+			why = "Le chantier de %s n'a plus rien à bâtir." % p.display_name(galaxy)
+			var ysid := p.system_id
+			on_click = func() -> void: open_system_view(ysid)
+	if why != "" and not first:
+		halt_game(why, "bad", on_click, keep)
+
+
+## Arrêt automatique : au tour par tour, le tour en cours s'interrompt ; en temps réel, le jeu se met en pause
+## (réglage realtime_stops, jamais en réseau où la pause arrêterait tout le monde). keep : si une fenêtre a déjà
+## mis le temps en pause (Fanfare de guerre), il ne repartira pas à sa fermeture. Renvoie vrai si le jeu s'arrête.
+func halt_game(why: String, kind := "bad", on_click := Callable(), keep := false) -> bool:
+	if GameClock.interrupt_turn():
+		_hud.notify("%s Le tour s'interrompt." % why, kind, on_click)
+		return true
+	if GameClock.is_turn_based():
+		return false
+	if not UiSettings.realtime_stops or net.is_active() or spectator:
+		_hud.notify(why, kind, on_click)
+		return false
+	if GameClock.paused:
+		if keep:
+			announce.keep_paused()
+		_hud.notify(why, kind, on_click)
+		return true
+	GameClock.set_paused(true)
+	_hud.notify("%s Le jeu est en pause." % why, kind, on_click)
+	return true
+
+
+## Flottes armées sans ordres et leur position, pour l'avis de guerre ("" s'il n'y en a pas).
+static func idle_fleets_text(st: GameState, eid: int, most := 4) -> String:
+	var parts := PackedStringArray()
+	var idle := Fleets.idle_fleets(st, eid).filter(func(f: Fleet) -> bool: return Combat.is_armed(f))
+	for i in mini(most, idle.size()):
+		var f: Fleet = idle[i]
+		parts.append("%s (%s)" % [f.fleet_name, st.galaxy.get_system(f.system_id).system_name])
+	if parts.is_empty():
+		return ""
+	var more := idle.size() - parts.size()
+	return " Flottes sans ordres : %s%s." % [", ".join(parts), " et %d autre%s" % [more, "s" if more > 1 else ""] if more > 0 else ""]
+
+
+## Temps réel : une colonie dont le chantier travaillait hier et qui n'a plus rien en cours ni en file, alors
+## qu'un bâtiment au moins peut y être lancé (-1 sinon). Seules les colonies qui viennent de finir sont testées.
+func _yard_emptied(st: GameState) -> int:
+	var found := -1
+	var busy := {}
+	for pid in st.sorted_colony_ids():
+		var c: Colony = st.colonies[pid]
+		if c.owner != view_empire or not c.is_colony():
+			continue
+		if c.construction != "" or not c.build_queue.is_empty():
+			busy[pid] = true
+		elif found < 0 and _yards_busy.has(pid) and c.is_established():
+			for bid: String in GameData.buildings():
+				if Economy.check_build(st, view_empire, pid, bid) == "":
+					found = pid
+					break
+	_yards_busy = busy
+	return found
 
 
 func _refresh_all() -> void:
@@ -2163,10 +2241,34 @@ func toggle_battle_report() -> void:
 		_hud.battle_report.hide_report()
 		return
 	var r := Hud.last_report(simulation.state, view_empire)
+	# Bêta-test (2.1) : une flotte perdue hors bataille (bastions d'un siège) n'a pas de rapport. Si c'est la
+	# perte la plus récente, B rouvre son annonce.
+	var loss := last_loss(simulation.state, view_empire)
+	if not loss.is_empty() and (r.is_empty() or int(loss["t"]) > int(r.get("end", 0))):
+		announce.open_record(int(loss["id"]))
+		return
 	if r.is_empty():
 		_hud.notify("Aucune bataille à raconter. Pour l'instant.")
 		return
 	_hud.battle_report.show_report(simulation.state, view_empire, r)
+
+
+## Dernière flotte perdue hors bataille par cet empire (annonce « fleet_lost »), {} s'il n'y en a pas.
+static func last_loss(st: GameState, eid: int) -> Dictionary:
+	for i in range(st.announces.size() - 1, -1, -1):
+		var rec: Dictionary = st.announces[i]
+		if String(rec["k"]) == "fleet_lost" and int((rec["r"] as Dictionary).get("target", -1)) == eid and Announce.can_see(rec, eid):
+			return rec
+	return {}
+
+
+## Ouvre la diplomatie sur un empire, au volet voulu ("relation", "deal" pour traiter et les conditions de
+## paix, "war"). Fanfare de guerre, fenêtre de sujet, alerte de guerre (bêta-test 2.3 et 2.4).
+func open_relation(empire_id: int, pane := "deal") -> void:
+	if empire_id >= 0:
+		_empire_screens.diplo_selected = empire_id
+	_empire_screens.diplo_pane = pane
+	open_address("diplomacy:empires")
 
 
 ## Déclaration de guerre depuis l'écran Diplomatie.
@@ -2223,10 +2325,13 @@ func _on_combat_event(ev: Dictionary) -> void:
 			if not ev["empires"].has(view_empire) or bool(ev.get("renewed", false)):
 				return
 			var sname := galaxy.get_system(int(ev["system"])).system_name
+			var bsid := int(ev["system"])
 			if GameClock.interrupt_turn():
 				_hud.notify("Bataille à %s : le tour s'interrompt. Tactique (T), retraite (clic droit) ou Fin de tour." % sname, "bad")
+			elif UiSettings.stop_battle:
+				halt_game("Bataille engagée à %s. Tactique (T) ou retraite (clic droit)." % sname, "bad", func() -> void: _go_to_system(bsid))
 			else:
-				_hud.notify("Bataille engagée à %s !" % sname, "bad")
+				_hud.notify("Bataille engagée à %s !" % sname, "bad", func() -> void: _go_to_system(bsid))
 		"battle_ended":
 			var r: Dictionary = ev["report"]
 			if not BattleReportPanel._fought(r, view_empire):
@@ -2239,7 +2344,8 @@ func _on_combat_event(ev: Dictionary) -> void:
 			if int(ev["owner"]) == view_empire:
 				_hud.notify("%s assiège %s ! Sa garnison va fondre." % [st.get_empire(int(ev["by"])).short_name(), sname], "bad")
 			elif int(ev["by"]) == view_empire:
-				_hud.notify("Siège de %s : la garnison s'use chaque jour. Envahissez quand vos troupes la dépassent." % sname, "good")
+				var guns := "" if Combat.battery(st, int(ev["system"])).is_empty() else " Ses bastions tirent sur vos vaisseaux tant qu'elle tient."
+				_hud.notify("Siège de %s : la garnison s'use chaque jour. Envahissez quand vos troupes la dépassent.%s" % [sname, guns], "good")
 
 
 func _check_defeat() -> void:

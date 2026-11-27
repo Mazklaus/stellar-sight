@@ -222,6 +222,30 @@ static func _war_panel(state: GameState, player: int, id: int, emit: Callable, b
 			if state.system_owner(sid) == player:
 				his_o += 1
 		box.add_child(UiTheme.dim("Occupation : vous tenez %d de ses systèmes, il tient %d des vôtres" % [mine_o, his_o], 13))
+		# Bêta-test 2.2 (R2) : combien de systèmes restent libres de chaque côté.
+		var gauge := UiTheme.dim("Systèmes libres : vous %s, lui %s" % [AlertBar.free_gauge(state, player), AlertBar.free_gauge(state, id)], 13)
+		gauge.tooltip_text = "Un empire dont tous les systèmes sont occupés se rend sans conditions. Quand il ne lui en reste qu'un, les deux camps sont prévenus."
+		gauge.mouse_filter = Control.MOUSE_FILTER_STOP
+		if WarPeace.free_systems(state, player).size() <= 1 or WarPeace.free_systems(state, id).size() <= 1:
+			gauge.add_theme_color_override("font_color", UiTheme.delta_color(WarPeace.free_systems(state, player).size() - WarPeace.free_systems(state, id).size()))
+		box.add_child(gauge)
+		buttons["free"] = gauge
+		var unc := WarPeace.uncond_of(state, player, id)
+		var unc2 := WarPeace.uncond_of(state, id, player)
+		if not unc.is_empty():
+			var ul := UiTheme.dim("%s se rend sans conditions : composez vos termes (volet Traiter, le score compte au maximum) ou exigez sa reddition pour appliquer votre but." % e_short(state, id), 13)
+			ul.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			ul.custom_minimum_size = Vector2(480, 0)
+			ul.add_theme_color_override("font_color", UiTheme.GOOD)
+			box.add_child(ul)
+			buttons["uncond"] = ul
+		elif not unc2.is_empty():
+			var ul2 := UiTheme.dim("Tous vos systèmes sont occupés. Reprenez-en un pour annuler la reddition, ou traitez avant que son but ne s'applique.", 13)
+			ul2.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			ul2.custom_minimum_size = Vector2(480, 0)
+			ul2.add_theme_color_override("font_color", UiTheme.BAD)
+			box.add_child(ul2)
+			buttons["uncond"] = ul2
 	if rec.has("lead") and not Wars.war_by_key(state, String(rec["lead"])).is_empty() and int(rec.get("chief", -1)) >= 0:
 		var lw := Wars.war_by_key(state, String(rec["lead"]))
 		box.add_child(UiTheme.dim("Votre chef de guerre : %s (%s) ; il négocie pour vous." % [state.get_empire(int(rec["chief"])).short_name(), String(lw.get("name", ""))], 13) if int(rec["a"]) == player
@@ -379,3 +403,8 @@ static func _third_party(state: GameState, player: int, id: int, emit: Callable,
 			break
 	if flow.get_child_count() > 0:
 		box.add_child(flow)
+
+
+static func e_short(state: GameState, id: int) -> String:
+	var e := state.get_empire(id)
+	return e.short_name() if e != null else "?"

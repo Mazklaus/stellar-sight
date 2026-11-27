@@ -313,6 +313,19 @@ static func bind(state: GameState, lord: int, sub: int, pid: String, cl: Diction
 		state.add_chronicle("%s devient %s de %s (%s). On change les armoiries ; la chancellerie, elle, garde ses dossiers." % [
 				_name(state, sub), "le protégé" if bool(preset(pid).get("protect", false)) else "le sujet", _name(state, lord), preset_label(pid)],
 				Espionage.public_to(state, [lord, sub]))
+	_tell_subject(state, lord, sub, pid, c)
+
+
+## Bêta-test (2.3) : un joueur humain qui devient sujet sans l'avoir demandé (reddition, paix imposée, but
+## de guerre) reçoit une fenêtre qui présente ce qui lui reste. Pas pour un protectorat demandé ni pour la
+## Cour impériale, qui a ses propres règles.
+static func _tell_subject(state: GameState, lord: int, sub: int, pid: String, c: Dictionary) -> void:
+	var e := state.get_empire(sub)
+	if e == null or e.is_ai() or bool(preset(pid).get("protect", false)) or bool(preset(pid).get("locked", false)):
+		return
+	Announce.next(state, "became_subject", {"actor": lord, "target": sub})
+	state.add_chronicle("%s est désormais votre suzerain, au titre de %s. Clauses : %s. Le lien se défait par une indépendance obtenue ou arrachée, ou quand un autre empire fait la guerre à votre suzerain avec vous à ses côtés." % [
+			_name(state, lord), preset_label(pid).to_lower(), clauses_text(c).to_lower()], [sub])
 
 
 ## Délie un sujet (why : raison pour la chronique, "" = silencieux).
@@ -1271,7 +1284,7 @@ static func kind_text(state: GameState, p: Dictionary) -> String:
 	match String(p["treaty"]):
 		"terms":
 			return "Conditions : %s (prix %d, score %d)." % [terms_text(state, int(p["to"]), p.get("terms", {})),
-					price(state, int(p["to"]), p.get("terms", {}), int(p["from"])), Diplomacy.war_score(state, int(p["from"]), int(p["to"]))]
+					price(state, int(p["to"]), p.get("terms", {}), int(p["from"])), WarPeace.terms_score(state, int(p["from"]), int(p["to"]))]
 		"surrender":
 			return "Il deviendrait votre vassal (clauses du préréglage Vassal)."
 		"protect":
@@ -1302,7 +1315,7 @@ static func ai_accepts(state: GameState, kind: String, from: int, to: int, terms
 	var ai := _cfg("ai")
 	match kind:
 		"terms":
-			return price(state, to, terms, from) <= Diplomacy.war_score(state, from, to)
+			return price(state, to, terms, from) <= WarPeace.terms_score(state, from, to)
 		"surrender":
 			var et := state.get_empire(to)
 			return not bool(AiLevels.personality(et).get("temperament", {}).get("never_peace", false))

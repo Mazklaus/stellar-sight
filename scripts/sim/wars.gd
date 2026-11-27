@@ -786,6 +786,8 @@ static func check_demand(state: GameState, winner: int, loser: int) -> String:
 	var why := _check_end(state, winner, loser)
 	if why != "":
 		return why
+	if not WarPeace.uncond_of(state, winner, loser).is_empty():
+		return ""  # Reddition sans conditions : le vaincu ne refuse plus rien (bêta-test 2.2).
 	return _check_pending(state, winner, loser, "wdemand")
 
 
@@ -807,7 +809,8 @@ static func _check_pending(state: GameState, from: int, to: int, kind: String) -
 
 
 ## Applique la victoire de winner : son but et ses revendications ; trêve selon le score.
-static func apply_victory(state: GameState, winner: int, loser: int) -> void:
+## why : la raison du traité, dite en tête de la chronique (« tous les systèmes de X étaient occupés. »).
+static func apply_victory(state: GameState, winner: int, loser: int, why := "") -> void:
 	var rec := war(state, winner, loser).duplicate(true)
 	var gid := goal_of(rec, winner)
 	var sc := score(state, winner, loser)
@@ -928,8 +931,8 @@ static func apply_victory(state: GameState, winner: int, loser: int) -> void:
 	WarPeace.register(state, winner, loser, winner, "reddition : " + goal_label(gid).to_lower(), {}, name, first_ceded)
 	var extra := (" Systèmes cédés : %s." % ", ".join(ceded)) if not ceded.is_empty() else ""
 	Announce.next(state, "peace_signed", {"actor": winner, "target": loser})
-	state.add_chronicle("Fin de la %s : %s se rend à %s, qui obtient son but (%s).%s Les vainqueurs écrivent l'histoire ; les vaincus, des mémoires." % [
-			name, _name(state, loser), _name(state, winner), goal_label(gid).to_lower(), extra], Espionage.public_to(state, [winner, loser]))
+	state.add_chronicle("Fin de la %s : %s%s se rend à %s, qui obtient son but (%s).%s Les vainqueurs écrivent l'histoire ; les vaincus, des mémoires." % [
+			name, (why + " ") if why != "" else "", _name(state, loser), _name(state, winner), goal_label(gid).to_lower(), extra], Espionage.public_to(state, [winner, loser]))
 
 
 ## Répartit n unités de r entre les membres du camp vainqueur selon leur contribution.
@@ -1083,6 +1086,8 @@ static func answer(state: GameState, p: Dictionary, accept: bool) -> void:
 static func ai_accepts(state: GameState, kind: String, from: int, to: int) -> bool:
 	match kind:
 		"wdemand":
+			if not WarPeace.uncond_of(state, from, to).is_empty():
+				return true
 			var e := state.get_empire(to)
 			if bool(AiLevels.personality(e).get("temperament", {}).get("never_peace", false)):
 				return false

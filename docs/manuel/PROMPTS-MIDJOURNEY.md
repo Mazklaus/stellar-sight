@@ -804,3 +804,13 @@ an immense forest of pale bioluminescent white fungi and mycelium filaments over
 ```
 portrait of an ancient wise tree-being rooted on top of a flowering hill, young walking sapling people around its roots, warm sunlight, in the sky a whole planet turned into a lush garden world, gentle heroic space opera mood, luminous greens and golds epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 3:4
 ```
+
+## MJ-82 · Ce qu'on entend
+
+- Format : 2:1 · Forme du cadre : coupe
+- Emplacement : Bandeau du chapitre « Ce qu'on entend »
+- Sujet : Sur la passerelle d'un petit vaisseau d'écoute, une preneuse de son casquée tend une grande perche vers une étoile toute proche ; autour d'elle des cadrans, des bobines et des pavillons de cuivre ; par la verrière on voit l'étoile, une flotte qui passe au loin et une planète habitée
+
+```
+on the bridge of a small listening vessel a sound recordist wearing large headphones holds a long boom pole toward a nearby star, around her brass horns, dials and tape reels, through the canopy a blazing star, a distant fleet passing and an inhabited planet, quiet concentration, sense of vast silence made audible epic painterly science-fiction concept art, cinematic volumetric lighting, deep navy blue and burnished copper palette with thin gold accents, vast sense of scale, rich atmosphere, highly detailed, no text, no lettering, no logo, no watermark --ar 2:1
+```

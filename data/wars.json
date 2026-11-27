@@ -56,6 +56,15 @@
 		"min_days": 120,
 		"cooldown_days": 90
 	},
+	"uncond": {
+		"_doc": "Reddition sans conditions (bêta-test 2.2, étude du 2026-11-26) : tous les systèmes d'un empire occupés. Entre IA, le but du vainqueur s'applique tout de suite. Vainqueur humain : il compose ses conditions, le score compte au maximum (max_score) ; au-delà de sign_days sans traité, sa lassitude prend ex_per_month par mois, et le but s'applique seul à max_days. Vaincu humain face à l'IA : grace_days pour négocier ou reprendre un système (la reddition tombe alors). Dernier rempart : quand il ne reste qu'un système libre à un camp, les deux camps sont prévenus (au plus une fois par last_gap_days).",
+		"max_score": 100,
+		"sign_days": 90,
+		"max_days": 360,
+		"ex_per_month": 5,
+		"grace_days": 30,
+		"last_gap_days": 90
+	},
 	"humiliation": {
 		"influence": 100,
 		"stability": -5,

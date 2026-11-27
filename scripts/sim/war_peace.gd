@@ -97,6 +97,7 @@ static func _occupy(state: GameState, sid: int, by: int) -> void:
 	Announce.next(state, "system_occupied", {"actor": by, "target": owner, "system": sid})
 	state.add_chronicle("%s occupe %s, système de %s. La propriété attendra le traité ; les impôts, eux, changent de main dès ce soir." % [
 			_name(state, by), _sys(state, sid), _name(state, owner)], Espionage.public_to(state, [by, owner]))
+	_last_stand(state, owner, by)
 
 
 static func release(state: GameState, sid: int, line := "") -> void:
@@ -785,11 +786,112 @@ static func monthly(state: GameState) -> void:
 			state.add_chronicle("Fin de la %s : épuisés, %s et %s reviennent au statu quo sans même le négocier." % [name, _name(state, a), _name(state, d)],
 					Espionage.public_to(state, [a, d]))
 			continue
+		if rec.has("unc"):
+			_uncond_month(state, rec)
+			continue
 		for pair in [[a, d], [d, a]]:
 			if _all_occupied(state, int(pair[1])) and Wars._check_end(state, int(pair[0]), int(pair[1])) == "":
-				Wars.apply_victory(state, int(pair[0]), int(pair[1]))
+				_uncond_start(state, rec, int(pair[0]), int(pair[1]))
 				break
 	_violations(state)
+
+
+# --- Reddition sans conditions (bêta-test 2.2) -------------------------------------------------------
+# rec["unc"] = {"w": vainqueur, "l": vaincu, "t": jour, "k": "win" (vainqueur humain) | "grace" (vaincu
+# humain face à l'IA)}. Entre IA, rien ne change : le but s'applique tout de suite.
+
+static func _uncond_start(state: GameState, rec: Dictionary, winner: int, loser: int) -> void:
+	var ew := state.get_empire(winner)
+	var el := state.get_empire(loser)
+	var gl := Wars.goal_label(Wars.goal_of(rec, winner)).to_lower()
+	if ew.is_ai() and el.is_ai():
+		Wars.apply_victory(state, winner, loser, occupied_why(state, loser))
+		return
+	rec["unc"] = {"w": winner, "l": loser, "t": state.tick, "k": "grace" if ew.is_ai() else "win"}
+	if ew.is_ai():
+		Announce.next(state, "uncond_grace", {"actor": winner, "target": loser})
+		state.add_chronicle("Tous les systèmes de %s sont occupés. %s attend sa reddition et imposera son but (%s) si rien ne bouge dans les semaines qui viennent. Reprendre un seul système suffit à tout remettre en jeu." % [
+				_name(state, loser), _name(state, winner), gl], Espionage.public_to(state, [winner, loser]))
+	else:
+		Announce.next(state, "uncond_win", {"actor": winner, "target": loser})
+		state.add_chronicle("Tous les systèmes de %s sont occupés : il se rend sans conditions à %s, qui fixera les termes de la paix. Si rien n'est signé, la guerre traînera, la lassitude du vainqueur montera, puis son but s'appliquera de lui-même (%s)." % [
+				_name(state, loser), _name(state, winner), gl], Espionage.public_to(state, [winner, loser]))
+
+
+## Un mois de reddition sans conditions : elle tombe si le vaincu a repris pied, sinon le délai court.
+static func _uncond_month(state: GameState, rec: Dictionary) -> void:
+	var u: Dictionary = rec["unc"]
+	var winner := int(u["w"])
+	var loser := int(u["l"])
+	var c := _cfg("uncond")
+	if not _all_occupied(state, loser):
+		rec.erase("unc")
+		Announce.next(state, "uncond_lifted", {"actor": winner, "target": loser})
+		state.add_chronicle("%s a repris pied sur l'un de ses systèmes : sa reddition ne tient plus, et la guerre contre %s reprend son cours." % [
+				_name(state, loser), _name(state, winner)], Espionage.public_to(state, [winner, loser]))
+		return
+	var days := state.tick - int(u["t"])
+	if String(u["k"]) == "grace":
+		if days >= int(c.get("grace_days", 30)):
+			Wars.apply_victory(state, winner, loser, occupied_why(state, loser))
+		return
+	if days >= int(c.get("max_days", 360)):
+		Wars.apply_victory(state, winner, loser, occupied_why(state, loser))
+	elif days >= int(c.get("sign_days", 90)):
+		add_ex(rec, winner, int(c.get("ex_per_month", 5)))
+
+
+## La reddition sans conditions de loser envers winner en cours, ou {}.
+static func uncond_of(state: GameState, winner: int, loser: int) -> Dictionary:
+	if not state.wars_on or not state.wars.has("list"):
+		return {}
+	var rec := Wars.war(state, winner, loser)
+	var u: Dictionary = rec.get("unc", {})
+	if u.is_empty() or int(u["w"]) != winner or int(u["l"]) != loser:
+		return {}
+	return u
+
+
+## Score qui paie les conditions de winner : au maximum pendant une reddition sans conditions qu'il a reçue.
+static func terms_score(state: GameState, winner: int, loser: int) -> int:
+	if String(uncond_of(state, winner, loser).get("k", "")) == "win":
+		return int(_cfg("uncond").get("max_score", 100))
+	return Diplomacy.war_score(state, winner, loser)
+
+
+## Phrase du traité imposé par l'occupation totale (R6).
+static func occupied_why(state: GameState, loser: int) -> String:
+	return "tous les systèmes de %s étaient occupés." % _name(state, loser)
+
+
+## Systèmes de eid que personne n'occupe.
+static func free_systems(state: GameState, eid: int) -> Array[int]:
+	var out: Array[int] = []
+	for sid in EmpireReport.owned_systems(state, eid):
+		if occupier(state, sid) < 0:
+			out.append(sid)
+	return out
+
+
+## Dernier rempart (R1) : il ne reste à eid qu'un système libre face à by. Les deux camps sont prévenus
+## quand un humain est en jeu ; entre IA, rien.
+static func _last_stand(state: GameState, eid: int, by: int) -> void:
+	if eid < 0 or by < 0 or GameState.is_npc(eid) or GameState.is_npc(by):
+		return
+	var rec := Wars.war(state, by, eid)
+	if rec.is_empty() or (state.get_empire(eid).is_ai() and state.get_empire(by).is_ai()):
+		return
+	var free := free_systems(state, eid)
+	if free.size() != 1 or EmpireReport.owned_systems(state, eid).size() < 2:
+		return
+	if rec.has("ls") and state.tick - int(rec["ls"]) < int(_cfg("uncond").get("last_gap_days", 90)):
+		return
+	rec["ls"] = state.tick
+	var gid := Wars.goal_of(rec, by)
+	var goal := ("son but s'appliquera : %s" % Wars.goal_label(gid).to_lower()) if gid != "" else "il dictera la paix"
+	Announce.next(state, "last_stand", {"actor": by, "target": eid, "system": free[0]})
+	state.add_chronicle("Il ne reste à %s qu'un système libre, %s. Si %s l'occupe aussi, la reddition sera sans conditions et %s." % [
+			_name(state, eid), _sys(state, free[0]), _name(state, by), goal], Espionage.public_to(state, [by, eid]))
 
 
 ## Tous les systèmes de eid sont-ils occupés ?

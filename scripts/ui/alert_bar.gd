@@ -11,6 +11,7 @@ const WIDTH := 52.0
 const KINDS := {
 	"decisions": ["chronicles", Color(0.95, 0.78, 0.45)],
 	"battle": ["armies", Color(0.93, 0.42, 0.38)],
+	"war": ["diplomacy", Color(0.95, 0.55, 0.35)],
 	"routes": ["trade", Color(0.95, 0.62, 0.3)],
 	"quest": ["victory", Color(0.45, 0.8, 0.95)],
 }
@@ -63,6 +64,37 @@ static func alerts(state: GameState, player: int) -> Array[Dictionary]:
 			names.append(state.galaxy.get_system(sid).system_name)
 		out.append({"kind": "battle", "count": fights.size(), "arg": fights[0],
 				"text": "Combat ou siège : %s" % ", ".join(names)})
+	# Bêta-test (2.4) : chaque guerre en cours, avec son score ; un clic mène aux conditions de paix de la
+	# guerre la plus mal engagée.
+	var me := state.get_empire(player)
+	if not me.wars.is_empty():
+		var foes: Array = me.wars.duplicate()
+		foes.sort()
+		var worst := -1
+		var worst_score := 0
+		var lines := PackedStringArray()
+		for o in foes:
+			var oe := state.get_empire(int(o))
+			if oe == null or oe.eliminated:
+				continue
+			var sc := Diplomacy.war_score(state, player, int(o))
+			var line := "%s : score %+d" % [oe.short_name(), sc]
+			# 2.2 (R2) : la jauge d'occupation, systèmes encore libres de chaque camp.
+			if WarPeace.occ_on(state):
+				line += ", systèmes libres : vous %s, lui %s" % [free_gauge(state, player), free_gauge(state, int(o))]
+			if not WarPeace.uncond_of(state, player, int(o)).is_empty():
+				line += ", il se rend sans conditions"
+				sc = -1000  # le clic mène d'abord aux termes à fixer
+			elif not WarPeace.uncond_of(state, int(o), player).is_empty():
+				line += ", tous vos systèmes sont occupés"
+				sc = -999
+			lines.append(line)
+			if worst < 0 or sc < worst_score:
+				worst = int(o)
+				worst_score = sc
+		if worst >= 0:
+			out.append({"kind": "war", "count": lines.size(), "arg": worst,
+					"text": "En guerre. %s\nClic : conditions de paix avec %s." % ["\n".join(lines) if lines.size() > 1 else lines[0], state.get_empire(worst).short_name()]})
 	var blocked := 0
 	for r: Dictionary in Trade.routes_of(state, player):
 		if bool(r.get("blocked", false)):
@@ -123,3 +155,8 @@ func refresh() -> void:
 		_box.add_child(b)
 		buttons[kind] = b
 	reset_size()
+
+
+## « a sur b » : systèmes de eid que personne n'occupe, sur ceux qu'il possède (bêta-test 2.2, R2).
+static func free_gauge(state: GameState, eid: int) -> String:
+	return "%d sur %d" % [WarPeace.free_systems(state, eid).size(), EmpireReport.owned_systems(state, eid).size()]
