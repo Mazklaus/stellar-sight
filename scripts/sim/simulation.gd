@@ -93,6 +93,7 @@ static func daily_systems(events: Array) -> Array:
 		["Économie", EconomySystem.process],
 		["Flottes", FleetSystem.process],
 		["Files", Economy.run_queues],
+		["Formations", Musters.daily],
 		["Combat", func(st: GameState) -> Array[Dictionary]: return CombatSystem.process(st, events)],
 		["Défenses", Defenses.daily],
 		["Furtivité", Stealth.daily],

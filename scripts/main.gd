@@ -2162,6 +2162,9 @@ func _on_fleet_action(action: String, fleet_id: int) -> void:
 			if _submit(SimCommands.stealth_act(view_empire, "beacon", fleet_id)):
 				_hud.notify("%s pose une balise d'écoute." % f.fleet_name)
 			_hud.show_fleet(fleet_id)
+		"reinforce":
+			_empire_screens.fleets_selected = fleet_id
+			open_address("fleets")
 		"merge":
 			for other in Fleets.fleets_at(st, f.system_id, view_empire):
 				if other.id != fleet_id:

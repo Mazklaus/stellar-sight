@@ -294,6 +294,13 @@ func _war_actions(state: GameState, viewer: int, a: int, b: int) -> void:
 		go.pressed.connect(func() -> void: idle_fleets_requested.emit())
 		row.add_child(go)
 		special_buttons["idle"] = go
+	# Bêta-test (3.4) : l'ordre de défense et le rapport de force, là où le joueur en a besoin.
+	if Combat.at_war(state, viewer, enemy):
+		var how := UiTheme.paragraph("Pour tenir un système : choisissez une flotte armée, puis « Garder ce système ». Flotte choisie, le survol d'un système donne le rapport de force.", 560, 13)
+		how.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		how.add_theme_color_override("font_color", UiTheme.TEXT_DIM)
+		_special.add_child(how)
+		special_buttons["how"] = how
 
 
 ## Fin de guerre par occupation (bêta-test 2.2) : le vainqueur d'une reddition sans conditions applique son

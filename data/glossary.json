@@ -5583,7 +5583,7 @@
     "point de ralliement"
    ],
    "family": "meca",
-   "summary": "Système où vos vaisseaux armés neufs se rendent d'eux-mêmes à leur sortie des chantiers",
+   "summary": "Système où vos vaisseaux armés neufs se rendent d'eux-mêmes à leur sortie des chantiers, pour y rejoindre la flotte qui attend",
    "chapters": [
     "06-flottes"
    ]
@@ -5796,6 +5796,47 @@
    "summary": "Dans un replay, au-delà de huit tirs par seconde, un fond de combat remplace les tirs un à un et grossit avec la cadence. Les explosions et les changements de phase restent distincts",
    "chapters": [
     "15zc-son"
+   ]
+  },
+  {
+   "id": "flotte_formation",
+   "name": "Flotte en formation",
+   "forms": [
+    "Flotte en formation",
+    "flotte en formation",
+    "flottes en formation",
+    "Nouvelle flotte"
+   ],
+   "family": "meca",
+   "summary": "Flotte créée vide dans l'onglet Flottes ; les vaisseaux qu'on lui commande partent aux chantiers libres et la rejoignent en sortant",
+   "chapters": [
+    "06-flottes"
+   ]
+  },
+  {
+   "id": "renforts",
+   "name": "Renforts",
+   "forms": [
+    "Renforts",
+    "renforts"
+   ],
+   "family": "meca",
+   "summary": "Vaisseaux commandés pour une flotte qui existe déjà ; construits au chantier libre le plus proche, ils la rejoignent où qu'elle soit",
+   "chapters": [
+    "06-flottes"
+   ]
+  },
+  {
+   "id": "rapport_de_force",
+   "name": "Rapport de force",
+   "forms": [
+    "Rapport de force",
+    "rapport de force"
+   ],
+   "family": "meca",
+   "summary": "Au survol d'un système, flotte choisie : votre puissance contre ce que vous y voyez d'hostile, avec un verdict de victoire probable à défaite probable",
+   "chapters": [
+    "06-flottes"
    ]
   }
  ]

@@ -92,7 +92,7 @@ const LENS_TIPS := {
 const FLEET_ROWS_MAX := 6
 const FLEET_GROUPS := [
 	["move", "Déplacement", ["explore", "patrol", "guard", "stop"]],
-	["here", "Sur place", ["colonize", "embark", "disembark", "requisition", "bomb", "invade"]],
+	["here", "Sur place", ["colonize", "merge", "reinforce", "embark", "disembark", "requisition", "bomb", "invade"]],
 	["conduct", "Conduite", ["stance", "posture", "tactic"]],
 	["more", "Autres ordres", []],
 ]
@@ -150,6 +150,7 @@ var _state: GameState
 var _player := 0
 var lens := ""
 var _fleet_id := -1
+var _fleet_conduct_help: Label
 var _fleet_panel: PanelContainer
 var _fleet_style: StyleBoxFlat
 var _fleet_title: Label
@@ -965,7 +966,7 @@ func _build_fleet_card() -> void:
 			_fleet_more_button.focus_mode = Control.FOCUS_NONE
 			_fleet_more_button.toggle_mode = true
 			_fleet_more_button.theme_type_variation = &"BarButton"
-			_fleet_more_button.tooltip_text = "Les ordres dont on se sert rarement : ralliement, abordage, prises, balise, rassembler, détacher, rapport, remise à niveau."
+			_fleet_more_button.tooltip_text = "Les ordres dont on se sert rarement : ralliement, abordage, prises, balise, détacher, rapport, remise à niveau."
 			_fleet_more_button.pressed.connect(func() -> void:
 				_fleet_more_open = not _fleet_more_open
 				_refresh_fleet_groups())
@@ -986,7 +987,7 @@ func _build_fleet_card() -> void:
 			["colonize", "COLONISER ICI", "Ouvrir le système pour choisir la planète où fonder la revendication"],
 			["stop", "ARRÊTER", "S'arrêter au système le plus proche sur la route"],
 			["patrol", "PATROUILLE", "Aller-retour permanent entre la position de la flotte et un système : cliquez, puis clic droit sur le système (ou Maj + clic droit). Les pirates évitent les systèmes gardés."],
-			["guard", "GARDER", "Défenses spatiales complètes : garder ce système. La flotte y reçoit +10 % de dégâts, la couverture de la station, et y revient si on l'en attire."],
+			["guard", "GARDER CE SYSTÈME", "Défendre ce système : la flotte y reçoit +10 % de dégâts et la couverture de la station, et y revient si on l'en attire."],
 			["stance", "CONSIGNE", "Consigne d'engagement, tenue sans votre intervention : engager, éviter le combat (la flotte rompt dès qu'il s'engage) ou se replier si elle est surclassée. Clic : consigne suivante."],
 			["rally", "RALLIEMENT ICI", "Point de ralliement des chantiers : vos vaisseaux armés neufs viennent d'eux-mêmes dans ce système. Clic : le poser ici, ou l'enlever."],
 			["posture", "POSTURE", "Furtivité : changer de posture (aucune, Silence radio, Balayage actif, Embuscade). Clic : posture suivante."],
@@ -994,7 +995,8 @@ func _build_fleet_card() -> void:
 			["prizes", "PRISES", "Prises de guerre : remettre en état, refondre, démanteler ou vendre les vaisseaux pris (au chantier d'une de vos colonies)."],
 			["insolite", "PEUPLE", "Peuples insolites : chantier embarqué, Pilotes des Kraal, délégué au Grand Numéro."],
 			["beacon", "BALISE D'ÉCOUTE", "Furtivité complète : un éclaireur sans armes à l'arrêt pose une balise camouflée qui voit à un saut (Senseurs tachyoniques, 30 matériaux et 20 énergie, 6 au plus)."],
-			["merge", "RASSEMBLER", "Réunir dans cette flotte les autres flottes à l'arrêt dans ce système"],
+			["merge", "RASSEMBLER ICI", "Réunir dans cette flotte toutes vos autres flottes à l'arrêt dans ce système"],
+			["reinforce", "RENFORTS", "Commander des vaisseaux pour cette flotte (onglet Flottes) : ils partent aux chantiers libres et la rejoignent en sortant"],
 			["split", "DÉTACHER", "Détacher un vaisseau dans une nouvelle flotte"],
 			["report", "RAPPORT", "Dernier rapport de bataille de vos flottes  (B)"],
 			["tactic", "TACTIQUE", "Changer de tactique de combat (choisie avant la bataille, appliquée sans votre intervention)  (T)"],
@@ -1023,9 +1025,77 @@ func _build_fleet_card() -> void:
 		else:
 			(grids[group] as GridContainer).add_child(b)
 		_fleet_buttons[action] = b
+	# Bêta-test (3.6) : ce que changent la consigne, la posture et la tactique, sous leurs boutons.
+	_fleet_conduct_help = UiTheme.paragraph("", CARD_WIDTH - 26.0, 12)
+	_fleet_conduct_help.theme_type_variation = &"Dim"
+	(_fleet_group_boxes["conduct"] as VBoxContainer).add_child(_fleet_conduct_help)
 	_fleet_hint = UiTheme.paragraph("Clic droit sur un système : y envoyer la flotte (Maj : patrouiller). Clic molette : choisir l'ordre.  F : flotte suivante.  I : flotte inactive suivante.  T : tactique.", CARD_WIDTH - 26.0, 12)
 	_fleet_hint.theme_type_variation = &"Dim"
 	inner.add_child(_fleet_hint)
+
+
+## Lignes de la fiche d'un système survolé quand une de vos flottes est choisie : rapport de force
+## contre ce qu'on y voit d'hostile, et sortie de la zone de ravitaillement.
+static func fleet_hover_lines(state: GameState, player: int, f: Fleet, sid: int) -> PackedStringArray:
+	var out := PackedStringArray()
+	if f == null or f.owner != player or player < 0:
+		return out
+	if Combat.is_armed(f):
+		var line := ForceOdds.line(ForceOdds.at(state, player, f, sid))
+		if line != "":
+			out.append(line)
+	if Logistics.applies(state, f) and not Logistics.in_zone(state, player, sid):
+		out.append("Hors de votre zone de ravitaillement (les halos verts) : la flotte y vivra sur ses réserves.")
+	return out
+
+
+## Bêta-test (3.6) : effet de la consigne d'engagement, en une ligne.
+static func stance_effect(stance: String) -> String:
+	match stance:
+		Fleet.STANCE_AVOID:
+			return "elle quitte le système dès qu'une bataille s'y engage."
+		Fleet.STANCE_FALLBACK:
+			@warning_ignore("integer_division")
+			var x := int(GameData.rules().get("stance_fallback_pct", 150))
+			return "elle se bat, sauf si l'ennemi aligne plus de %d,%d fois sa puissance : alors elle se replie." % [x / 100, (x % 100) / 10]
+	return "elle livre bataille à tout ennemi qu'elle croise."
+
+
+## Effet d'une posture de furtivité, en une ligne.
+static func posture_effect(p: String) -> String:
+	match p:
+		"silence":
+			return "+1 camouflage, mais elle ne voit que son système et avance deux fois moins vite."
+		"scan":
+			return "+1 détection et un saut de vision de plus ; en échange, quiconque couvre son système la voit en entier."
+		"ambush":
+			return "cachée, elle attaque les ennemis présents au lieu de rester à l'écart."
+	return "aucune, elle voit et se montre normalement."
+
+
+## Effet d'une tactique de combat, tiré de ses chiffres : dégâts de loin, à mi-distance, au contact,
+## et dégâts reçus.
+static func tactic_effect(tid: String) -> String:
+	var t := Combat.tactic(tid)
+	var dmg: Array = t.get("dmg", [100, 100, 100])
+	var parts := PackedStringArray()
+	var names := ["de loin", "à mi-distance", "au contact"]
+	for i in mini(3, dmg.size()):
+		var v := int(dmg[i]) - 100
+		if v != 0:
+			parts.append("%s %s" % [names[i], _signed_pct(v)])
+	var taken := int(t.get("taken", 100)) - 100
+	if taken != 0:
+		parts.append("dégâts reçus %s" % _signed_pct(taken))
+	if int(t.get("pd_cut", 0)) > 0:
+		parts.append("défense ponctuelle adverse -%d %%" % int(t["pd_cut"]))
+	if parts.is_empty():
+		return "dégâts ordinaires à toutes les portées."
+	return ", ".join(parts) + "."
+
+
+static func _signed_pct(v: int) -> String:
+	return ("+%d %%" % v) if v > 0 else ("−%d %%" % -v)
 
 
 ## Groupe d'un ordre de flotte (voir FLEET_GROUPS) ; « more » pour ceux qui n'y sont pas nommés.
@@ -1246,6 +1316,7 @@ func _refresh_fleet_card() -> void:
 	# Logistique : état de ravitaillement et réserves (prop. 28).
 	if mine and Logistics.applies(_state, f):
 		_fleet_stats.text += "\n" + Logistics.status_line(_state, f)
+		_fleet_stats.text += "\nLes halos verts de la carte marquent votre zone de ravitaillement."
 		_fleet_stats.tooltip_text = Logistics.status_tooltip(_state, f)
 		_fleet_stats.mouse_filter = Control.MOUSE_FILTER_PASS
 	else:
@@ -1303,14 +1374,32 @@ func _refresh_fleet_card() -> void:
 	_fleet_buttons["guard"].text = ("GARDE : %s" % g.systems[f.patrol[0]].system_name.to_upper()) if f.is_guarding() else "GARDER"
 	_fleet_buttons["stop"].visible = mine
 	_fleet_buttons["stop"].disabled = not f.is_moving()
-	_fleet_buttons["merge"].visible = mine
-	_fleet_buttons["merge"].disabled = f.is_moving() or not others
+	_fleet_buttons["merge"].visible = mine and others
+	_fleet_buttons["merge"].disabled = f.is_moving()
+	_fleet_buttons["reinforce"].visible = mine and Insolites.ship_block(_state, _player) == ""
+	var mid := Musters.for_fleet(_state, f.id) if mine else -1
+	if mid >= 0:
+		var rec := Musters.get_rec(_state, mid)
+		_fleet_buttons["reinforce"].text = "RENFORTS (%d)" % ((rec["q"] as Array).size() + (rec["y"] as Dictionary).size())
+	else:
+		_fleet_buttons["reinforce"].text = "RENFORTS"
+	var jt := Musters.joining(_state, f.id) if mine else -1
+	if jt >= 0 and _state.fleets.has(jt):
+		_fleet_status.text += "\nRejoint %s, qui l'attend à %s." % [(_state.fleets[jt] as Fleet).fleet_name, _system_label((_state.fleets[jt] as Fleet).destination())]
 	_fleet_buttons["split"].visible = mine
 	_fleet_buttons["split"].disabled = f.is_moving() or f.ships.size() < 2
 	var armed := Combat.is_armed(f)
 	_fleet_buttons["tactic"].visible = mine and armed
 	_fleet_buttons["tactic"].text = "TACTIQUE : %s" % Combat.tactic_label(Combat.fleet_tactic(f)).to_upper()
 	_fleet_buttons["tactic"].tooltip_text = "%s\n\nClic : tactique suivante  (T)" % String(Combat.tactic(Combat.fleet_tactic(f)).get("desc", ""))
+	_fleet_conduct_help.visible = mine
+	if mine:
+		var help := PackedStringArray(["Consigne : " + stance_effect(f.stance)])
+		if _fleet_buttons["posture"].visible:
+			help.append("Posture : " + posture_effect(Stealth.posture(_state, f)))
+		if armed:
+			help.append("Tactique : " + tactic_effect(Combat.fleet_tactic(f)))
+		_fleet_conduct_help.text = "\n".join(help)
 	var late := Fleets.outdated_count(_state, f)
 	if armed and (late > 0 or f.refit_left > 0):
 		_fleet_stats.text += "\n" + (("Au chantier : encore %d jour%s." % [f.refit_left, "s" if f.refit_left > 1 else ""]) if f.refit_left > 0 \
@@ -1711,6 +1800,9 @@ func _refresh_card() -> void:
 	if live:
 		for line in Defenses.system_lines(_state, s.id):
 			_card_owner.text += "\n" + line
+	# Bêta-test (3.2, 3.5) : la flotte choisie face à ce système, et sa zone de ravitaillement.
+	for line in fleet_hover_lines(_state, _player, _state.fleets.get(_fleet_id) if _fleet_panel.visible else null, s.id):
+		_card_owner.text += "\n" + line
 	_card_lore.text = String(STAR_LORE.get(s.star_type, ""))
 	# Une pastille par planète, à la couleur de son type ; un anneau à la couleur du propriétaire.
 	var dots := _planet_dots.get_children()

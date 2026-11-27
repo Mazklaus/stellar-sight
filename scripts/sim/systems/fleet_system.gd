@@ -1,7 +1,8 @@
 class_name FleetSystem
 extends RefCounted
 ## Flottes, exécutées à chaque tick, dans un ordre fixe :
-## 1. chantiers spatiaux : les vaisseaux terminés sortent en orbite, chacun dans sa propre flotte ;
+## 1. chantiers spatiaux : les vaisseaux terminés sortent en orbite, chacun dans sa propre flotte
+##    (une flotte en formation les réunit ensuite, voir Musters) ;
 ## 2. déplacements : chaque flotte avance de sa vitesse le long de son trajet ; une flotte qui entre
 ##    dans un système tenu par une flotte armée d'un empire en guerre avec elle s'y arrête (blocus) ;
 ## 3. exploration : chaque empire découvre ce que voient ses revendications et ses flottes,
@@ -132,11 +133,15 @@ static func _process_shipyard(state: GameState, c: Colony, added: Array[Dictiona
 	if c.ship_days > 0:
 		return
 	var f := state.spawn_ship(c.owner, c.ship_build, p.system_id)
-	# Point de ralliement des chantiers (C6) : un vaisseau armé neuf s'y rend de lui-même.
-	if e.rally_system >= 0 and e.rally_system != p.system_id and Combat.is_armed(f):
-		var rplan := Fleets.plan_route(state, f, e.rally_system)
-		if not rplan.is_empty():
-			f.path.assign(rplan["path"])
+	# Flotte en formation (voir Musters) : le vaisseau prend son nom ou part la rejoindre.
+	if not Musters.on_built(state, c.planet_id, f):
+		# Point de ralliement des chantiers (C6) : un vaisseau armé neuf s'y rend de lui-même.
+		if e.rally_system >= 0 and e.rally_system != p.system_id and Combat.is_armed(f):
+			var rplan := Fleets.plan_route(state, f, e.rally_system)
+			if not rplan.is_empty():
+				f.path.assign(rplan["path"])
+		# Bêta-test (3.1) : arrivé, il rejoint la flotte armée qui attend sur place.
+		Musters.on_new_ship(state, f)
 	Research.count_stat(state, c.owner, "built")
 	Politics.on_ship(state, p.system_id, Combat.is_armed(f))
 	c.ship_build = ""

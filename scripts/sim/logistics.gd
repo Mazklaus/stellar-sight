@@ -802,8 +802,8 @@ static func route_warning(state: GameState, f: Fleet, path: Array, days := -1) -
 		return ""
 	var r := reserves(state, f)
 	if days >= 0 and days > r:
-		return "hors ravitaillement : le trajet dure %d jours, les réserves n'en tiennent que %d" % [days, r]
-	return "hors ravitaillement (réserves : %d jours)" % r
+		return "hors ravitaillement, au-delà des halos verts : le trajet dure %d jours, les réserves n'en tiennent que %d" % [days, r]
+	return "hors ravitaillement, au-delà des halos verts (réserves : %d jours)" % r
 
 
 ## Système de la zone le plus proche (le sien d'abord à distance égale), -1 si aucun.
